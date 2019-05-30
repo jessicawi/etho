@@ -1,0 +1,348 @@
+/*
+mobile
+ */
+@media (max-width: 1025px) {
+
+
+    .el-button-group button {
+        width: 50%;
+    }
+
+    .el-button-group {
+        width: 100%;
+    }
+    .login .backstretch img {
+        height: 100%;
+        min-width: 100%;
+        width: auto !important;
+    }
+
+    .login .social-item i {
+        display: inline-block;
+        padding: 0px 10px;
+    }
+
+    .login .social-item span {
+        display: inline-block;
+        margin: 5px 0px;
+        white-space: pre-wrap;
+    }
+
+    .login .social-item {
+        padding: 0px 10px;
+    }
+    .daily-header {
+        display: block;
+    }
+
+    div#dailyroutine {
+        padding: 0 20px;
+    }
+
+    div#dailyroutine .container {
+        padding: 20px;
+    }
+
+    .daily-timeline__item {
+        display: block;
+    }
+
+    .daily-item_image {
+        width: 100px;
+        height: 100px;
+        margin: 20px auto;
+    }
+
+    .daily-item_image img {
+        margin: 13px 0;
+        width: 73%;
+    }
+
+    .daily-timeline:before {
+        left: 50%;
+    }
+
+    .daily-desc_wrap .date {
+        margin-top: 20px;
+    }
+    .el-button {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+@media (max-width: 769px) {
+    .login-img {
+        display: none;
+    }
+
+    .login-form {
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+
+    .login-wrap,
+    .resetlink-wrap {
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .login-header h4 {
+        text-align: center;
+        color: #222 !important;
+        margin: auto !important;
+        display: block;
+    }
+
+    .login-header {
+        margin: 0px !important;
+    }
+
+    .login-header span, .login-header span a {
+        color: #6c757d;
+        /* margin: 10px auto; */
+        display: block;
+        text-align: center;
+    }
+
+    .login-header span {
+        margin: 10px;
+    }
+
+    .login-header img {
+        margin: 20px auto;
+        display: block;
+    }
+
+    .login-wrap .form-control,
+    .reset-content .form-control,
+    .resetlink-wrap .form-control {
+        background: white;
+        border: 0px solid #464646;
+        padding: 0;
+        border-radius: 20px;
+    }
+
+    .login-wrap .form-control::placeholder,
+    .reset-content .form-control::placeholder,
+    .resetlink-wrap .form-control::placeholder,
+    .parent-register .form-control::placeholder {
+        color: #222;
+    }
+
+    .login-wrap form {
+        margin: 20px 0px;
+    }
+
+    .login-btn {
+        border-radius: 20px;
+        border: 0px
+    }
+
+    .login small a, .login small {
+        color: #6c757d;
+        text-align: center;
+    }
+    .login .backstretch, .parent-register .backstretch, .resetPassword .backstretch, .resetEmail .backstretch {
+        display: none;
+    }
+
+    .parent-register .vs-con-input input, .login-box .vs-con-input input {
+        padding: 7px 15px;
+        border-radius: 20px;
+        border-color: #dadcde !important;
+    }
+
+    .parent-register .vs-input--placeholder, .login-box .vs-input--placeholder {
+        padding: 7px 15px;
+        border-radius: 20px;
+    }
+    .info-menu {
+        position: fixed;
+        bottom: 0px;
+        background: #ffffff;
+        padding: 10px;
+        left: 0px;
+        z-index: 99;
+        display: flex;
+    }
+
+    #main-content {
+        overflow: hidden;
+        padding: 0px 0px 50px !important;
+    }
+
+    li.info-menu__item a {
+        color: #222 !important;
+    }
+
+    li.info-menu__item {
+        flex: 1;
+    }
+
+    li.info-menu__item a i {
+        font-size: 30px;
+    }
+
+    .parent-menu i, .parent-menu span {
+        display: none;
+    }
+
+    .parent-menu i.big-icon {
+        font-size: 25px;
+        display: block;
+        text-align: center;
+        margin: auto;
+    }
+
+    .menu-wrap {
+        max-width: 25%;
+    }
+
+    .menu-wrap-active .parent-menu, .parent-menu.menu-active, .parent-menu:hover {
+        background: transparent;
+        border-color: #2ceada;
+    }
+
+    .parent-menu {
+        border-bottom: 3px solid #999;
+    }
+
+    .menu-wrap-active.sub-menu {
+        width: 100%;
+        position: absolute;
+        left: 0px;
+    }
+
+    .sub-menu a {
+        padding: 10px 20px;
+        border-bottom: 1px solid #ffffff3d;
+    }
+
+    .menu-box {
+        margin: 0px;
+    }
+
+    .input-group.search {
+        margin: 0px 0px 20px;
+        width: 100%;
+        max-width: none;
+        border-radius: 0px;
+    }
+
+    .input-group.search input {
+        border-radius: 0px;
+    }
+
+    .sc-table {
+        padding: 0px !important;
+        margin-top: 20px;
+    }
+
+    .sc-table .el-button {
+        padding: 10px 5px;
+    }
+
+    .sc-table ::-webkit-scrollbar-track {
+        /*-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);*/
+        /*border-radius: 10px;*/
+        background-color: #e4e4e4;
+    }
+
+    .sc-table ::-webkit-scrollbar {
+        width: 12px;
+        background-color: #fbfeff;
+    }
+
+    .sc-table ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        /*-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);*/
+        background-color: #ccc;
+    }
+
+    .sc-table {
+        padding: 0px !important;
+        margin-top: 20px;
+    }
+
+    .sc-table .el-button {
+        padding: 10px 5px;
+    }
+
+    .el-pagination button, .el-pagination span:not([class*=suffix]) {
+        display: block;
+        float: left;
+        margin: 10px;
+    }
+
+    .right-sideBar {
+        width: 100% !important;
+    }
+
+    .notification__item {
+        margin-bottom: 20px;
+    }
+
+    .datatable-form__header {
+        flex-direction: column;
+        margin-top: 0px;
+    }
+
+    .datatable-form__input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .routine-select {
+        max-width: none;
+    }
+
+    .el-button {
+        margin: 5px 0;
+    }
+}
+
+@media (max-width: 450px) {
+    .admin-wrap.container {
+        margin: 0 20px 20px;
+        width: calc(100% - 40px );
+        padding: 20px;
+    }
+
+    .el-button-group button {
+        border-radius: 4px !important;
+        margin: 10px 0;
+    }
+
+    .pagination-bar span.el-pagination__jump {
+        margin: 0 10px;
+    }
+    .notfound .notfound-404 {
+        position: relative;
+        height: 168px;
+    }
+
+    .notfound .notfound-404 h1 {
+        font-size: 142px;
+    }
+
+    .notfound h2 {
+        font-size: 22px;
+    }
+
+    .gallery-action .el-button-group {
+        float: none;
+        margin: 16px 0px 5px;
+        width: 100%;
+        background: white;
+    }
+
+    .gallery-action__item button {
+        padding: 10px 17px;
+    }
+
+    .gallery-album div {
+        width: 50%;
+        padding-top: 50%;
+    }
+}
+

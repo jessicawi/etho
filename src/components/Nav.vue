@@ -1,10 +1,10 @@
 <template>
     <div class="row nabarx topbar">
-        <div class="col-md-12 col-lg-4 text-left">
+        <div class="col-md-12 col-lg-5 text-left">
             <a href="/"> <img src="../assets/kagami-white.png"/></a>
-            {{$route.name}}
+            <!--{{$route.name}}--> {{ currentSchoolName }}
         </div>
-        <div class="col-md-12 col-lg-8 info-menu">
+        <div class="col-md-12 col-lg-7 info-menu">
             <!--<div class="input-group search" v-if="!isMobile()">-->
                 <!--<input type="text" class="form-control" placeholder="Search for...">-->
                 <!--<span class="input-group-btn">-->
@@ -36,7 +36,7 @@
                 <!--<i class="fa fa-university" aria-hidden="true"></i>-->
                 <!--<span>School List</span>-->
                 <!--</a>-->
-                <el-dropdown trigger="click">
+                <el-dropdown v-if="schList.length > 0" trigger="click">
                     <a class="el-dropdown-link">
                         <i class="fa fa-university" aria-hidden="true"></i>
                         <span>School List</span>
@@ -86,7 +86,7 @@
                 <!--</vs-dropdown-item>-->
                 <!--</vs-dropdown-menu>-->
                 <!--</vs-dropdown>-->
-                <el-dropdown trigger="click">
+                <el-dropdown trigger="click" v-if="conTypePL">
                     <a class="el-dropdown-link">
                         <i class="fa fa-life-ring" aria-hidden="true"></i>
                         <span>Guided Tour</span>
@@ -100,6 +100,9 @@
                         </el-dropdown-item>
                         <el-dropdown-item icon="el-icon-plus" >
                             <a @click="guidedTour('HowToManageClasses')"> How to manage classes</a>
+                        </el-dropdown-item>
+                        <el-dropdown-item icon="el-icon-plus" >
+                            <a @click="guidedTour('HowToUpdateStudentLevelAndClass')"> How to update student level and class</a>
                         </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -163,14 +166,18 @@
 
                 schList: [],
                 schListCurrent: '',
+                currentSchoolName: '',
 
                 schSession: Cookies.get('schoolSession'),
                 schoolListOpen: false,
                 isToken: Cookies.get('authToken'),
+
+                conTypePL: false,
             };
         },
         async created() {
             await this.BindSchoolList();
+            await this.guidedTourAccess();
         },
         methods: {
             showSchoolList() {
@@ -178,7 +185,7 @@
             },
             logout() {
                 DataSource.shared.logout();
-                this.logoutGoogle();
+                //this.logoutGoogle();
                 window.location.replace("/login");
             },
             logoutGoogle() {
@@ -213,6 +220,9 @@
                         this.schListResponse = response.Table;
                         this.schListResponse.forEach(m => {
                             this.schList.push(m);
+                            if (Cookies.get('schoolSession') === m.CONSchool) {
+                                this.currentSchoolName = m.SCH_Name;
+                            }
                         });
 
                     }
@@ -255,8 +265,17 @@
                     window.location.replace('/promotion?tour=YES');
                 } else if (value === 'HowToManageClasses') {
                     window.location.replace('/ClassManagement?tour=YES');
+                } else if (value === 'HowToUpdateStudentLevelAndClass') {
+                    window.location.replace('/student-list?mode=Search&tour=UpdateLevelClass');
                 }
-            }
+            },
+            guidedTourAccess() {
+                if (Cookies.get('userTypeSession') === 'Parent Liaison') {
+                    this.conTypePL = true
+                } else (
+                    this.conTypePL = false
+                )
+            },
         }
         // mounted() {
         //     const isLogin = Cookies.get('authToken');

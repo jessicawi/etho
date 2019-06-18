@@ -1,64 +1,138 @@
 <template>
-    <div class="container-fluid">
-        <div class="row">
-            <button id="btn_SelectAll" class="btn btn-primary">Select All</button>
-            <button id="btn_UnselectAll" class="btn btn-secondary">Unselect All</button>
-        </div>
-        <!--#region CONTAINER FOR FORMS-->
-        <div class="row">
-            <div class="form-group">
-                <label for="ddl_AcademicYear">Academic Year</label>
-                <select id="ddl_AcademicYear" class="mb-3 form-control" v-model="obj_SelectedYear"
-                        @change="loadClasses">
-                    <option v-for="tempobj_AcademicYear of arrobj_AcademicYears" :value="tempobj_AcademicYear"
-                            :key="tempobj_AcademicYear.id">
-                        {{tempobj_AcademicYear.SMT_Code + ": " + tempobj_AcademicYear.SMT_From_convert + " - " +
-                        tempobj_AcademicYear.SMT_To_convert}}
-                    </option>
-                </select>
+    <div class="container admin-wrap">
+        <div class="row header mb-5">
+            <div class="col-lg-3 ">
+                <h3 class="text-left" id="promotionTitleVueTour">{{$route.name}}</h3>
             </div>
 
-            <div class="form-group">
-                <label for="ddl_Class">Class</label>
-                <select id="ddl_Class" class="mb-3 form-control" v-model="obj_SelectedClass" @change="loadStudents">
-                    <optgroup v-for="tempobj_Level of arrobj_Classes" :label="tempobj_Level.Str_SortBy"
-                              :key="tempobj_Level.id">
-                        <option v-for="tempobj_Class of tempobj_Level.ArrObj_Items" :value="tempobj_Class"
-                                :key="tempobj_Class.id">
-                            {{tempobj_Class.CLS_ClassName}} of {{tempobj_Class.CLS_Batch}}
-                        </option>
-                    </optgroup>
-                </select>
+            <div class="col-lg-9">
+                <div class="promotionAcademicYear-select-wrap">
+                    <el-select v-model="obj_SelectedYear" id="ddl_AcademicYear"
+                               class="mb-3 promotion-academicYear-select" placeholder="Academic Year"
+                               @change="loadClasses">
+                        <el-option
+                                v-for="tempobj_AcademicYear of arrobj_AcademicYears"
+                                :key="tempobj_AcademicYear.id"
+                                :label='tempobj_AcademicYear.SMT_Code + ": " + tempobj_AcademicYear.SMT_From_convert + " - " + tempobj_AcademicYear.SMT_To_convert'
+                                :value="tempobj_AcademicYear.PK_Semester_ID">
+                        </el-option>
+                    </el-select>
+                    <el-select v-model="obj_SelectedClass" placeholder="Class" id="ddl_Class"
+                               class="mb-3 promotion-academicYear-select" @change="loadStudents()">
+                        <el-option-group
+                                v-for="tempobj_Level of arrobj_Classes"
+                                :key="tempobj_Level.id"
+                                :label="tempobj_Level.Str_SortBy">
+                            <el-option
+                                    v-for="tempobj_Class of tempobj_Level.ArrObj_Items"
+                                    :key="tempobj_Class.id"
+                                    :label="tempobj_Class.CLS_ClassName + 'of' + tempobj_Class.CLS_Batch"
+                                    :value="tempobj_Class">
+                            </el-option>
+                        </el-option-group>
+                    </el-select>
+                    <el-button-group>
+
+                        <el-button id="btn_SelectAll" type="primary" round><i class="material-icons">
+                            check
+                        </i> Select All
+                        </el-button>
+                        <el-button id="btn_UnselectAll" type="primary" round :disabled="arrobj_selectedStudent===false"><i class="material-icons">
+                            refresh
+                        </i> Clear All
+                        </el-button>
+                    </el-button-group>
+                </div>
             </div>
         </div>
+        <!--<div class="row">-->
+            <!--<button id="btn_SelectAll" class="btn btn-primary">Select All</button>-->
+            <!--<button id="btn_UnselectAll" class="btn btn-secondary">Unselect All</button>-->
+        <!--</div>-->
+        <!--#region CONTAINER FOR FORMS-->
+        <!--<div class="row">-->
+            <!--<div class="form-group">-->
+                <!--<label for="ddl_AcademicYear">Academic Year</label>-->
+                <!--<select id="ddl_AcademicYear" class="mb-3 form-control" v-model="obj_SelectedYear"-->
+                        <!--@change="loadClasses">-->
+                    <!--<option v-for="tempobj_AcademicYear of arrobj_AcademicYears" :value="tempobj_AcademicYear"-->
+                            <!--:key="tempobj_AcademicYear.id">-->
+                        <!--{{tempobj_AcademicYear.SMT_Code + ": " + tempobj_AcademicYear.SMT_From_convert + " - " +-->
+                        <!--tempobj_AcademicYear.SMT_To_convert}}-->
+                    <!--</option>-->
+                <!--</select>-->
+            <!--</div>-->
+
+            <!--<div class="form-group">-->
+                <!--<label for="ddl_Class">Class</label>-->
+                <!--<select id="ddl_Class" class="mb-3 form-control" v-model="obj_SelectedClass" @change="loadStudents">-->
+                    <!--<optgroup v-for="tempobj_Level of arrobj_Classes" :label="tempobj_Level.Str_SortBy"-->
+                              <!--:key="tempobj_Level.id">-->
+                        <!--<option v-for="tempobj_Class of tempobj_Level.ArrObj_Items" :value="tempobj_Class"-->
+                                <!--:key="tempobj_Class.id">-->
+                            <!--{{tempobj_Class.CLS_ClassName}} of {{tempobj_Class.CLS_Batch}}-->
+                        <!--</option>-->
+                    <!--</optgroup>-->
+                <!--</select>-->
+            <!--</div>-->
+        <!--</div>-->
         <!--#region-->
         <div class="form-group">
-            <div class="col-8 align-self-center">
-                <label>Student Graduation</label>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Photo</th>
-                            <th>Index No</th>
-                            <th>Student Name</th>
-                            <th>CheckBox</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="item of arrobj_Students" v-bind:value="item.Student_ID">
-                            <td><img class="student" :src="getSource(item)"/></td>
-                            <td>{{item.Index_No}}</td>
-                            <td>{{item.Student_Name}}</td>
-                            <td><input class="form-control" type="checkbox" :value="item.Student_ID" v-model="arrobj_SelectedStudents"
-                                       :id="item.Student_ID" @change="isCheck"/></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class=" align-self-center">
+                <!--<label>Student Graduation</label>-->
+
+                <div class="row">
+                    <div class=" promotion-student" id="studentListArea" v-bind:class="{divBorderClass:studentListAreaBorder}">
+                        <div class="empty-list_image" v-if="emptyImage===true">
+                            <img src="../assets/promotion.jpg"/>
+                            <strong>No Record Yet...</strong>
+                        </div>
+                        <div class="div_Student uncheck" v-for="item of arrobj_Students"
+                             :key="item.id">
+                            <label class="col- text-center" :for="item.Student_ID">
+                                <img class="student" :src="getSource(item)"/>
+                                <input type="checkbox" :value="item.Student_ID"
+                                       v-model="arrobj_SelectedStudents"
+                                       :id="item.Student_ID" @change="isCheck"/>
+                                <br/>
+                                <span v-if="!isNull(item.Student_Name)">{{item.Student_Name}}</span><br/>
+                                <span v-if="!isNull(item.Last_Name)">{{" " + item.Index_No}}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--<table>-->
+                    <!--<thead>-->
+                        <!--<tr>-->
+                            <!--<th>Photo</th>-->
+                            <!--<th>Index No</th>-->
+                            <!--<th>Student Name</th>-->
+                            <!--<th>CheckBox</th>-->
+                        <!--</tr>-->
+                    <!--</thead>-->
+                    <!--<tbody>-->
+                        <!--<tr v-for="item of arrobj_Students" v-bind:value="item.Student_ID">-->
+                            <!--<td><img class="student" :src="getSource(item)"/></td>-->
+                            <!--<td>{{item.Index_No}}</td>-->
+                            <!--<td>{{item.Student_Name}}</td>-->
+                            <!--<td><input class="form-control" type="checkbox" :value="item.Student_ID" v-model="arrobj_SelectedStudents"-->
+                                       <!--:id="item.Student_ID" @change="isCheck"/></td>-->
+                        <!--</tr>-->
+                    <!--</tbody>-->
+                <!--</table>-->
             </div>
             <div>
-                <button class="btn btn-primary" id="btn_GraduationSelected"
-                        v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0"
-                        @click="showGraduationModal"><i class="fa fa-thumbs-up">Graduation</i></button>
+                <!--<button class="btn btn-primary" id="btn_GraduationSelected"-->
+                        <!--v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0"-->
+                        <!--@click="showGraduationModal"><i class="fa fa-thumbs-up">Graduation</i></button>-->
+
+                <el-button type="primary" id="btn_GraduationSelected"
+                           v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0"
+                           @click="showGraduationModal" class="d-flex floating-action-button">
+                    <i class="fa fa-graduation-cap" aria-hidden="true"></i> GRADUATION
+                </el-button>
             </div>
         </div>
         <!--#endregion-->
@@ -67,18 +141,18 @@
         <b-modal id="modal_Promotion" title="Update student(s) to graduated status?" ref="modal_Promotion" centered hide-footer>
             <div>
                 <div class="row form-group__wrapper">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-12">
                         <label>Graduation Date</label>
                         <el-date-picker v-model="inputGraduationDate" format="dd/MM/yyyy"
                                         value-format="dd/MM/yyyy" type="date"
                                         placeholder="Pick a day" :picker-options="datePicker"></el-date-picker>
+                        <button v-on:click="GraduationSave()"
+                                class="btn btn-primary waves-effect waves-light mt-3 btnFamilyIDSearch">Graduation
+                        </button>
                     </div>
-
                 </div>
 
-                <button v-on:click="GraduationSave()"
-                        class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Graduation
-                </button>
+
 
             </div>
         </b-modal>
@@ -102,6 +176,7 @@
                 obj_SelectedYear: null,
                 obj_SelectedClass: null,
                 str_CourseID: "",
+                arrobj_selectedStudent: false,
                 //For graduation
                 classStudentList:[],
                 inputGraduationDate:'',
@@ -139,7 +214,7 @@
                     return;
                 this.arrobj_Classes = null;
 
-                DataSource.shared.getClassByAcademicYear(this.obj_SelectedYear.PK_Semester_ID).then((result) => {
+                DataSource.shared.getClassByAcademicYear(this.obj_SelectedYear).then((result) => {
                     if (result.code == 2 || result.code == 99) {
                         this.arrobj_Students = null;
                         this.obj_SelectedClass = null;
@@ -158,7 +233,8 @@
                     this.arrobj_Students = result.Table;
                     this.hideLoading();
                 });
-
+                this.tempCurrentClass = this.obj_SelectedClass;
+                this.obj_SelectedClass = this.obj_SelectedClass.CLS_ClassName + this.obj_SelectedClass.CLS_Batch;
                 this.unselectAll();
             },
             showGraduationModal() {
@@ -186,20 +262,41 @@
 
                     if(this.inputGraduationDate === ''||this.inputGraduationDate === null||this.inputGraduationDate===undefined)
                     {
-                        alert('Please select datetime');
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Please select datetime'
+                        });
+                        // alert('Please select datetime');
                     }
                     else{
                         const response = await DataSource.shared.saveStudentGraduation(JSON.stringify(graduationObj));
 
                         if(response.code==='88'){
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Graduation record founded! new graduation record insert, old record status set to Void'
+                            });
+                            this.unselectAll();
+                            // window.location.replace('/studentgraduation');
                             console.log('88');
                         }
                         else if(response.code==="99"){
                             console.log('99');
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please try again'
+                            });
                         }
                         else if(response.code==='1'){
-                            alert('Graduation updated!');
-                            window.location.replace('/studentgraduation');
+                            this.$notify({
+                                title: 'Success',
+                                message: 'Graduation updated!',
+                                type: 'success'
+                            });
+                            this.obj_SelectedClass = this.tempCurrentClass;
+                            this.loadStudents();
+                            this.hideGraduationModal();
+                            // window.location.replace('/studentgraduation');
                         }
                     }
                 }
@@ -270,10 +367,12 @@
             /*#region Select/Unselect All Functions*/
             $("#btn_SelectAll").click(() => {
                 self.selectAll();
+                this.arrobj_selectedStudent = true;
             });
 
             $("#btn_UnselectAll").click(() => {
                 self.unselectAll();
+                this.arrobj_selectedStudent = false;
             });
             /*#endregion*/
 

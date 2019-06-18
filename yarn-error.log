@@ -1456,7 +1456,7 @@ Lockfile:
     dependencies:
       co "^4.6.0"
       fast-deep-equal "^1.0.0"
-      fast-json-stable-stringify "^2.0.0"
+      fast-json-stable- "^2.0.0"
       json-schema-traverse "^0.3.0"
   
   ajv@^6.1.0, ajv@^6.5.5, ajv@^6.9.1:

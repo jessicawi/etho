@@ -35,6 +35,9 @@
 34---attendance---
 35---Class Management---
 36---Transfer In---
+37---Bus Master---
+38---Bus Attendance---
+39---ECA Master---
  */
 
 :root {
@@ -161,6 +164,10 @@ label {
 .data-top .el-dropdown button {
     background: #007bff;
     border-color: #007bff;
+}
+
+.form-group {
+    margin-bottom: 0px;
 }
 
 .form-group__message, .error {
@@ -294,12 +301,32 @@ label {
     min-width: 100px;
 }
 
+.btn-secondary {
+    min-width: 100px;
+}
+
 .el-button--info span {
     color: #eee;
     font-weight: bold;
     letter-spacing: 1px;
 }
-
+.el-button.floating-action-button {
+    position: fixed;
+    bottom: 40px;
+    right: 20px;
+    white-space: normal;
+    border-radius: 40px;
+    box-shadow: 0px 0px 16px -5px #a6abb3;
+    background-color: #f35858;
+    border-color: #ffa4a4;
+    width: auto;
+    padding: 20px;
+}
+.el-button.floating-action-button:hover,
+.el-button.floating-action-button:focus{
+    background: #999;
+    border-color: #999;
+}
 /*
 3---table---
 */
@@ -311,7 +338,9 @@ label {
 .sucess-table:empty {
     padding: 0px !important;
 }
-
+.el-pagination {
+    margin-top: 10px;
+}
 /*
 4---layout---
  */
@@ -397,11 +426,13 @@ label {
 .empty-list_image button {
     margin: 10px auto;
 }
+
 .emptylist__img {
     width: 80%;
     margin: auto;
     opacity: 0.5;
 }
+
 .el-tabs .el-badge__content {
     width: 20px;
     height: 20px;
@@ -409,6 +440,10 @@ label {
     display: block;
     line-height: 20px;
     font-weight: bold;
+}
+
+.modal-dialog {
+    max-width: 1000px;
 }
 
 /*
@@ -2371,6 +2406,7 @@ h4.title {
     font-size: 15px;
     line-height: 30px;
     margin-right: 10px;
+    text-align: center;
 }
 
 .action-list button:focus {
@@ -2885,7 +2921,9 @@ a.student-profile-edit i {
 .upload-box input, .upload-box .file-upload-wrapper:after {
     background: #f3f3f3 !important;
 }
-
+div#student-edit-class .header span {
+    color: #999;
+}
 /*
 24---student list---
  */
@@ -2913,9 +2951,12 @@ a.student-profile-edit i {
     margin-left: 10px;
 }
 
-.datatable-form__header .searchbtn {
-    background: #007bff;
-    border-color: #007bff;
+#student-list .datatable-form__header .searchbtn {
+    background: #4856ad;
+    border-color: #4856ad;
+    height: 37px;
+    position: relative;
+    top: 2px;
 }
 
 .datatable_group .el-table thead th {
@@ -2974,6 +3015,9 @@ label.withoutInput {
     margin: 0px;
 }
 
+.ddlSearchStatua .el-input__icon {
+    line-height: 30px;
+}
 
 /*
 25---not found---
@@ -3831,21 +3875,26 @@ div#dailyroutine .container {
     background: white;
     padding: 40px 40px 20px;
     border-radius: 6px;
+    /*margin-bottom: 80px;*/
 }
 
 .daily-header {
     display: flex;
     width: 100%;
-    align-items: center;
 }
 
 .daily-header .title {
-    flex: 1;
+    flex: 2;
     text-align: left;
+    display: flex;
+}
+
+.daily-header .title h4 {
+    margin: 0 20px 0 0;
 }
 
 .daily-header .routine-select {
-    flex: 4;
+    flex: 1;
 }
 
 .container.daily-header__wrap {
@@ -3864,7 +3913,7 @@ div#dailyroutine .container {
 .routine-select {
     display: flex;
     max-width: 500px;
-    margin: 0 0 20px;
+    margin: 0;
 }
 
 .routine-select label {
@@ -3893,9 +3942,12 @@ div#dailyroutine .container {
     width: 100%;
 }
 
-div#dailyroutine .container.daily-activity__wrap {
+/*div#dailyroutine .container.daily-activity__wrap,*/
+div#activityModal .container.daily-activity__wrap {
     background: #f56c6c;
     color: white;
+    padding: 20px;
+    border-radius: 4px;
 }
 
 div#dailyroutine .container.daily-activity__wrap hr {
@@ -4042,9 +4094,10 @@ label.activity-title h5 {
 }
 
 .daily-checkall .vs-checkbox i {
-    top: -3px;
+    top: 7px;
     position: relative;
     right: 1px;
+    font-size: 1rem;
 }
 
 .daily-checkall .vs-checkbox-primary .vs-checkbox--check {
@@ -4056,7 +4109,7 @@ label.activity-title h5 {
 }
 
 .daily-timeline__item .vs-checkbox i {
-    top: 9px;
+    top: 13px;
     position: relative;
     right: 1px;
 }
@@ -4174,6 +4227,127 @@ label.activity-title h5 {
     background: #63d3ff;
 }
 
+.dailyRoutine-student .div_Student label {
+    padding: 20px 0 0;
+    margin: 0px;
+    min-height: 100%;
+}
+
+.dailyRoutine-student .div_Student label.check {
+    background: #f56c6c;
+}
+
+.dailyRoutine-student .div_Student label.check span {
+    color: white;
+}
+
+.dailyRoutine-student .div_Student label.check:before {
+    content: "\f00c ";
+    font-family: fontawesome;
+    color: #f56c6c;
+    position: absolute;
+    background: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 20px;
+    font-size: 20px;
+    left: 10px;
+    top: 10px;
+}
+
+.dailyRoutine-student {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.dailyRoutine-student .div_Student {
+    background: #eee;
+    margin: 10px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 20%;
+    flex: 1 1 20%;
+    border-radius: 11px;
+    overflow: hidden;
+    max-width: 23%;
+    position: relative;
+}
+
+.dailyRoutine-student img {
+    max-width: 100px;
+    max-height: 126px;
+}
+
+.student-name-heading {
+    text-align: left;
+    padding: 0 0 18px;
+}
+
+.student-name-heading span {
+    border: 0px;
+    font-size: 1.5rem;
+    margin-right: 10px;
+    background: #da5c5c;
+    padding: 4px 20px;
+    border-radius: 5px;
+}
+
+.dr-view_activity {
+    margin-top: 15px;
+}
+
+
+.dr-view_activity button {
+    width: 100%;
+    border-radius: 0px;
+    background: #d0d1d3;
+    border: 0px;
+    color: #fff;
+}
+
+.dr-view_activity button:hover {
+    background: #c0c4cc;
+}
+
+.check .dr-view_activity button {
+    background: #dd6161;
+}
+
+.check .dr-view_activity button span {
+    color: #ffffff87 !important;
+}
+
+.check .dr-view_activity button:hover span {
+    color: white !important;
+}
+
+.check .dr-view_activity button:hover {
+    background: #cd5c5c;
+}
+
+.daily-checkall .vs-checkbox-primary input:checked + .vs-checkbox {
+    border-color: #dd6161 !important;
+}
+
+.daily-item_chkitem .vs-checkbox-primary .vs-checkbox--check {
+    background: #ff5d68;
+}
+
+.daily-item_chkitem .vs-checkbox-primary input:checked + .vs-checkbox {
+    border-color: #dd6161 !important;
+}
+
+#activityModal .modal-body {
+    padding: 0px;
+}
+
+div#activityModal .modal-content {
+    background: transparent;
+    border: 0px;
+}
 
 /*
 31---post approve---
@@ -4353,6 +4527,7 @@ div#pendingapprover .header h3 span {
 .promotion-modal-tag {
     display: table;
     width: 100%;
+    padding: 0 10px;
 }
 
 /*
@@ -4583,38 +4758,57 @@ div#myChild small.parent_wrap:hover {
     color: #222;
 }
 
-div#attendance-list .el-select.attend input {
+#attendance-list .actionBar .el-select input {
+    background: #409eff;
+    border: 0px;
+    color: white;
+}
+#attendance-list .vs-checkbox-primary .vs-checkbox {
+    margin-right: auto;
+}
+
+#attendance-list  .attTable .el-select input {
+    background: #409eff;
+    min-width: 221px;
+    border-radius: 20px;
+    color: white;
+}
+
+#attendance-list  .attTable .el-select input::placeholder {
+    color: white;
+}
+#attendance-list .attTable th {
+    padding-bottom: 20px !important;
+}
+#attendance-list .el-select.attend input {
     background: #28d893;
 }
 
-div#attendance-list .el-select.absent input {
+#attendance-list .el-select.absent input {
     background: #f56c6c;
 }
 
-div#attendance-list .el-select.late input {
+#attendance-list .el-select.late input {
     background: #ffc15c;
 }
 
-div#attendance-list .el-select.sick input {
+#attendance-list .el-select.sick input {
     background: #C82FE6;
 }
 
-div#attendance-list .el-select.home input {
+#attendance-list .el-select.home input {
     background: #623bff;
 }
 
-div#attendance-list .el-select.holiday input {
+#attendance-list .el-select.holiday input {
     background: #40c1ff;
 }
 
-div#attendance-list .vs-checkbox .vs-icon {
-    top: 3px;
-    left: -2px;
-}
-
-div#attendance-list .actionBar .vs-checkbox .vs-icon {
-    top: 2px;
-    left: -1px;
+#attendance-list .vs-checkbox .vs-icon,
+#attendance-list .actionBar .vs-checkbox .vs-icon {
+    top: 8px;
+    left: 0px;
+    font-size: 1.2rem;
 }
 
 .actionBar .el-select {
@@ -4843,4 +5037,195 @@ span.top-colorBar {
 .search-wrap input {
     border: 0px;
     border-radius: 20px;
+}
+
+/*
+37---Bus Master---
+ */
+
+.busMaster-item {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px -5px #ccc;
+}
+
+.busMaster-item_title {
+    text-align: left;
+    padding: 0px 15px 20px;
+    font-size: 1.3rem;
+}
+
+.busMaster-item_close button {
+    margin-left: auto;
+    display: block;
+}
+
+.busMaster-item_title i {
+    margin-right: 10px;
+    color: white;
+    background: #ffb700;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    top: 3px;
+}
+
+.busMaster-item .el-collapse-item__header i {
+    top: 0px;
+    color: #ccc;
+    margin-right: 10px;
+}
+
+.busMaster-item .el-collapse-item__header {
+    color: #999;
+    border: 0px;
+    background: #edf0f4;
+    padding: 0 20px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.busMaster-item .el-collapse-item {
+}
+
+.busMaster-item .el-collapse {
+    border: 0px;
+}
+
+.busMaster-item .el-collapse-item__wrap {
+    border: 0px;
+}
+
+.busMaster-item .el-collapse-item__content {
+    padding: 0px;
+}
+
+.busMaster-item_close button {
+    display: inline-block;
+}
+
+.busListCLick {
+    color: #999;
+    border: 0px;
+    background: #edf0f4;
+    padding: 0 20px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+}
+
+.busListCLick i {
+    top: 0px;
+    margin-right: 10px;
+    opacity: 0.5;
+}
+
+/*
+38---Bus Attendance---
+ */
+.mobile-popover {
+    padding: 10px !important;
+}
+
+.mobile-popover .el-tag {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.mobile-popover .el-tag:nth-last-child(2) {
+    margin: 0px !important;
+}
+.pointer {
+    cursor: pointer;
+}
+
+.pointer:hover {
+    text-decoration: underline;
+}
+
+/*
+39---ECA Master---
+ */
+#ecamaster .busMaster-item_title i {
+    color: #ffb700;
+    background: transparent;
+    font-size: 1.6rem;
+}
+
+#ecamaster .attendance-search i {
+    font-size: 1.2rem;
+}
+
+#ecamaster .attendance-search .el-button {
+    border-radius: 44px;
+    padding: 10px 23px;
+}
+
+.style-info-date input.el-input__inner {
+    background: transparent;
+    padding: 0px 46px;
+    color: #222;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.style-info-date i.el-input__icon {
+    background: #eee;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    border-radius: 21px;
+    top: 16px;
+    position: relative;
+}
+
+label.style-button-checkbox {
+    background: #eee;
+    padding: 10px 20px;
+    border-radius: 31px;
+    display: flex !important;
+    align-items: center;
+}
+
+label.style-button-checkbox input {
+    line-height: 20px;
+}
+
+.style-info-date label {
+    padding: 0 50px;
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: #999;
+    position: relative;
+    top: -6px;
+}
+
+label.style-button-checkbox span.checkIcon {
+    margin-left: auto;
+    width: 25px;
+    height: 25px;
+}
+
+label.style-button-checkbox span.checkIcon svg.checkmark {
+    top: -6px;
+}
+
+.attendanceRadio span.el-radio__inner {
+    width: 20px;
+    height: 20px;
+}
+
+.attendanceRadio  label.el-radio {
+    margin: 10px 20px;
+}
+
+.attendanceRadio {
+    margin: 20px 0px;
 }

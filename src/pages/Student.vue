@@ -32,7 +32,6 @@
             <!--class="btn btn-primary waves-effect waves-light m-r-10 btnChangeStatus">Action-->
             <!--</button>-->
             <!--</div>-->
-
             <div class="student-action-link container">
                 <el-button-group>
                     <el-button v-b-modal.withdrawModal type="primary" class="btnWithdraw"><i class="material-icons">
@@ -59,23 +58,18 @@
                     </i> All About Me
                     </el-button>
                 </el-button-group>
-
                 <!--<b-btn v-b-modal.withdrawModal variant="primary" class="btnWithdraw">-->
                 <!--Withdraw-->
                 <!--</b-btn>-->
-
                 <!--<b-btn v-b-modal.transferModal variant="primary" class="btnTransfer">-->
                 <!--Transfer-->
                 <!--</b-btn>-->
-
                 <!--<b-btn variant="primary" class="btnUploadDocument" v-on:click="showStudentDocumentModal()">-->
                 <!--Student Doc-->
                 <!--</b-btn>-->
-
                 <!--<b-btn variant="primary" class="btnImmunizationRecords" v-if="immunizationRecordsUpload" v-on:click="showImmunizationRecordsModal()">-->
                 <!--Immunization Records-->
                 <!--</b-btn>-->
-
                 <!--<b-btn variant="primary" class="btnAllAboutMe" v-on:click="showAllAboutMeModal()">-->
                 <!--All About Me-->
                 <!--</b-btn>-->
@@ -87,7 +81,6 @@
                     <div class="imgStudentProfile">
                         <img v-bind:src="imgStudentProfile" type="file" @click="uploadStudentProfileImg()"
                              class=""/>
-
                         <a class="student-profile-edit" @click="uploadStudentProfileImg()">
                             <i class="material-icons">
                                 edit
@@ -96,7 +89,6 @@
                     </div>
                     <span>{{inputStudentFirstName}}</span>
                 </div>
-
                 <div class="student-status" v-if="changeStatusAction">
                     <div class="d-flex align-items-center">
                         <span class="student-status-current">{{lblCurrentStatus}}</span>
@@ -127,7 +119,6 @@
                             <!--</button>-->
                             <el-button type="primary" round slot="reference">Change Status</el-button>
                         </el-popover>
-
                     </div>
                 </div>
             </div>
@@ -159,7 +150,6 @@
                                     </b-btn>
                                 </div>
                             </div>
-
                             <div v-if="divEditParentLink" class="row familyIDAreaDiv">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <button v-on:click="EditParentLink" type="button"
@@ -168,50 +158,49 @@
                                     </button>
                                 </div>
                             </div>
-
                             <div v-if="!divParent" class="row col-lg-12 col-md-12 col-sm-12 col-xs-12 parentAreaDiv">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <button v-on:click="CancelUseFamilyNo"
                                             class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch"
                                             v-bind:disabled="editModeDisable">Cancel Use Family No
                                     </button>
+                                    <button v-on:click="ViewParent"
+                                            class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDViewParent"
+                                            v-bind:disabled="editModeDisable">View / Edit Parent Info
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
                         <div class="studentAreaDiv">
                             <div class="">
-                                <h5 class="text-left student-form__title" id="v-step-StudentPersonalInformation">Student's Personal Information</h5>
+                                <h5 class="text-left student-form__title" id="v-step-StudentPersonalInformation">
+                                    Student's Personal Information</h5>
                             </div>
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* First Name</label>
                                     <input type="text" class="form-control form__input" v-model="inputStudentFirstName"
                                            :class="{ 'requiredFields': $v.inputStudentFirstName.$error }">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentFirstName.$error">First Name
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentFirstName.$error">
+                                        First name required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Middle Name</label>
                                     <input type="text" class="form-control" v-model="inputStudentMiddleName">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Family Name</label>
                                     <input type="text" class="form-control" v-model="inputStudentLastName"
                                            :class="{ 'requiredFields': $v.inputStudentLastName.$error }">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentLastName.$error">Last Name
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentLastName.$error">
+                                        Last name required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Preferred Name</label>
                                     <input type="text" class="form-control" v-model="inputStudentPreferredName">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Nationality</label>
                                     <select v-model="ddlStudentNationality"
@@ -222,11 +211,10 @@
                                             item.CNYnationality.trim() }}
                                         </option>
                                     </select>
-                                    <div class="requiredFieldsMsg" v-if="$v.ddlStudentNationality.$error">Nationality
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.ddlStudentNationality.$error">
+                                        Nationality required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Gender</label>
                                     <select v-model="ddlStudentGender"
@@ -235,7 +223,6 @@
                                         <option value="Female">Female</option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Date of Birth</label>
                                     <div class="date">
@@ -244,12 +231,10 @@
                                                         value-format="dd/MM/yyyy" type="date" placeholder="Pick a date"
                                                         :class="{ 'requiredFields': $v.inputStudentDateOfBirth.$error }"></el-date-picker>
                                     </div>
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentDateOfBirth.$error">Date of
-                                        Birth
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentDateOfBirth.$error">
+                                        Date of birth required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Birth Place</label>
                                     <select v-model="ddlStudentBirthPlace"
@@ -260,16 +245,14 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div v-if="finShowHide" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>** Fin</label>
                                     <input type="text" class="form-control" v-model="inputStudentIdentificationNo"
                                            :class="{ 'requiredFields': $v.inputStudentIdentificationNo.$error }">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentIdentificationNo.$error">Fin
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentIdentificationNo.$error">
+                                        Fin required
                                     </div>
                                 </div>
-
                                 <div v-if="finShowHide" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>** Fin Expiry Date</label>
                                     <div class="date">
@@ -279,37 +262,35 @@
                                                         :class="{ 'requiredFields': $v.inputStudentIdentificationExpiryDate.$error }"></el-date-picker>
                                     </div>
                                     <div class="requiredFieldsMsg"
-                                         v-if="$v.inputStudentIdentificationExpiryDate.$error">Fin
-                                        Expiry Date Require
+                                         v-if="$v.inputStudentIdentificationExpiryDate.$error">
+                                        Fin expiry date required
                                     </div>
                                 </div>
-
                                 <div v-if="birthcertShowHide" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>** Birth Certificate</label>
                                     <input type="text" class="form-control" v-model="inputStudentBirthCertificate"
                                            :class="{ 'requiredFields': $v.inputStudentBirthCertificate.$error }">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentBirthCertificate.$error">Birth
-                                        Certificate Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentBirthCertificate.$error">
+                                        Birth certificate required
                                     </div>
                                 </div>
-
                                 <div v-if="icShowHide" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>** IC</label>
                                     <input type="text" class="form-control" v-model="inputStudentIC"
                                            :disabled="disableIC"
                                            :class="{ 'requiredFields': $v.inputStudentIC.$error }">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentIC.$error">IC Require</div>
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentIC.$error">
+                                        IC required
+                                    </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="isIntSchool">
                                     <label>** Passport</label>
                                     <input type="text" class="form-control" v-model="inputStudentPassport"
                                            :class="{ 'requiredFields': $v.inputStudentPassport.$error }">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentPassport.$error">Passport
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentPassport.$error">
+                                        Passport required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="isIntSchool">
                                     <label>** Passport Expiry Date</label>
                                     <div class="date">
@@ -318,11 +299,9 @@
                                                         :class="{ 'requiredFields': $v.inputStudentPassportExpiryDate.$error }"></el-date-picker>
                                     </div>
                                     <div class="requiredFieldsMsg" v-if="$v.inputStudentPassportExpiryDate.$error">
-                                        Passport
-                                        Expiry Date Require
+                                        Passport expiry date required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Additional Language</label>
                                     <select v-model="ddlStudentAdditionalLanguage"
@@ -332,7 +311,6 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Meal Preferences</label>
                                     <select v-model="ddlStudentMealPreferences"
@@ -342,22 +320,18 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Dietary Requirement</label>
                                     <input type="text" class="form-control" v-model="inputStudentDietaryRequirement">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>First Language Spoken</label>
                                     <input type="text" class="form-control" v-model="inputStudentFirstLanguageSpoken">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Second Language Spoken</label>
                                     <input type="text" class="form-control" v-model="inputSecondLanguageSpoken">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="display:none;">
                                     <label>Membership</label>
                                     <select v-model="ddlStudentMembership"
@@ -367,7 +341,6 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"
                                      v-if="isLocalSchool || isIntPreSchool">
                                     <label>Race</label>
@@ -380,12 +353,11 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="studentAreaDiv">
                             <div class="">
-                                <h5 class="text-left student-form__title" id="v-step-StudentRegistrationDetails">Student's Registration Details</h5>
+                                <h5 class="text-left student-form__title" id="v-step-StudentRegistrationDetails">
+                                    Student's Registration Details</h5>
                             </div>
-
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Commencement Date</label>
@@ -395,11 +367,10 @@
                                                         value-format="dd/MM/yyyy" placeholder="Pick a day"
                                                         :class="{ 'requiredFields': $v.inputFirstCommencementDate.$error }"></el-date-picker>
                                     </div>
-                                    <div class="requiredFieldsMsg" v-if="$v.inputFirstCommencementDate.$error">First
-                                        Commencement Date Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputFirstCommencementDate.$error">
+                                        First commencement date required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Residency Status</label>
                                     <select v-model="ddlStudentResidencyStatus"
@@ -409,7 +380,6 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Payer</label>
                                     <select v-model="ddlStudentPayer"
@@ -420,15 +390,15 @@
                                             {{ item.OPTvalue.trim() }}
                                         </option>
                                     </select>
-                                    <div class="requiredFieldsMsg" v-if="$v.ddlStudentPayer.$error">Payer Require</div>
+                                    <div class="requiredFieldsMsg" v-if="$v.ddlStudentPayer.$error">
+                                        Payer required
+                                    </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Student ID</label>
                                     <input type="text" class="form-control" v-model="inputStudentID"
                                            readonly="readonly">
                                 </div>
-
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
                                 <!--<label>* Select Level</label>-->
                                 <!--<select v-model="ddlStudentSelectLevel"-->
@@ -441,7 +411,6 @@
                                 <!--<div class="requiredFieldsMsg" v-if="$v.ddlStudentSelectLevel.$error">Level Require-->
                                 <!--</div>-->
                                 <!--</div>-->
-
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
                                 <!--<label>* First Academic Year</label>-->
                                 <!--<select v-model="ddlStudentFirstAcademicYear"-->
@@ -455,7 +424,6 @@
                                 <!--Academic Year Require-->
                                 <!--</div>-->
                                 <!--</div>-->
-
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
                                 <!--<label>* Intake Year</label>-->
                                 <!--<select v-model="ddlStudentIntakeYear"-->
@@ -472,12 +440,10 @@
                                 <!--</div>-->
                             </div>
                         </div>
-
                         <div class="studentAreaDiv">
                             <div class="">
                                 <h5 class="text-left student-form__title">Before Commencement</h5>
                             </div>
-
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Enrolled in Other Center</label>
@@ -490,7 +456,6 @@
                                     </select>
                                 </div>
                             </div>
-
                             <div class="row form-group__wrapper" v-if="divEnrolledinOtherCenterShow">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Center Name</label>
@@ -499,10 +464,9 @@
                                            :class="{ 'requiredFields': $v.inputStudentEnrolledCenterName.$error }"
                                            v-bind:disabled="editModeDisable">
                                     <div class="requiredFieldsMsg" v-if="$v.inputStudentEnrolledCenterName.$error">
-                                        Center Name Require
+                                        Center name required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Center Type</label>
                                     <select v-model="ddlStudentEnrolledCenterType"
@@ -514,7 +478,7 @@
                                         </option>
                                     </select>
                                     <div class="requiredFieldsMsg" v-if="$v.ddlStudentEnrolledCenterType.$error">
-                                        Center Type Require
+                                        Center type required
                                     </div>
                                 </div>
                             </div>
@@ -529,19 +493,17 @@
 
                         <el-badge value="!" class="item"
                                   v-if="$v.ddlParentMode.$error || $v.inputFatherFirstName.$error || $v.inputFatherLastName.$error || $v.inputFatherOccupation.$error || $v.inputMotherFirstName.$error || $v.inputMotherLastName.$error">
-                            Parents</el-badge>
+                            </el-badge>
                     </span>
                     <div class="review-content-section">
-
                         <div class=" parentAreaDiv">
                             <div v-if="divParent" class="parentAreaDiv">
                                 <div class="">
                                     <h5 class="text-left student-form__title">Father's Details</h5>
                                 </div>
-
                                 <div class="row form-group__wrapper">
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                        <label>* Parent Mode</label>
+                                        <label>* Relationship To Child</label>
                                         <select v-model="ddlParentMode" v-bind:disabled="editModeDisable"
                                                 class="form-control pro-edt-select form-control-primary"
                                                 :class="{ 'requiredFields': $v.ddlParentMode.$error }">
@@ -550,42 +512,36 @@
                                                 item.OPTvalue.trim() }}
                                             </option>
                                         </select>
-                                        <div class="requiredFieldsMsg" v-if="$v.ddlParentMode.$error">Parent Mode
-                                            Require
+                                        <div class="requiredFieldsMsg" v-if="$v.ddlParentMode.$error">
+                                            Relationship to child required
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>* First Name</label>
                                         <input type="text" class="form-control" v-model="inputFatherFirstName"
                                                v-bind:disabled="editModeDisable" v-on:blur="CheckParentDup()"
                                                :class="{ 'requiredFields': $v.inputFatherFirstName.$error }">
-                                        <div class="requiredFieldsMsg" v-if="$v.inputFatherFirstName.$error">First
-                                            Name
-                                            Require
+                                        <div class="requiredFieldsMsg" v-if="$v.inputFatherFirstName.$error">
+                                            First name required
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Middle Name</label>
                                         <input type="text" class="form-control" v-model="inputFatherMiddleName"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>* Last Name</label>
                                         <input type="text" class="form-control" v-model="inputFatherLastName"
                                                v-bind:disabled="editModeDisable" v-on:blur="CheckParentDup()"
                                                :class="{ 'requiredFields': $v.inputFatherLastName.$error }">
-                                        <div class="requiredFieldsMsg" v-if="$v.inputFatherLastName.$error">Last
-                                            Name
-                                            Require
+                                        <div class="requiredFieldsMsg" v-if="$v.inputFatherLastName.$error">
+                                            Last name required
                                         </div>
                                         <label v-if="lblFatherNameDuplicated">Father name is duplicated, please
                                             double
                                             confirm</label>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Date of Birth</label>
                                         <div class="date">
@@ -595,7 +551,6 @@
                                                             placeholder="Pick a day"></el-date-picker>
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Identification Type</label>
                                         <select v-model="ddlFatherIdentificationType"
@@ -606,14 +561,12 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Identification No</label>
                                         <input type="text" class="form-control"
                                                v-model="inputFatherIdentificationNo"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Identification No Expiry Date</label>
                                         <div class="date">
@@ -623,19 +576,16 @@
                                                             placeholder="Pick a day"></el-date-picker>
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Mobile No</label>
                                         <input type="text" class="form-control" v-model="inputFatherMobileNo"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Email</label>
                                         <input type="text" class="form-control" v-model="inputFatherEmail"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"
                                          v-if="isLocalSchool || isIntPreSchool">
                                         <label>Race</label>
@@ -647,7 +597,6 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Marital Status</label>
                                         <select v-model="ddlFatherMaritalStatus"
@@ -658,7 +607,6 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Working</label>
                                         <select class="form-control pro-edt-select form-control-primary"
@@ -669,60 +617,50 @@
                                             <option>Yes</option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Occupation</label>
                                         <input type="text" class="form-control" v-model="inputFatherOccupation"
                                                v-bind:disabled="editModeDisable"
                                                :class="{ 'requiredFields': $v.inputFatherOccupation.$error }">
                                         <div class="requiredFieldsMsg" v-if="$v.inputFatherOccupation.$error">
-                                            Occupation
-                                            Require
+                                            Occupation required
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div v-if="divParent & divFatherCompany" class="parentAreaDiv">
                                 <div class="">
                                     <h5 class="text-left student-form__title">Father's Company</h5>
                                 </div>
-
                                 <div class="row form-group__wrapper">
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Name</label>
                                         <input type="text" class="form-control" v-model="inputFatherCompanyName">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Addressee Name</label>
                                         <input type="text" class="form-control"
                                                v-model="inputFatherCompanyAddresseeName">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Address 1</label>
                                         <input type="text" class="form-control"
                                                v-model="inputFatherCompanyAddress1">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Address 2</label>
                                         <input type="text" class="form-control"
                                                v-model="inputFatherCompanyAddress2">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Address 3</label>
                                         <input type="text" class="form-control"
                                                v-model="inputFatherCompanyAddress3">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company City</label>
                                         <input type="text" class="form-control" v-model="inputFatherCompanyCity">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Country</label>
                                         <select v-model="ddlFatherCompanyCountry"
@@ -732,18 +670,15 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Postal Code</label>
                                         <input type="text" class="form-control"
                                                v-model="inputFatherCompanyPostalCode">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Email</label>
                                         <input type="text" class="form-control" v-model="inputFatherCompanyEmail">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Working Commencement Date</label>
                                         <div class="date">
@@ -755,44 +690,37 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div v-if="divParent" class="parentAreaDiv">
                                 <div class="">
                                     <h5 class="text-left student-form__title">Mother's Details</h5>
                                 </div>
                                 <div class="row form-group__wrapper">
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>* First Name</label>
                                         <input type="text" class="form-control" v-model="inputMotherFirstName"
                                                v-bind:disabled="editModeDisable" v-on:blur="CheckParentDup()"
                                                :class="{ 'requiredFields': $v.inputMotherFirstName.$error }">
-                                        <div class="requiredFieldsMsg" v-if="$v.inputMotherFirstName.$error">First
-                                            Name
-                                            Require
+                                        <div class="requiredFieldsMsg" v-if="$v.inputMotherFirstName.$error">
+                                            First name required
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Middle Name</label>
                                         <input type="text" class="form-control" v-model="inputMotherMiddleName"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>* Last Name</label>
                                         <input type="text" class="form-control" v-model="inputMotherLastName"
                                                v-bind:disabled="editModeDisable" v-on:blur="CheckParentDup()"
                                                :class="{ 'requiredFields': $v.inputMotherLastName.$error }">
-                                        <div class="requiredFieldsMsg" v-if="$v.inputMotherLastName.$error">Last
-                                            Name
-                                            Require
+                                        <div class="requiredFieldsMsg" v-if="$v.inputMotherLastName.$error">
+                                            Last name required
                                         </div>
                                         <label v-if="lblMotherNameDuplicated">Mother name is duplicated, please
                                             double
                                             confirm</label>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Date of Birth</label>
                                         <div class="date">
@@ -802,7 +730,6 @@
                                                             placeholder="Pick a day"></el-date-picker>
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Identification Type</label>
                                         <select v-model="ddlMotherIdentificationType"
@@ -813,14 +740,12 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Identification No</label>
                                         <input type="text" class="form-control"
                                                v-model="inputMotherIdentificationNo"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Identification No Expiry Date</label>
                                         <div class="date">
@@ -830,19 +755,16 @@
                                                             placeholder="Pick a day"></el-date-picker>
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Mobile No</label>
                                         <input type="text" class="form-control" v-model="inputMotherMobileNo"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Email</label>
                                         <input type="text" class="form-control" v-model="inputMotherEmail"
                                                v-bind:disabled="editModeDisable">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"
                                          v-if="isLocalSchool || isIntPreSchool">
                                         <label>Race</label>
@@ -854,7 +776,6 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Marital Status</label>
                                         <select v-model="ddlMotherMaritalStatus"
@@ -865,7 +786,6 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Working</label>
                                         <select class="form-control pro-edt-select form-control-primary"
@@ -876,60 +796,50 @@
                                             <option>Yes</option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Occupation</label>
                                         <input type="text" class="form-control" v-model="inputMotherOccupation"
                                                v-bind:disabled="editModeDisable"
                                                :class="{ 'requiredFields': $v.inputMotherOccupation.$error }">
                                         <div class="requiredFieldsMsg" v-if="$v.inputMotherOccupation.$error">
-                                            Occupation
-                                            Require
+                                            Occupation required
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div v-if="divParent & divMotherCompany" class="parentAreaDiv">
                                 <div class="">
                                     <h5 class="text-left student-form__title">Mother's Company</h5>
                                 </div>
-
                                 <div class="row form-group__wrapper">
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Name</label>
                                         <input type="text" class="form-control" v-model="inputMotherCompanyName">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Addressee Name</label>
                                         <input type="text" class="form-control"
                                                v-model="inputMotherCompanyAddresseeName">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Address 1</label>
                                         <input type="text" class="form-control"
                                                v-model="inputMotherCompanyAddress1">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Address 2</label>
                                         <input type="text" class="form-control"
                                                v-model="inputMotherCompanyAddress2">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Address 3</label>
                                         <input type="text" class="form-control"
                                                v-model="inputMotherCompanyAddress3">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company City</label>
                                         <input type="text" class="form-control" v-model="inputMotherCompanyCity">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Country</label>
                                         <select v-model="ddlMotherCompanyCountry"
@@ -940,18 +850,15 @@
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Postal Code</label>
                                         <input type="text" class="form-control"
                                                v-model="inputMotherCompanyPostalCode">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Email</label>
                                         <input type="text" class="form-control" v-model="inputMotherCompanyEmail">
                                     </div>
-
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Working Commencement Date</label>
                                         <div class="date">
@@ -980,12 +887,10 @@
                                     <label>Contact Person</label>
                                     <input type="text" class="form-control" v-model="inputStudent1stEmergencyContact">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Contact No</label>
                                     <input type="text" class="form-control" v-model="inputStudent1stEmergencyContactNo">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Contact Relation</label>
                                     <input type="text" class="form-control"
@@ -993,7 +898,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="ecAreaDiv">
                             <div class="">
                                 <h5 class="text-left student-form__title">2nd Emergency Contact</h5>
@@ -1003,12 +907,10 @@
                                     <label> Contact Person</label>
                                     <input type="text" class="form-control" v-model="inputStudent2ndEmergencyContact">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Contact No</label>
                                     <input type="text" class="form-control" v-model="inputStudent2ndEmergencyContactNo">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Contact Relation</label>
                                     <input type="text" class="form-control"
@@ -1034,7 +936,6 @@
                             <div class="">
                                 <h5 class="text-left student-form__title">Student's Local Residential Address</h5>
                             </div>
-
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Country</label>
@@ -1045,40 +946,35 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label id="v-step-AddressesLRAPostalCode">* Postal Code</label>
                                     <input type="text" class="form-control" v-model="inputStudentPostalCode"
                                            :class="{ 'requiredFields': $v.inputStudentPostalCode.$error }"
                                            v-on:blur="GetGoogleAPI('inputStudentPostalCode')"
                                            @change="onchangeCopyAdd()">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentPostalCode.$error">Postal Code
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentPostalCode.$error">
+                                        Postal code required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Address 1</label>
                                     <input type="text" class="form-control" v-model="inputStudentAddress1"
                                            @change="onchangeCopyAdd()"
                                            :class="{ 'requiredFields': $v.inputStudentAddress1.$error }">
-                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentAddress1.$error">Address 1
-                                        Require
+                                    <div class="requiredFieldsMsg" v-if="$v.inputStudentAddress1.$error">
+                                        Address 1 required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Address 2</label>
                                     <input type="text" class="form-control" v-model="inputStudentAddress2"
                                            @change="onchangeCopyAdd()">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Address 3</label>
                                     <input type="text" class="form-control" v-model="inputStudentAddress3"
                                            @change="onchangeCopyAdd()">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>City</label>
                                     <input type="text" class="form-control" v-model="inputStudentCity"
@@ -1086,20 +982,18 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="addAreaDiv">
                             <div class="">
                                 <h5 class="text-left student-form__title">Student's Billing Address</h5>
                             </div>
-
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <label id="v-step-AddressesBACopyAddress">Copy Address From Student's Permanent Address</label>
+                                    <label id="v-step-AddressesBACopyAddress">Copy Address From Student's Permanent
+                                        Address</label>
                                     <!--<div v-on:click="StuCorAddCopyStuPermAdd" class="ttStuCorAddCopy"><i class="fa fa-clone" aria-hidden="true"></i>-->
                                     <!--<span class="ttnStuCorAddCopy">Copy Address From Student's Correspondance Address</span>-->
                                     <!--</div>-->
                                     <!--<input type="checkbox" class="form-control" ref="cbStuCorAddCopy" @change="StuCorAddCopyStuPermAdd()">-->
-
                                     <select v-model="ddlCopyAddToStuCorAdd"
                                             class="form-control pro-edt-select form-control-primary"
                                             @change="onchangeCopyAdd()">
@@ -1107,7 +1001,6 @@
                                         <option value="stuPerAdd">Student's Local Residential Address</option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Country</label>
                                     <select v-model="ddlStudentAddressCorrespondanceCountry" @change="onchangeCopyAdd()"
@@ -1118,7 +1011,6 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Postal Code</label>
                                     <input type="text" class="form-control"
@@ -1129,10 +1021,9 @@
                                            @change="onchangeCopyAdd()">
                                     <div class="requiredFieldsMsg"
                                          v-if="$v.inputStudentCorrespondancePostalCode.$error">
-                                        Postal Code Require
+                                        Postal code required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Address 1</label>
                                     <input type="text" class="form-control" v-model="inputStudentCorrespondanceAddress1"
@@ -1140,40 +1031,34 @@
                                            v-bind:disabled="stuCorAddCopy"
                                            :class="{ 'requiredFields': $v.inputStudentCorrespondanceAddress1.$error }">
                                     <div class="requiredFieldsMsg" v-if="$v.inputStudentCorrespondanceAddress1.$error">
-                                        Address 1 Require
+                                        Address 1 required
                                     </div>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Address 2</label>
                                     <input type="text" class="form-control"
                                            v-bind:disabled="stuCorAddCopy"
                                            v-model="inputStudentCorrespondanceAddress2" @change="onchangeCopyAdd()">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Address 3</label>
                                     <input type="text" class="form-control"
                                            v-bind:disabled="stuCorAddCopy"
                                            v-model="inputStudentCorrespondanceAddress3" @change="onchangeCopyAdd()">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>City</label>
                                     <input type="text" class="form-control" v-model="inputStudentCorrespondanceCity"
                                            @change="onchangeCopyAdd()" v-bind:disabled="stuCorAddCopy">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Mobile No</label>
                                     <input type="text" class="form-control" v-model="inputStudentMobileNo">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Home Tel No</label>
                                     <input type="text" class="form-control" v-model="inputStudentOfficeTelNo">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Email</label>
                                     <input type="text" class="form-control" v-model="inputStudentEmail">
@@ -1191,7 +1076,6 @@
                             <div class="">
                                 <h5 class="text-left student-form__title">Medication Allergies List</h5>
                             </div>
-
                             <div>
                                 <div v-if="medicationAllergiesListInt.length>0">
                                     <data-tables :data="medicationAllergiesListInt"
@@ -1205,32 +1089,27 @@
                                     </data-tables>
                                 </div>
                             </div>
-
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Medication</label>
                                     <input type="text" class="form-control"
                                            v-model="inputStudentMedicationAllergiesMedication">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Remarks</label>
                                     <input type="text" class="form-control"
                                            v-model="inputStudentMedicationAllergiesRemarks">
                                 </div>
                             </div>
-
                             <button class="btn btn-primary waves-effect waves-light m-r-10"
                                     v-on:click="addMedicationAllergiesList()">
                                 Add
                             </button>
                         </div>
-
                         <div class="medAreaDiv">
                             <div class="">
                                 <h5 class="text-left student-form__title">Food Allergies List</h5>
                             </div>
-
                             <div>
                                 <div v-if="foodAllergiesListInt.length>0">
                                     <data-tables :data="foodAllergiesListInt" :action-col="foodAllergiesListAcion">
@@ -1243,7 +1122,6 @@
                                     </data-tables>
                                 </div>
                             </div>
-
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Food</label>
@@ -1254,41 +1132,34 @@
                                         </option>
                                     </select>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Remarks</label>
                                     <input type="text" class="form-control" v-model="inputStudentFoodAllergiesRemarks">
                                 </div>
                             </div>
-
                             <button class="btn btn-primary waves-effect waves-light m-r-10"
                                     v-on:click="addFoodAllergiesList()">
                                 Add
                             </button>
                         </div>
-
                         <div class="medAreaDiv">
                             <div class="">
                                 <h5 class="text-left student-form__title">Student's Medical Details</h5>
                             </div>
-
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Major Ailments List</label>
                                     <textarea rows="3" class="textArea"
                                               v-model="taMajorAilmentsList"></textarea>
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Name of Family Doctor</label>
                                     <input type="text" class="form-control" v-model="inputNameofFamilyDoctor">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Clinic Address</label>
                                     <input type="text" class="form-control" v-model="inputClinicAddress">
                                 </div>
-
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Clinic Phone No</label>
                                     <input type="text" class="form-control" v-model="inputClinicPhoneNo">
@@ -1308,7 +1179,6 @@
                                              :label="siblingListInfo.label" :key="siblingListInfo.prop"
                                              sortable="custom">
                             </el-table-column>
-
                             <el-table-column label="Edit">
                                 <template slot-scope="scope">
                                     <el-button type="primary"
@@ -1333,7 +1203,7 @@
                     <div class=" form-group ">
                         <div class="lvlAreaDiv">
                             <div class="">
-                                <h5 class="text-left student-form__title">Level</h5>
+                                <h5 class="text-left student-form__title" id="v-step-LevelTabTitle">Level</h5>
                             </div>
                             <div class="row form-group__wrapper">
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
@@ -1345,7 +1215,6 @@
                                 <!--</option>-->
                                 <!--</select>-->
                                 <!--</div>-->
-
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
                                 <!--<label>First Academic Year</label>-->
                                 <!--<select v-model="ddlStudentFirstAcademicYear_Level"-->
@@ -1355,7 +1224,6 @@
                                 <!--</option>-->
                                 <!--</select>-->
                                 <!--</div>-->
-
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
                                 <!--<label>Intake Year</label>-->
                                 <!--<select v-model="ddlStudentIntakeYear_Level"-->
@@ -1365,13 +1233,11 @@
                                 <!--</option>-->
                                 <!--</select>-->
                                 <!--</div>-->
-
                                 <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
                                 <!--<button class="btn btn-primary waves-effect waves-light m-r-10"-->
                                 <!--v-on:click="AddLevel">Add Level-->
                                 <!--</button>-->
                                 <!--</div>-->
-
                                 <promotion-component @result="promotionResult"
                                                      @studentPromoteAction="studentPromoteAction"
                                                      :selectedStudents="arrayStudentIDLevelComponent"
@@ -1380,7 +1246,6 @@
                                                      :isStudent="true"
                                 ></promotion-component>
                             </div>
-
                             <div v-if="lvlLevelList_Level.length>0">
                                 <data-tables :data="lvlLevelList_Level" :actionCol="actionCol_Level">
                                     <!--<data-tables :data="lvlLevelList_Level" :actionCol="actionCol_Level"-->
@@ -1391,7 +1256,6 @@
                                                      :key="lvlLevelList_LevelAllInfo.prop"
                                                      sortable="custom">
                                     </el-table-column>
-
                                     <!--<el-table-column label="Promote" min-width="100px">-->
                                     <!--<template slot-scope="scope">-->
                                     <!--<el-button-->
@@ -1402,7 +1266,6 @@
                                     <!--</el-button>-->
                                     <!--</template>-->
                                     <!--</el-table-column>-->
-
                                     <!--<el-table-column label="Demote" min-width="100px">-->
                                     <!--<template slot-scope="scope">-->
                                     <!--<el-button-->
@@ -1419,9 +1282,7 @@
                     </div>
                 </el-tab-pane>
             </el-tabs>
-
             <div class="whitespace-30"></div>
-
             <div class="buttonArea">
                 <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
                     <button v-on:click="backToPrevious" type="button"
@@ -1431,20 +1292,21 @@
                             class="btn btn-primary waves-effect waves-light m-r-10 float-right">
                         Save
                     </button>
+                    <el-button type="primary" class="btn btn-primary waves-effect waves-light m-r-10 float-left"
+                               style="display: none;"
+                               v-if="!editModeDisable" @click="studentPageVueTourStart()">
+                        Guided Tour
+                    </el-button>
+                    <el-button type="primary" class="btn btn-primary waves-effect waves-light m-r-10 float-left"
+                               style="display: none;"
+                               v-if="!editModeDisable" @click="studentPageVueUpdateLevelClassTourStart()">
+                        Guided Tour - UpdateLevelClass
+                    </el-button>
                 </div>
             </div>
-
             <div class="whitespace-30" style="clear: both;"></div>
-
-            <div class="buttonArea" style="display: none;">
-                <el-button type="primary" class="btn btn-primary waves-effect waves-light m-r-10 float-left"
-                           v-if="!editModeDisable" @click="studentPageVueTourStart()">
-                    Guided Tour
-                </el-button>
-            </div>
         </div>
         <div class="whitespace-30" style="clear: both;"></div>
-
         <b-modal id="familyModal" size="lg" class="studentPageBModal" title="Search Family ID" ok-only
                  ok-variant="secondary" ok-title="Cancel" ref="familyModalShowModal">
             <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -1452,22 +1314,18 @@
                     <label>Student Name</label>
                     <input type="text" class="form-control" ref="familyIDStudentName">
                 </div>
-
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Family No</label>
                     <input type="text" class="form-control" ref="familyIDFamilyNo">
                 </div>
-
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Parent First Name</label>
                     <input type="text" class="form-control" ref="familyParentFirstName">
                 </div>
-
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Parent Last Name</label>
                     <input type="text" class="form-control" ref="familyParentLastName">
                 </div>
-
                 <div v-if="familyIDList.length>0" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <data-tables :data="familyIDList" :action-col="actionCol">
                         <el-table-column v-for="familyIDListInfo in familyIDListAll" :prop="familyIDListInfo.prop"
@@ -1476,7 +1334,6 @@
                         </el-table-column>
                     </data-tables>
                 </div>
-
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <button v-on:click="SearchFamilyID"
                             class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Search
@@ -1484,7 +1341,6 @@
                 </div>
             </div>
         </b-modal>
-
         <b-modal id="withdrawModal" class="studentPageBModal" title="Withdraw" ok-only ok-variant="secondary"
                  ok-title="Cancel" ref="withdrawShowModal" hide-footer v-model="withdrawShowModal">
             <div>
@@ -1495,7 +1351,6 @@
                                         value-format="dd/MM/yyyy" type="date"
                                         placeholder="Pick a day"></el-date-picker>
                     </div>
-
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="withdrawMainReason">
                         <label>Main Reason</label>
                         <select v-model="ddlMainReason" @change="WithdrawTaskDescription()"
@@ -1505,7 +1360,6 @@
                             </option>
                         </select>
                     </div>
-
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="withdrawInternationalSchool">
                         <label>International School Name</label>
                         <select v-model="ddlInternationalSchool"
@@ -1515,7 +1369,6 @@
                             </option>
                         </select>
                     </div>
-
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="withdrawReason1">
                         <label>Reason1</label>
                         <select v-model="ddlReason1" class="form-control pro-edt-select form-control-primary">
@@ -1524,7 +1377,6 @@
                             </option>
                         </select>
                     </div>
-
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="withdrawReason2">
                         <label>Reason2</label>
                         <select v-model="ddlReason2" class="form-control pro-edt-select form-control-primary">
@@ -1533,7 +1385,6 @@
                             </option>
                         </select>
                     </div>
-
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="withdrawReason3">
                         <label>Reason3</label>
                         <select v-model="ddlReason3" class="form-control pro-edt-select form-control-primary">
@@ -1543,7 +1394,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="row custom-modal-footer">
                     <div class="col-lg-6">
                         <button @click="hideModal()"
@@ -1556,10 +1406,8 @@
                         </button>
                     </div>
                 </div>
-
             </div>
         </b-modal>
-
         <b-modal id="transferModal" v-model="transferModal" class="studentPageBModal" title="Transfer" ok-only
                  ok-variant="secondary" ok-title="Cancel" ref="transferShowModal" hide-footer>
             <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -1571,12 +1419,10 @@
                         </option>
                     </select>
                 </div>
-
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <label>Remarks</label>
                     <input type="text" class="form-control" v-model="inputTransferSchoolRemark">
                 </div>
-
                 <div class="col-lg-12 mb-5">
                     <label>Commencement Date</label>
                     <div class="date">
@@ -1586,7 +1432,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="row custom-modal-footer">
                 <div class="col-lg-6">
                     <button @click="hideModal()"
@@ -1600,7 +1445,6 @@
                 </div>
             </div>
         </b-modal>
-
         <b-modal id="uploadDocumentModal" class="studentPageBModal" title="Student Document" ok-only
                  ok-variant="secondary" ok-title="Cancel" ref="uploadDocumentShowModal"
                  v-model="uploadDocumentShowModal">
@@ -1617,7 +1461,6 @@
                         </div>
                         <!--<input type="file" ref="studentDocument">-->
                     </div>
-
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <label><i class="material-icons">
                             format_align_left
@@ -1635,7 +1478,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div v-if="studentFileListInt.length>0">
                         <data-tables :data="studentFileListInt" :action-col="studentFileListAction">
@@ -1644,7 +1486,6 @@
                                              :label="studentFileListInfo.label" :key="studentFileListInfo.prop"
                                              sortable="custom">
                             </el-table-column>
-
                             <el-table-column label="Download" min-width="100px">
                                 <template slot-scope="scope">
                                     <el-button
@@ -1660,7 +1501,6 @@
                 </div>
             </div>
         </b-modal>
-
         <b-modal id="uploadImmunizationRecordsModal" class="studentPageBModal" title="Immunization Records" ok-only
                  ok-variant="secondary" ok-title="Cancel" ref="uploadImmunizationRecordsShowModal"
                  v-model="uploadImmunizationRecordsShowModal">
@@ -1677,7 +1517,6 @@
                         </div>
                         <!--<input type="file" ref="studentDocument">-->
                     </div>
-
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <label><i class="material-icons">
                             format_align_left
@@ -1696,7 +1535,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div v-if="studentFileListInt.length>0">
                         <data-tables :data="studentFileListInt" :action-col="studentFileListAction">
@@ -1705,7 +1543,6 @@
                                              :label="studentFileListInfo.label" :key="studentFileListInfo.prop"
                                              sortable="custom">
                             </el-table-column>
-
                             <el-table-column label="Download" min-width="100px">
                                 <template slot-scope="scope">
                                     <el-button
@@ -1721,7 +1558,6 @@
                 </div>
             </div>
         </b-modal>
-
         <b-modal id="uploadAllAboutMeModal" class="studentPageBModal" title="All About Me" ok-only
                  ok-variant="secondary" ok-title="Cancel" ref="uploadAllAboutMeShowModal"
                  v-model="uploadAllAboutMeShowModal">
@@ -1738,7 +1574,6 @@
                         </div>
                         <!--<input type="file" ref="studentDocument">-->
                     </div>
-
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <label><i class="material-icons">
                             format_align_left
@@ -1757,7 +1592,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div v-if="studentFileListInt.length>0">
                         <data-tables :data="studentFileListInt" :action-col="studentFileListAction">
@@ -1766,7 +1600,6 @@
                                              :label="studentFileListInfo.label" :key="studentFileListInfo.prop"
                                              sortable="custom">
                             </el-table-column>
-
                             <el-table-column label="Download" min-width="100px">
                                 <template slot-scope="scope">
                                     <el-button
@@ -1782,8 +1615,8 @@
                 </div>
             </div>
         </b-modal>
-
-        <v-tour name="StudentPageVueTourName" :steps="studentPageVueTour" :options="studentPageVueTourOptions" :callbacks="studentPageVueTourCallBacks">
+        <v-tour name="StudentPageVueTourName" :steps="studentPageVueTour" :options="studentPageVueTourOptions"
+                :callbacks="studentPageVueTourCallBacks">
             <template slot-scope="tour">
                 <transition name="fade">
                     <v-step
@@ -1802,13 +1635,46 @@
                             <div slot="actions">
                                 <button class="v-step__button" @click="tour.stop">Skip</button>
                                 <button class="v-step__button" @click="tour.previousStep">Previous</button>
-                                <button class="v-step__button" @click="studentPageVueTourParentTab(tour, 'Next')">Next</button>
+                                <button class="v-step__button" @click="studentPageVueTourParentTab(tour, 'Next')">Next
+                                </button>
                             </div>
                         </template>
                         <template v-if="tour.currentStep === 4">
                             <div slot="actions">
                                 <button class="v-step__button" @click="tour.stop">Skip tour</button>
-                                <button class="v-step__button" @click="studentPageVueTourParentTab(tour, 'Previous')">Previous</button>
+                                <button class="v-step__button" @click="studentPageVueTourParentTab(tour, 'Previous')">
+                                    Previous
+                                </button>
+                                <button class="v-step__button" @click="tour.nextStep">Next</button>
+                            </div>
+                        </template>
+                    </v-step>
+                </transition>
+            </template>
+        </v-tour>
+        <v-tour name="StudentPageUpdateLevelClassVueTourName" :steps="studentPageUpdateLevelClassVueTour"
+                :options="studentPageUpdateLevelClassVueTourOptions"
+                :callbacks="studentPageUpdateLevelClassVueTourCallBacks">
+            <template slot-scope="tour">
+                <transition name="fade">
+                    <v-step
+                            v-if="tour.currentStep === index"
+                            v-for="(step, index) of tour.steps"
+                            :key="index"
+                            :step="step"
+                            :previous-step="tour.previousStep"
+                            :next-step="tour.nextStep"
+                            :stop="tour.stop"
+                            :is-first="tour.isFirst"
+                            :is-last="tour.isLast"
+                            :labels="tour.labels"
+                    >
+                        <template v-if="tour.currentStep === 0">
+                            <div slot="actions">
+                                <button class="v-step__button" @click="tour.stop">Skip</button>
+                                <button class="v-step__button"
+                                        @click="studentPageUpdateLevelClassVueTourCallBacksPreviousPage()">Previous
+                                </button>
                                 <button class="v-step__button" @click="tour.nextStep">Next</button>
                             </div>
                         </template>
@@ -1818,7 +1684,6 @@
         </v-tour>
     </div>
 </template>
-
 <script>
     import DataSource from "../data/datasource";
     import ProfileImg from "../assets/boy.png";
@@ -1826,9 +1691,11 @@
     import promotionComponent from "../components/Promotion_Component";
     import Cookies from "js-cookie";
     import axios from 'axios';
+    import moment from "moment";
 
     import VueTour from 'vue-tour';
     import Vue from 'vue';
+
     require('vue-tour/dist/vue-tour.css');
     Vue.use(VueTour);
 
@@ -1861,8 +1728,13 @@
             await this.checkSchoolIsLocalOrInt();
         },
         async mounted() {
+
             await this.LoadStudentParentInfo();
             await this.onChangeNationalityBirthPlace();
+
+            if (this.$route.query.tour === 'UpdateLevelClass') {
+                this.studentPageVueUpdateLevelClassTourStart();
+            }
 
             window.addEventListener('load', () => {
                 if (this.$route.query.tour === 'YES') {
@@ -1874,7 +1746,7 @@
 
                     this.studentPageVueTourStart();
                 }
-            })
+            });
         },
         data() {
             return {
@@ -2094,6 +1966,9 @@
                 }, {
                     prop: "CRS_Course_Name",
                     label: "Level"
+                }, {
+                    prop: "Status",
+                    label: "Status"
                 }, {
                     prop: "SCH_Name",
                     label: "Center Name"
@@ -2382,6 +2257,39 @@
                     },
                 ],
                 //vue tour
+
+                //vue tour Update Level Class
+                studentPageUpdateLevelClassVueTourOptions: {
+                    useKeyboardNavigation: false,
+                    labels: {
+                        buttonSkip: 'Skip tour',
+                        buttonPrevious: 'Previous',
+                        buttonNext: 'Next',
+                        buttonStop: 'Finish'
+                    }
+                },
+                studentPageUpdateLevelClassVueTourCallBacks: {
+                    onPreviousStep: this.studentPageUpdateLevelClassVueTourCallBacksPreviousSteps,
+                    onNextStep: this.studentPageUpdateLevelClassVueTourCallBacksNextSteps
+                },
+                studentPageUpdateLevelClassVueTour: [
+                    //Level Tab
+                    {
+                        target: '#v-step-LevelTabTitle',
+                        content: `<div class="studentPageTourDiv">Step 2 / 3 <br>Select <span class="studentPageTourSpecialColor">Academic Year</span> and <span class="studentPageTourSpecialColor">Class</span></div>`,
+                        params: {
+                            placement: 'top',
+                        }
+                    },
+                    {
+                        target: '#v-step-SaveButton',
+                        content: `<div class="studentPageTourDiv">Step 3 / 3 <br>Click <span class="studentPageTourSpecialColor">Save</span> to save the level with class</div>`,
+                        params: {
+                            placement: 'top',
+                        }
+                    },
+                ],
+                //vue tour Update Level Class
             };
         },
         computed: {
@@ -2478,7 +2386,7 @@
         components: {promotionComponent},
         methods: {
             hideModal() {
-                console.log("111")
+                console.log("111");
                 this.withdrawShowModal = false;
                 this.transferModal = false;
             },
@@ -3203,12 +3111,26 @@
             },
             async SearchFamilyID() {
                 try {
-                    const response = await DataSource.shared.getRelationship(this.$refs.familyIDFamilyNo.value, '', this.$refs.familyParentFirstName.value, this.$refs.familyParentLastName.value, this.$refs.familyIDStudentName.value);
-                    if (response) {
-                        if (response.code === '88') {
-                            window.location.replace('/');
-                        } else {
-                            this.familyIDList = response.Table;
+                    if (this.$refs.familyIDFamilyNo.value === '' && this.$refs.familyParentFirstName.value === '' && this.$refs.familyParentLastName.value === '' && this.$refs.familyIDStudentName.value === '') {
+                        this.$notify.error({
+                            title: 'Require',
+                            message: 'Please search by Student Name / Family No / Parent First Name / Parent Last Name',
+                        });
+                    } else {
+                        const response = await DataSource.shared.getRelationship(this.$refs.familyIDFamilyNo.value, '', this.$refs.familyParentFirstName.value, this.$refs.familyParentLastName.value, this.$refs.familyIDStudentName.value);
+                        if (response) {
+                            if (response.code === '88') {
+                                window.location.replace('/');
+                            } else if (response.code === '99') {
+                                console.log('getRelationship error');
+                            } else if (response.code === '2') {
+                                this.$notify.error({
+                                    title: 'No Record',
+                                    message: 'No record found'
+                                });
+                            } else {
+                                this.familyIDList = response.Table;
+                            }
                         }
                     }
                 } catch (e) {
@@ -3354,8 +3276,8 @@
                     this.results = e;
                 }
             },
-            activeTabHappen(tab,event){
-              console.log(tab,event)
+            activeTabHappen(tab, event) {
+                console.log(tab, event);
             },
             async studentPromoteAction(PK_Semester_ID, PK_Course_ID, PK_Class_ID) {
                 this.tempPK_Semester_ID = PK_Semester_ID;
@@ -3364,26 +3286,29 @@
             },
             async promoteStudents() {
                 let studentID = this.$route.query.id;
-                await DataSource.shared.saveStudentPromotions(studentID, this.tempPK_Semester_ID, this.tempPK_Course_ID, this.tempPK_Class_ID).then((result) => {
 
-                    // this.hideLoading();
-                    if (result && result.code === "1") {
-                        console.log("22");
+                if (this.tempPK_Semester_ID !== null && this.tempPK_Course_ID !== null && this.tempPK_Class_ID !== null) {
+                    await DataSource.shared.saveStudentPromotions(studentID, this.tempPK_Semester_ID, this.tempPK_Course_ID, this.tempPK_Class_ID).then((result) => {
 
-                        this.$notify({
-                            title: 'Success',
-                            message: 'Students Promoted',
-                            type: 'success'
-                        });
-                        this.LoadStudentParentInfo();
-                    } else if (result && result.code === "2") {
-                        this.$notify({
-                            title: 'Student Exceeded',
-                            message: 'Number of students assign to this class have excceded max number of class',
-                            type: 'success'
-                        });
-                    }
-                });
+                        // this.hideLoading();
+                        if (result && result.code === "1") {
+                            console.log("22");
+
+                            this.$notify({
+                                title: 'Success',
+                                message: 'Students Promoted',
+                                type: 'success'
+                            });
+                            this.LoadStudentParentInfo();
+                        } else if (result && result.code === "2") {
+                            this.$notify({
+                                title: 'Student Exceeded',
+                                message: 'Number of students assign to this class have excceded max number of class',
+                                type: 'success'
+                            });
+                        }
+                    });
+                }
             },
             async CancelUseFamilyNo() {
                 try {
@@ -4224,12 +4149,12 @@
                     this.divEnrolledinOtherCenterShow = true;
                 }
             },
-            studentPageVueTourStart () {
+            studentPageVueTourStart() {
                 this.activeTab = 'Student';
                 this.$tours['StudentPageVueTourName'].start();
                 this.windowsSroll(0);
             },
-            studentPageVueTourParentTab (tour, nextOrPreviousStep) {
+            studentPageVueTourParentTab(tour, nextOrPreviousStep) {
                 if (this.divParent === false) {
                     if (nextOrPreviousStep === 'Next') {
                         this.$tours['StudentPageVueTourName'].currentStep = tour.currentStep + 1;
@@ -4249,12 +4174,12 @@
 
                 //setTimeout ( () => tour.nextStep(), 2000);
             },
-            studentPageVueTourCallBacksPreviousSteps (currentStep) {
+            studentPageVueTourCallBacksPreviousSteps(currentStep) {
                 let finalSteps = currentStep - 1;
 
                 this.windowsSroll(finalSteps);
             },
-            studentPageVueTourCallBacksNextSteps (currentStep) {
+            studentPageVueTourCallBacksNextSteps(currentStep) {
                 let finalSteps = currentStep + 1;
 
                 this.windowsSroll(finalSteps);
@@ -4280,12 +4205,36 @@
                 // };
                 // window.scrollBy(scrollOptions);
             },
+            studentPageVueUpdateLevelClassTourStart() {
+                this.activeTab = 'Level';
+                this.$tours['StudentPageUpdateLevelClassVueTourName'].start();
+                this.windowsSrollUpdateLevelClass(0);
+            },
+            studentPageUpdateLevelClassVueTourCallBacksPreviousSteps(currentStep) {
+                let finalSteps = currentStep - 1;
+
+                this.windowsSrollUpdateLevelClass(finalSteps);
+            },
+            studentPageUpdateLevelClassVueTourCallBacksNextSteps(currentStep) {
+                let finalSteps = currentStep + 1;
+
+                this.windowsSrollUpdateLevelClass(finalSteps);
+            },
+            studentPageUpdateLevelClassVueTourCallBacksPreviousPage() {
+                window.location.replace('/student-list?mode=Search&tour=UpdateLevelClass');
+            },
+            windowsSrollUpdateLevelClass(finalSteps) {
+                if (finalSteps >= 0 && finalSteps <= 1) {
+                    this.activeTab = 'Level';
+                }
+            },
+            ViewParent () {
+                window.open('/parent?id=' + this.inputFamilyParentID, '_blank');
+            },
         },
     };
 </script>
-
 <style scoped>
-
     .studentPageBTabs {
         position: relative;
     }
@@ -4477,10 +4426,13 @@
     .ttStuCorAddCopy:hover .ttnStuCorAddCopy {
         visibility: visible;
     }
+
+    .btnFamilyIDViewParent {
+        margin-left: 10px;
+        margin-top: 10px;
+    }
 </style>
-
 <style>
-
     .studentPageBTabs .tab-content {
         margin-top: 30px;
     }

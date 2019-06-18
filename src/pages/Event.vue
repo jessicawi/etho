@@ -1,31 +1,63 @@
 <template>
     <div id="event_Calendar">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <b-btn variant="primary" class="btnCreateEvent" v-on:click="eventNewEdit('New')">
-                Create Event
-            </b-btn>
-        </div>
 
-        <b-modal id="create_event_modal" size="xl" title='Event' ref="EventShowModal" ok-only
-                 ok-variant="secondary">
+        <div v-if="!isStaff" class="mt-3 container  pt-5">
+            <div>
+                <h1>Parent Event PAGE</h1>
+                <div class="container">
+                    <div class="row">
 
-                <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12" title="Event Type">
+                        <div class="col-sm-2">
+                            <h5>Upcoming Event</h5>
+                            <div>
+                                <ul class ='upComingEventUI'>
+                                    <li v-for="item in upComingEventList" v-bind:key="item.EventID">
+                                        {{convertToDate((item.EventDate))}}&nbsp;
+                                        <a href="#" v-on:click="showMore(item.EventDate)" id="upComingEvent2"><b>{{(item.EventCount)}}</b></a><br>
+                                        <hr>
+                                    </li>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <label>{{ lblNewEditCalendar }} Event</label> <br>
-                    <label><h1>Calendar Title</h1></label>
-                    <input type="text" class="form-control" v-model="inputEventTitle">
-                    <b-form-group label="Event Type" align="left">
-                        <b-form-radio v-model="rdEventType" name="some-radios" value="Event" checked>Event</b-form-radio>
-                        <b-form-radio v-model="rdEventType" name="some-radios" value="SchoolClosure">School Closure</b-form-radio>
-                        <b-form-radio v-model="rdEventType" name="some-radios" value="PublicHoliday">Public Holiday</b-form-radio>
-                    </b-form-group>
+                                    <ul v-if="this.upComingDetailClicked==true" id="upComingDetailParent">
+                                        <li v-for="item in upComingEventDetailList" v-bind:key="item.EventID">
+                                            <a href="#" v-on:click="editEvent(item)">{{item.EventTitle}}</a><br>
+                                            {{item.EventType}}<br>
+                                            Venue:{{item.EventLocation}}<br>
+                                            NoOfParticipant:{{item.NumberOfParticipant}}<br>
+                                            <hr>
+                                        </li>
+                                    </ul>
+
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            <h5>Calender</h5>
+                            <div><full-calendar :events="events" locale="en"></full-calendar></div>
+
+                        </div>
+                    </div>
                 </div>
+                <b-modal id="create_event_modal_nonStaff" size="xl" title='Event' ref="EventShowModalNonStaff" hide-footer
+                         ok-variant="secondary">
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <label><b>Participant Email</b></label>
+                    <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12" title="Event Type">
 
-                            <div v-if="ParticipantNameListInt.length>0">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>{{ lblNewEditCalendar }} Event</label> <br>
+                            <label><h1>Calendar Title</h1></label>
+                            <input type="text" class="form-control" v-model="inputEventTitle" :disabled="this.isDisabled">
+                            <b-form-group label="Event Type" align="left" :disabled="this.isDisabled">
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="Event" checked>Event</b-form-radio>
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="SchoolClosure">School Closure</b-form-radio>
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="PublicHoliday">Public Holiday</b-form-radio>
+                            </b-form-group>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label><b>Participant Email</b></label>
+                            <div v-if="(ParticipantNameListInt.length>0)&& this.isDisabled==false">
                                 <data-tables :data="ParticipantNameListInt" :action-col="ParticipantNameListAction">
                                     <el-table-column v-for="item in ParticipantNameList"
                                                      :prop="item.prop"
@@ -36,151 +68,361 @@
                                 </data-tables>
                             </div>
 
-                    </div>
+                            <div v-else-if="(ParticipantNameListInt.length>0)&& this.isDisabled==true">
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody v-for="item in ParticipantNameListInt" v-bind:key="item.CONid">
+                                    <tr>
+                                        <td>{{item.StAllItem}}</td>
+                                        <td>{{item.SelectedConEmail}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                <label>From
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <label>From
                                 <el-date-picker v-model="inputEventStartTime" format="dd-MM-yyyy HH:mm:ss"
                                                 value-format="dd-MM-yyyy HH:mm:ss" type="datetime"
                                                 class="form-control"
-                                                placeholder="Pick a day"></el-date-picker></label>
+                                                placeholder="Pick a day" :picker-options="datePicker" :disabled="this.isDisabled"></el-date-picker></label>
 
-                                <label> To
+                            <label> To
                                 <el-date-picker v-model="inputEventEndTime" format="dd-MM-yyyy HH:mm:ss"
                                                 value-format="dd-MM-yyyy HH:mm:ss" type="datetime"
                                                 class="form-control"
-                                                placeholder="Pick a day"></el-date-picker></label>
-                        <br>
+                                                placeholder="Pick a day" :picker-options="datePicker" :disabled="this.isDisabled"></el-date-picker></label>
+                            <br>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <b-form-checkbox :disabled="this.isDisabled"
+                                             v-model="optFullDayEvent" name="check-button" switch>Full Day event?
+                                <h6 v-if="this.optFullDayEvent==true">Yes</h6>
+                                <h6 v-else>No</h6>
+                            </b-form-checkbox>
+                            <b-form-checkbox :disabled="this.isDisabled"
+                                             v-model="optParentSignUp" name="btnParentSignUp" switch>Parent sign up?
+                                <h6 v-if="this.optParentSignUp==true">Yes</h6>
+                                <h6 v-else>No</h6>
+                            </b-form-checkbox>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Registration Limit</label>
+                            <b-form-input id="RegLimitNonStaff" :disabled="this.isDisabled"
+                                          type="text" class="form-control" v-model="inputEventRegLimit" value="0" min="0" max="99"></b-form-input>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Registration cutoff(days)</label>
+                            <b-form-input id="range-1NonStaff" v-model="inputEventRegCutOffDay" :disabled="this.isDisabled" type="range" value="0" min="0" max="5" step="1"></b-form-input>
+                            <div class="mt-2">Days: {{ inputEventRegCutOffDay }}</div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <el-select v-model="ddlClassLevel" placeholder="Select" class="fullwidth" :disabled="this.isDisabled">
+                                <el-option
+                                        v-for="item in levelList"
+                                        :key="item.PK_Course_ID"
+                                        :label="item.CRS_Course_Name"
+                                        :value="item.PK_Course_ID">
+                                </el-option>
+                            </el-select>
+                            <button v-on:click="btnAddClasses()" :disabled="this.isDisabled">Add Classes</button>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Location</label>
+                            <input type="text" class="form-control" v-model="inputEventLocation" :disabled="this.isDisabled">
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <el-select v-model="ddlParticipant" placeholder="Select One" class="fullwidth" :disabled="this.isDisabled"
+                                       filterable :filter-method="filterSelectedParticipant">
+                                <el-option v-for="item in CurrentParticipantList"
+                                           :value=item.CONid
+                                           :label="item.CONname"
+                                           :key="item.ID">
+                                </el-option>
+                            </el-select>
+                            <button v-on:click="AddParticipantList()" :disabled="this.isDisabled">Add Participant</button>
+                        </div>
+
                     </div>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <b-form-checkbox
-                            v-model="optFullDayEvent" name="check-button" switch>Full Day event?
-                            {{optFullDayEvent}}
-                        </b-form-checkbox>
-                        <b-form-checkbox
-                                v-model="optParentSignUp" name="btnParentSignUp" switch>Parent sign up?
-                            {{optParentSignUp}}
-                        </b-form-checkbox>
+                    <div v-if="this.lblNewEditCalendar==='New'">
+                        <button v-on:click="btnRejectEvent()">Reject Event</button>
                     </div>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <label>Registration Limit</label>
-                        <b-form-input id="RegLimit"
-                                      type="text" class="form-control" v-model="inputEventRegLimit" value="0" min="0" max="99"></b-form-input>
+                    <div v-else>
+                        <button v-on:click="btnJoinEvent()">Join Event</button>
                     </div>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <label>Registration cutoff(days)</label>
-                        <b-form-input id="range-1" v-model="inputEventRegCutOffDay" type="range" value="0" min="0" max="5" step="1"></b-form-input>
-                        <div class="mt-2">Days: {{ inputEventRegCutOffDay }}</div>
-                    </div>
+                </b-modal>
+            </div>
+        </div>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <el-select v-model="ddlClassLevel" placeholder="Select" class="fullwidth">
-                            <el-option
-                                    v-for="item in levelList"
-                                    :key="item.PK_Course_ID"
-                                    :label="item.CRS_Course_Name"
-                                    :value="item.PK_Course_ID">
-                            </el-option>
-                        </el-select>
-                        <button v-on:click="btnAddClasses()">Add Classes</button>
-                    </div>
 
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <label>Location</label>
-                        <input type="text" class="form-control" v-model="inputEventLocation">
-                    </div>
-
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <el-select v-model="ddlParticipant" placeholder="Select One" class="fullwidth"
-                                   filterable :filter-method="filterSelectedParticipant">
-                            <el-option v-for="item in CurrentParticipantList"
-                                       :value=item.CONid
-                                       :label="item.CONname"
-                                       :key="item.ID">
-                            </el-option>
-                        </el-select>
-                        <button v-on:click="AddParticipantList()">Add Participant</button>
-                    </div>
-
+        <div div v-if="isStaff" class="">
+            <div >
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <b-btn variant="primary" class="btnCreateEvent" v-on:click="eventNewEdit('New')">
+                        Create Event
+                    </b-btn>
                 </div>
 
-            <div v-if="this.lblNewEditCalendar==='New'">
-                <button v-on:click="btnCreateEvent()">Create Event</button>
-            </div>
+                <b-modal id="create_event_modal" size="xl" title='Event' ref="EventShowModal" hide-footer
+                         ok-variant="secondary">
 
-            <div v-else>
-                <button v-on:click="btnEditEvent()">Edit Event</button>
-            </div>
+                    <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12" title="Event Type">
 
-        </b-modal>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>{{ lblNewEditCalendar }} Event</label> <br>
+                            <label><h1>Calendar Title</h1></label>
+                            <input type="text" class="form-control" v-model="inputEventTitle" :disabled="this.isDisabled">
+                            <b-form-group label="Event Type" align="left" :disabled="this.isDisabled">
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="Event" checked>Event</b-form-radio>
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="SchoolClosure">School Closure</b-form-radio>
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="PublicHoliday">Public Holiday</b-form-radio>
+                            </b-form-group>
+                        </div>
 
-        <div class="container">
-            <div>
-                <h1>Event Overview</h1>
-            </div>
-            <div class="row">
-                <div class="col-lg">
-                    <h5>Event Details</h5>
-                    <div style="overflow-x:scroll; height:800px;background:whitesmoke;scrollbar-color:rebeccapurple green">
-                        <ul class ='eventUI'>
-                            <li v-for="item in eventList" v-bind:key="item.EventID" ref="">
-                                {{item.EventTitle}}<br>
-                                {{convertToDate(item.EventStartTime)}}<br>
-                                {{getEventTime(item.EventStartTime,item.EventEndTime)}}<br>
-                                {{item.EventLocation}}<br>
-                                <b>Created By:{{item.CONname}}</b><br>
-                                <b-btn v-if="item.EventCreatedBy === sessionID" @click="editEvent(item.EventID)">Edit</b-btn>
-                                <hr>
-                            </li>
-                        </ul>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label><b>Participant Email</b></label>
+                            <div v-if="(ParticipantNameListInt.length>0)&& this.isDisabled==false">
+                                <data-tables :data="ParticipantNameListInt" :action-col="ParticipantNameListAction">
+                                    <el-table-column v-for="item in ParticipantNameList"
+                                                     :prop="item.prop"
+                                                     :label="item.label"
+                                                     :key="item.prop"
+                                                     sortable="custom">
+                                    </el-table-column>
+                                </data-tables>
+                            </div>
+
+                            <div v-else-if="(ParticipantNameListInt.length>0)&& this.isDisabled==true">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody v-for="item in ParticipantNameListInt" v-bind:key="item.CONid">
+                                        <tr>
+                                            <td>{{item.StAllItem}}</td>
+                                            <td>{{item.SelectedConEmail}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <label>From
+                                <el-date-picker v-model="inputEventStartTime" format="dd-MM-yyyy HH:mm:ss"
+                                                value-format="dd-MM-yyyy HH:mm:ss" type="datetime"
+                                                class="form-control"
+                                                placeholder="Pick a day" :picker-options="datePicker" :disabled="this.isDisabled"></el-date-picker></label>
+
+                            <label> To
+                                <el-date-picker v-model="inputEventEndTime" format="dd-MM-yyyy HH:mm:ss"
+                                                value-format="dd-MM-yyyy HH:mm:ss" type="datetime"
+                                                class="form-control"
+                                                placeholder="Pick a day" :picker-options="datePicker" :disabled="this.isDisabled"></el-date-picker></label>
+                            <br>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <b-form-checkbox :disabled="this.isDisabled"
+                                    v-model="optFullDayEvent" name="check-button" switch>Full Day event?
+                                <h6 v-if="this.optFullDayEvent==true">Yes</h6>
+                                <h6 v-else>No</h6>
+                            </b-form-checkbox>
+                            <b-form-checkbox :disabled="this.isDisabled"
+                                    v-model="optParentSignUp" name="btnParentSignUp" switch>Parent sign up?
+                                <h6 v-if="this.optParentSignUp==true">Yes</h6>
+                                <h6 v-else>No</h6>
+                            </b-form-checkbox>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Registration Limit</label>
+                            <b-form-input id="RegLimit" :disabled="this.isDisabled"
+                                          type="text" class="form-control" v-model="inputEventRegLimit" value="0" min="0" max="99"></b-form-input>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Registration cutoff(days)</label>
+                            <b-form-input id="range-1" v-model="inputEventRegCutOffDay" :disabled="this.isDisabled" type="range" value="0" min="0" max="5" step="1"></b-form-input>
+                            <div class="mt-2">Days: {{ inputEventRegCutOffDay }}</div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <el-select v-model="ddlClassLevel" placeholder="Select" class="fullwidth" :disabled="this.isDisabled">
+                                <el-option
+                                        v-for="item in levelList"
+                                        :key="item.PK_Course_ID"
+                                        :label="item.CRS_Course_Name"
+                                        :value="item.PK_Course_ID">
+                                </el-option>
+                            </el-select>
+                            <button v-on:click="btnAddClasses()" :disabled="this.isDisabled">Add Classes</button>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Location</label>
+                            <input type="text" class="form-control" v-model="inputEventLocation" :disabled="this.isDisabled">
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <el-select v-model="ddlParticipant" placeholder="Select One" class="fullwidth" :disabled="this.isDisabled"
+                                       filterable :filter-method="filterSelectedParticipant">
+                                <el-option v-for="item in CurrentParticipantList"
+                                           :value=item.CONid
+                                           :label="item.CONname"
+                                           :key="item.ID">
+                                </el-option>
+                            </el-select>
+                            <button v-on:click="AddParticipantList()" :disabled="this.isDisabled">Add Participant</button>
+                        </div>
+
+                    </div>
+
+                    <div v-if="this.lblNewEditCalendar==='New'">
+                        <button v-on:click="btnCreateEvent()" :disabled="this.isDisabled">Create Event</button>
+                    </div>
+
+                    <div v-else>
+                        <button v-on:click="btnEditEvent()" :disabled="this.isDisabled">Edit Event</button>
+                    </div>
+
+                </b-modal>
+
+                <div class="container">
+                    <div>
+                        <h1>Event Overview</h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <h5>Event Details</h5>
+                            <div style="overflow-x:scroll; height:800px;background:whitesmoke;scrollbar-color:rebeccapurple green">
+                                <ul class ='eventUI'>
+                                    <li v-for="item in eventList" v-bind:key="item.EventID">
+                                        <b>{{item.EventTitle}}</b><br>
+                                        {{convertToDate(item.EventStartTime)}}<br>
+                                        {{getEventTime(item.EventStartTime,item.EventEndTime)}}<br>
+                                        {{item.EventLocation}}<br>
+                                        <b>Created By:{{item.CONname}}</b><br>
+                                        <b-btn v-if="item.EventCreatedBy === sessionID" @click="editEvent(item)">Edit</b-btn>&nbsp;
+                                        <b-btn v-if="item.EventCreatedBy === sessionID" @click="deleteEvent(item.EventID)">Delete</b-btn>
+                                        <hr>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <h5>Upcoming Event</h5>
+                            <div>
+                                <ul class ='upComingEventUI'>
+                                    <li v-for="item in upComingEventList" v-bind:key="item.EventID">
+                                        {{convertToDate((item.EventDate))}}&nbsp;
+                                        <a href="#" v-on:click="showMore(item.EventDate)" id="upComingEvent1"><b>{{(item.EventCount)}}</b></a><br>
+                                        <hr>
+                                    </li>
+
+                                    <ul v-if="this.upComingDetailClicked==true" id="upComingDetail">
+                                        <li v-for="item in upComingEventDetailList" v-bind:key="item.EventID">
+                                            <a href="#" v-on:click="editEvent(item)">{{item.EventTitle}}</a><br>
+                                            {{item.EventType}}<br>
+                                            Venue:{{item.EventLocation}}<br>
+                                            NoOfParticipant:{{item.NumberOfParticipant}}<br>
+                                            <hr>
+                                        </li>
+                                    </ul>
+
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            <h5>Calender</h5>
+                            <div><full-calendar :events="events" locale="en"></full-calendar></div>
+
+                        </div>
                     </div>
                 </div>
-
-                <div class="col-sm">
-                    <h5>Upcoming Event</h5>
-                </div>
-
-                <div class="col-sm">
-                    <h5>Calender</h5>
-                    <div style="overflow-x:scroll; >
-                        /*<v-calendar ></v-calendar>*/
-                        /*<v-date-picker :mode='mode' v-model='selectedDate'/>*/
-                        <!--<button v-on:click="btnAddToCalendar()">Add to calendar</button>-->
-                    </div>
             </div>
         </div>
     </div>
+
+
+
 </template>
 
 <script>
     import DataSource from "../data/datasource";
     import Cookies from "js-cookie";
-    import Vue from 'vue';
-    import VCalendar from "v-calendar";
+    import {fullCalendar} from "vue-fullcalendar";
+    import ProfileImg from "../assets/boy.png";
 
-    Vue.use(VCalendar, {
-        componentPrefix: 'v',  // Use <vc-calendar /> instead of <v-calendar />
-        // ...,                // ...other defaults
-    });
     export default {
         name: "Event",
         components: {
-            // VCalendar,
+            'full-calendar': require('vue-fullcalendar')
+        },
+        async created() {
+            // this.imgStaffProfile = ProfileImg;
+
+            if (Cookies.get('userTypeSession') === 'Parent') {
+                this.isStaff = false;
+                await this.LoadUpComingEvent();
+
+            } else {
+                this.isStaff = true;
+                // await this.LoadProfileImg();
+                await this.LoadEventDetails();
+                await this.LoadUpComingEvent();
+                await this.BindParticipantList();
+                await this.getLevelSpecificSchool();
+            }
         },
         async mounted() {
-            await this.LoadEventDetails();
-            await this.BindParticipantList();
-            await this.getLevelSpecificSchool();
-
+            this.userType = Cookies.get('userTypeSession');
             this.sessionID = Cookies.get('userIDSession');
         },
         data(){
             return{
+                userType:"",
+                isStaff: '',
+                imgStaffProfile: '',
+
+                upComingDetailClicked:false,
+                isDisabled:false,
+                datePicker:{
+                    disabledDate(date){
+
+                        return date<(new Date().getTime() - (1 * 24 * 60 * 60 * 1000));
+                        //  Without using the second variable, you can replace 7 for with your back x days:
+                        //e.g return date< Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000));
+                    }
+                },
+
                 ddlParticipant:'',
                 selectedParticipantList:[],
+                upComingEventList:[],
+                upComingEventDetailList:[],
                 rdEventType: '',
                 eventList:[],
                 levelList: [],
@@ -195,8 +437,22 @@
                 inputEventDesc:'',
                 selectedEventID:'',
                 ddlClassLevel: '',
-                //v-calendar
-                inputVCalendar:'',
+                //Full Calendar
+                events:[{
+                            title  : 'Monday Blue',
+                            start  : '2019-06-10',
+                        },
+                        {
+                            title  : 'Sunny CoCo ',
+                            start  : '2019-06-24',
+                            end    : '2019-06-27',
+                        },
+                        {
+                            title  : 'EMS Meeting',
+                            start  : '2019-06-11T12:30:00',
+                            allDay : false,
+                         }],
+
                 mode:'single',
                 selectedDate:null,
                 sessionID: '',
@@ -217,13 +473,14 @@
                             icon: 'el-icon-edit'
                         },
                         handler: row => {
-                            console.log(row, row.SelectedConID, row.SelectedConEmail, row.StAllItem);
+
                             this.ParticipantNameListInt.splice(this.ParticipantNameListInt.indexOf(row), 1);
                             this.selectedParticipantList.splice(this.selectedParticipantList.indexOf(row), 1);
                             let objValue= {
                                 CONname: row.StAllItem,
                                 CONEmail: row.SelectedConEmail,
                                 CONid: row.SelectedConID,
+                                EventParID:row.SelectedEventParID,
                             }
                             this.CurrentParticipantList.push(objValue);
 
@@ -238,12 +495,16 @@
             }
         },
         methods:{
+            showMore(obj){
+                console.log('test href a');
+                this.upComingDetailClicked = true;
+                this.LoadUpComingEventDetail(obj);
+            },
             async BindEventFields(resultTable){
                 try {
                     this.ParticipantNameListIntTemp=[];
                     this.ParticipantNameListInt=[];
                     this.CurrentParticipantList=[];
-
 
                     resultTable.forEach(m => {
                         this.inputEventTitle = m.EventTitle;
@@ -257,7 +518,6 @@
                         const resp = DataSource.shared.getEventParticipantByEventID(m.EventID);
                         resp.then((resp)=>{
                             if(resp.code ==='2'){
-                                console.log('No record found');
                                 this.MasterParticipantList.forEach(m=>{
                                     this.CurrentParticipantList.push(m);
                                 });
@@ -269,6 +529,7 @@
                                             StAllItem: n.CONname,
                                             SelectedConID:n.CONid,
                                             SelectedConEmail:n.CONEmail,
+                                            SelectedEventParID:n.EventParID,
                                     }
                                         this.ParticipantNameListInt.push(tempList);
 
@@ -283,6 +544,7 @@
                                                     CONname: p.CONname,
                                                     CONid:p.CONid,
                                                     CONEmail:p.CONEmail,
+                                                    SelectedEventParID:p.EventParID,
                                                 }
                                                 this.CurrentParticipantList.push(tempCurrentList);
                                             }
@@ -319,11 +581,24 @@
                     this.results = e;
                 }
             },
-            async editEvent(eventID){
+            async editEvent(objValue){
                 try{
                     //capture EventID
-                    this.selectedEventID = eventID;
-                    const response = await DataSource.shared.getEvent(eventID);
+                    var obj = {
+                        eventID:objValue.EventID,
+                        eventCreatedBy:objValue.EventCreatedBy,
+                    }
+
+                    //Disable user to editEvent if
+                    if(Cookies.get('userIDSession')==obj.eventCreatedBy||Cookies.get('userIDSession')==null){
+                        this.isDisabled = false;
+                    }
+                    else{
+                        this.isDisabled = true;
+                    }
+
+                    this.selectedEventID = obj.eventID;
+                    const response = await DataSource.shared.getEvent(this.selectedEventID);
                     if(response==='88') {
                         window.location.replace('/');
                     }else if(response==='99'){
@@ -332,10 +607,14 @@
                         console.log('invalid ID');
                         window.location.replace('/');
                     }
+
+                    if(this.isStaff === false){
+                        this.BindEventFields(response.Table);
+                        this.$refs['EventShowModalNonStaff'].show();
+                    }
                     else{
                         this.BindEventFields(response.Table);
                         this.$refs['EventShowModal'].show();
-                        console.log(eventID);
                     }
                     this.eventNewEdit('Edit');
 
@@ -344,6 +623,31 @@
                     console.log(e);
                 }
 
+            },
+            async deleteEvent(eventID){
+                try{
+                    //capture EventID
+                    this.selectedEventID = eventID;
+
+                    const response = await DataSource.shared.deleteEvent(eventID);
+
+                    if(response.code==='88') {
+                        window.location.replace('/');
+                    }else if(response.code==='99'){
+                        console.log('Event Not Found');
+                    }else if(response.code==='2'){
+                        console.log('invalid ID');
+                        window.location.replace('/');
+                    }
+                    else if(response.code==='1'){
+                        alert('Event Deleted!');
+                        window.location.replace('/event');
+                    }
+
+                }catch(e){
+                    alert(e);
+                    console.log(e);
+                }
             },
             AddParticipantList(){
                 try{
@@ -389,7 +693,6 @@
             },
             async getLevelSpecificSchool() {
                 try {
-                   console.log(Cookies.get('schoolSession')) ;
                     const response = await DataSource.shared.getLevelSpecificSchool(Cookies.get('schoolSession'));
                     if (response) {
                         if (response.code === '88') {
@@ -429,6 +732,9 @@
                 let day = new Date(startTime).getDate();
                 let month = new Date(startTime).getMonth() + 1;
                 let year = new Date(startTime).getFullYear();
+                // let utcyear = new Date(startTime).getUTCFullYear();
+                // let utcmonth = new Date(startTime).getUTCMonth();
+                // console.log(day,utcmonth,year);
                 let date;
 
                 let monthValue = new Array();
@@ -508,7 +814,7 @@
                             console.log('99');
                         }
                         else if(response.code==='1'){
-                            alert('Event edit Successful');
+                            alert('Success');
                             window.location.replace('/Event');
                         }
                     }
@@ -516,9 +822,6 @@
                 catch(e){
                     alert(e);
                 }
-            },
-            async btnAddToCalendar(){
-
             },
             async LoadEventDetails() {
                 try{
@@ -529,8 +832,55 @@
                             alert('No record found');
                             console.log('No record found');
                         }
+                        else if(response.code ==='99'){
+                            alert('No event found');
+                            console.log('No event found');
+                        }
                         else {
                             this.eventList = (response.Table)? response.Table:[];
+                        }
+                    });
+                }catch(e){
+                    alert(e);
+                    console.log(e);
+                }
+            },
+            async LoadUpComingEvent() {
+                try{
+                    const response = DataSource.shared.getUpComingEvent();
+                    response.then((response)=>{
+
+                        if(response.Table.length < 1){
+                            console.log('No record found');
+                        }
+                        else if(response.code ==='99'){
+                            console.log('99');
+                        }
+                        else {
+                            this.upComingEventList = (response.Table)? response.Table:[];
+                        }
+                    });
+                }catch(e){
+                    alert(e);
+                    console.log(e);
+                }
+            },
+            LoadUpComingEventDetail(value){
+                try{
+                    var obj = {
+                        EventStartTime:value,
+                    }
+                    const response = DataSource.shared.getUpComingEventDetail(JSON.stringify(obj));
+                    response.then((response)=>{
+
+                        if(response.Table.length < 1){
+                            console.log('No record found');
+                        }
+                        else if(response.code ==='99'){
+                            console.log('99');
+                        }
+                        else {
+                            this.upComingEventDetailList = (response.Table)? response.Table:[];
                         }
                     });
                 }catch(e){
@@ -546,10 +896,18 @@
                 else{
                     this.lblNewEditCalendar = value;
                 }
-                this.$refs.EventShowModal.show();
+
+                if(this.isStaff === false){
+                    this.$refs.EventShowModalNonStaff.show();
+                }
+                else{
+                    this.$refs.EventShowModal.show();
+                }
+
             },
             refreshBModalValue(){
                 let getCurrentDateTime = new Date();
+                this.isDisabled = false;
                 this.inputEventTitle = '';
                 this.rdEventType = 'Event';
                 this.inputEventStartTime = getCurrentDateTime;
@@ -567,15 +925,25 @@
                     this.CurrentParticipantList.push(m);
                 });
             },
-            async filterSelectedParticipant(filterValue, allOptions) {
+            async filterSelectedParticipant(filterValue, allOptions){
                 return allOptions.filter(option => option.includes(filterValue));
             },
-
             async btnEditEvent(){
                 try
                 {
-                    let participantList=[];
-                    console.log(this.selectedEventID);
+                    if(this.optFullDayEvent===true){
+                        this.optFullDayEvent="Yes";
+                    }
+                    else{
+                        this.optFullDayEvent="No";
+                    }
+                    if(this.optParentSignUp===true){
+                        this.optParentSignUp = "Yes";
+                    }
+                    else{
+                        this.optParentSignUp = "No";
+                    }
+
                     var Obj = {
                         EventID:this.selectedEventID,
                         EventTitle:this.inputEventTitle,
@@ -590,16 +958,6 @@
                         // EventDesc:this:inputEventDesc
                     };
 
-                    if(this.selectedParticipantList!==''|| this.selectedParticipantList !== null || this.selectedParticipantList !==undefined){
-                        this.selectedParticipantList.forEach(item => {
-                            let participantListDetail = {
-                                Type: 'EventParConID',
-                                value: item.participantConID,
-                            };
-                            participantList.push(participantListDetail);
-                        });
-                    }
-
                     if(this.inputEventTitle=== '' || this.inputEventTitle === null || this.inputEventTitle === undefined){
                         alert('Please insert event title.');
                     }
@@ -611,7 +969,7 @@
                     }
                     else{
 
-                        const response = await DataSource.shared.updateEvent(JSON.stringify(Obj),JSON.stringify(participantList));
+                        const response = await DataSource.shared.updateEvent(JSON.stringify(Obj),JSON.stringify(this.ParticipantNameListInt));
 
                         if(response.code==='88'){
                             console.log('88');
@@ -632,10 +990,67 @@
             async btnAddClasses(){
                 console.log(this.ddlClassLevel);
             },
+            // async LoadProfileImg() {
+            //     try {
+            //         const staffProPic = await DataSource.shared.getStaffProfileImage();
+            //         if (staffProPic) {
+            //             if (staffProPic.code !== '2' && staffProPic.code !== '88' && staffProPic.code !== '99') {
+            //                 let image64String = this.ConvertBase64StringToImage(staffProPic.Table[0]);
+            //                 image64String !== '' ? this.imgStaffProfile = image64String : '';
+            //             }
+            //         }
+            //     } catch (e) {
+            //         this.result = e;
+            //     }
+            // },
+            // ConvertBase64StringToImage(file) {
+            //     if (this.isImage(file))
+            //         return "data:" + file.UPPImageFileType + ";base64," + file.UPPImage;
+            //     else
+            //         return '';
+            // },
+            // isImage(obj_File) {
+            //     let ext = String(obj_File.UPPImageFileExt).toUpperCase();
+            //     let isImage = false;
+            //
+            //     switch (ext) {
+            //         case ".PNG":
+            //         case ".JPG":
+            //         case ".BMP":
+            //         case ".GIF":
+            //             isImage = true;
+            //             break;
+            //         default:
+            //             isImage = false;
+            //             break;
+            //     }
+            //     return isImage;
+            // },
+            //todo:For ParentView B-tab
+            async btnJoinEvent(){
+                console.log('btnJoinEvent');
+            },
+            async btnRejectEvent(){
+                console.log('btnRejectEvent');
+            },
         },
     }
 </script>
 
 <style scoped>
+    table, th, td {
+        border: 2px solid black;
+    }
+    a:link {
+        background-color: yellow;
+    }
+
+    a:visited {
+        background-color: cyan;
+    }
+
+    a:hover {
+        background-color: lightgreen;
+    }
 
 </style>

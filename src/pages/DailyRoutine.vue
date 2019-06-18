@@ -3,8 +3,17 @@
         <div class="container daily-header__wrap" style="background: transparent;">
             <div class="daily-header">
                 <div class="title">
-                    <h4>DAILY ROUTINE</h4>
-                    <div v-if="StudentHeader === null" class="mb-3">Please select a student ...</div>
+                    <div class="daily-title_item">
+                        <h4>DAILY ROUTINE</h4>
+                        <div v-if="StudentHeader === null" class="mb-3">Please select a student ...</div>
+                    </div>
+                    <div class="daily-title_item">
+                        <router-link :to="{name: 'Daily Routine Mass Update'}">
+                            <el-button type="primary" class="d-flex" round>
+                                Mass Update
+                            </el-button>
+                        </router-link>
+                    </div>
                 </div>
                 <div class="routine-select">
 
@@ -16,7 +25,7 @@
                     <!--<br/>-->
 
                     <el-select v-model="StudentHeader" filterable placeholder="Select Student" id="ddl_Students"
-                               @input="Load">
+                               @input="Load" value-key="Student_ID">
                         <el-option-group
                                 v-for="classes of arrobj_Classes"
                                 :key="classes.id"
@@ -24,7 +33,7 @@
                             <el-option
                                     v-for="student of classes.arrobj_Student"
                                     :key="student.id"
-                                    :label="student.First_Name + ' ' + student.Student_ID"
+                                    :label="student.First_Name + ' (' + student.Index_No + ')'"
                                     :value="student">
                             </el-option>
                         </el-option-group>
@@ -58,128 +67,128 @@
                                 <el-option key="Hygiene" label="Hygiene" value="Hygiene"></el-option>
                             </el-select>
                         </el-form-item>
-                    <!--<select v-model='ddlTaskDescription' @change="TaskDescription()">-->
-                    <!--<option>Rest</option>-->
-                    <!--<option>Feed</option>-->
-                    <!--<option>Poop</option>-->
-                    <!--<option>Hygiene</option>-->
-                    <!--</select>-->
+                        <!--<select v-model='ddlTaskDescription' @change="TaskDescription()">-->
+                        <!--<option>Rest</option>-->
+                        <!--<option>Feed</option>-->
+                        <!--<option>Poop</option>-->
+                        <!--<option>Hygiene</option>-->
+                        <!--</select>-->
                         <el-form-item label="Rest Type" v-if="selectionRest">
-                            <el-select v-model="ddlRest" >
+                            <el-select v-model="ddlRest">
                                 <el-option key="Nap" label="Nap" value="Nap"></el-option>
                                 <el-option key="Sleep" label="Sleep" value="Sleep"></el-option>
                             </el-select>
                         </el-form-item>
-                    <!--<select v-model="ddlRest">-->
-                    <!--<option></option>-->
-                    <!--<option>Nap</option>-->
-                    <!--<option>Sleep</option>-->
-                    <!--</select>-->
+                        <!--<select v-model="ddlRest">-->
+                        <!--<option></option>-->
+                        <!--<option>Nap</option>-->
+                        <!--<option>Sleep</option>-->
+                        <!--</select>-->
 
-                    <!--<div class="daily-feed">-->
+                        <!--<div class="daily-feed">-->
                         <el-form-item label="Feed Type" v-if="selectionFeed">
-                        <el-select v-model="ddlFeed" @change="TaskDescription()" >
-                            <el-option key="Bottle-Type" label="Bottle-Type" value="Bottle-Type"></el-option>
-                            <el-option key="Solid" label="Solid" value="Solid"></el-option>
-                            <el-option key="Latch On" label="Latch On" value="Latch On"></el-option>
-                            <el-option key="Menu" label="Menu" value="Menu"></el-option>
-                        </el-select>
+                            <el-select v-model="ddlFeed" @change="TaskDescription()">
+                                <el-option key="Bottle-Type" label="Bottle-Type" value="Bottle-Type"></el-option>
+                                <el-option key="Solid" label="Solid" value="Solid"></el-option>
+                                <el-option key="Latch On" label="Latch On" value="Latch On"></el-option>
+                                <el-option key="Menu" label="Menu" value="Menu"></el-option>
+                            </el-select>
                         </el-form-item>
 
                         <el-form-item label="Bottle-Type" v-if="selectionFeedBottleType && selectionFeed">
-                        <el-select v-model="ddlFeedBottleType">
-                            <el-option key="Formula" label="Formula" value="Formula"></el-option>
-                            <el-option key="Breast Milk" label="Breast Milk" value="Breast Milk"></el-option>
-                        </el-select>
+                            <el-select v-model="ddlFeedBottleType">
+                                <el-option key="Formula" label="Formula" value="Formula"></el-option>
+                                <el-option key="Breast Milk" label="Breast Milk" value="Breast Milk"></el-option>
+                            </el-select>
                         </el-form-item>
                         <el-form-item label="Latch Side" v-if="selectionLatchOn && selectionFeed">
-                        <el-select v-model="ddlLatchOn" placeholder="Latch On">
-                            <el-option key="Left" label="Left" value="Left"></el-option>
-                            <el-option key="Right" label="Right" value="Right"></el-option>
-                        </el-select>
+                            <el-select v-model="ddlLatchOn" placeholder="Latch On">
+                                <el-option key="Left" label="Left" value="Left"></el-option>
+                                <el-option key="Right" label="Right" value="Right"></el-option>
+                            </el-select>
                         </el-form-item>
-                    <!--</div>-->
+                        <!--</div>-->
 
-                    <!--<div class="daily-poop">-->
+                            <!--<div class="daily-poop">-->
                         <el-form-item label="Poop Detail" v-if="selectionPoop">
-                        <el-select v-model="ddlPoop" @change="TaskDescription()" >
-                            <el-option key="Texture" label="Texture" value="Texture"></el-option>
-                            <el-option key="Color" label="Color" value="Color"></el-option>
-                        </el-select>
+                            <el-select v-model="ddlPoop" @change="TaskDescription()">
+                                <el-option key="Texture" label="Texture" value="Texture"></el-option>
+                                <el-option key="Color" label="Color" value="Color"></el-option>
+                            </el-select>
                         </el-form-item>
 
                         <el-form-item label="Texture Type" v-if="selectionTexture && selectionPoop">
-                        <el-select v-model="ddlTexture" >
-                            <el-option key="Creamy" label="Creamy" value="Creamy"></el-option>
-                            <el-option key="Firm" label="Firm" value="Firm"></el-option>
-                            <el-option key="Hard" label="Hard" value="Hard"></el-option>
-                            <el-option key="Watery" label="Watery" value="Watery"></el-option>
-                        </el-select>
+                            <el-select v-model="ddlTexture">
+                                <el-option key="Creamy" label="Creamy" value="Creamy"></el-option>
+                                <el-option key="Firm" label="Firm" value="Firm"></el-option>
+                                <el-option key="Hard" label="Hard" value="Hard"></el-option>
+                                <el-option key="Watery" label="Watery" value="Watery"></el-option>
+                            </el-select>
                         </el-form-item>
 
                         <el-form-item label="Poop Color" v-if="selectionColor && selectionPoop">
-                        <el-select v-model="ddlColor" >
-                            <el-option key="Brown" label="Brown" value="Brown"></el-option>
-                            <el-option key="Tan" label="Tan" value="Tan"></el-option>
-                            <el-option key="Yellow" label="Yellow" value="Yellow"></el-option>
-                            <el-option key="Green" label="Green" value="Green"></el-option>
-                            <el-option key="Black" label="Black" value="Black"></el-option>
-                        </el-select>
+                            <el-select v-model="ddlColor">
+                                <el-option key="Brown" label="Brown" value="Brown"></el-option>
+                                <el-option key="Tan" label="Tan" value="Tan"></el-option>
+                                <el-option key="Yellow" label="Yellow" value="Yellow"></el-option>
+                                <el-option key="Green" label="Green" value="Green"></el-option>
+                                <el-option key="Black" label="Black" value="Black"></el-option>
+                            </el-select>
                         </el-form-item>
-                    <!--</div>-->
+                        <!--</div>-->
 
                         <el-form-item label="Hygiene Activity" v-if="selectionHygiene">
-                    <el-select v-model="ddlHygiene" >
-                        <el-option key="Diaper change" label="Diaper change" value="Diaper change"></el-option>
-                        <el-option key="Shower&Diaper change" label="Shower&Diaper change"
-                                   value="Shower&Diaper change"></el-option>
-                        <el-option key="Shower" label="Shower" value="Shower"></el-option>
-                    </el-select>
+                            <el-select v-model="ddlHygiene">
+                                <el-option key="Diaper change" label="Diaper change" value="Diaper change"></el-option>
+                                <el-option key="Shower&Diaper change" label="Shower&Diaper change"
+                                           value="Shower&Diaper change"></el-option>
+                                <el-option key="Shower" label="Shower" value="Shower"></el-option>
+                            </el-select>
                         </el-form-item>
-                    <!--<el-time-picker type="time" v-model="txtTimeStart" value-format="hh:mm"-->
-                    <!--placeholder="Get current time" v-if="selectionCurrentTime"></el-time-picker>-->
+                        <!--<el-time-picker type="time" v-model="txtTimeStart" value-format="hh:mm"-->
+                        <!--placeholder="Get current time" v-if="selectionCurrentTime"></el-time-picker>-->
 
                         <el-form-item label="Start" v-if="selectionCurrentTime">
-                    <el-time-select
-                            placeholder="Get current time"
-                            v-model="txtTimeStart"
+                            <el-time-select
+                                    placeholder="Get current time"
+                                    v-model="txtTimeStart"
                             >
-                    </el-time-select>
+                            </el-time-select>
                         </el-form-item>
 
                         <el-form-item label="Start" v-if="selectionStartEndTime">
 
-                    <el-time-select
-                            placeholder="Get Start time"
-                            v-model="txtTimeStart"
+                            <el-time-select
+                                    placeholder="Get Start time"
+                                    v-model="txtTimeStart"
 
-                            :picker-options="{
+                                    :picker-options="{
                             start: '08:30',
                             step: '00:10',
                             end: '20:30'
                             }">
-                    </el-time-select>
+                            </el-time-select>
                         </el-form-item>
 
                         <el-form-item label="End" v-if="selectionStartEndTime">
-                    <el-time-select
-                            placeholder="End time"
-                            v-model="txtTimeStop"
+                            <el-time-select
+                                    placeholder="End time"
+                                    v-model="txtTimeStop"
 
-                            :picker-options="{
+                                    :picker-options="{
                             start: '08:30',
                             step: '00:10',
                             end: '20:30',
                             minTime: txtTimeStart
                             }">
-                    </el-time-select>
+                            </el-time-select>
                         </el-form-item>
 
-                    <!--<el-time-picker type="time" v-model="txtTimeStart" value-format="hh:mm"-->
-                    <!--placeholder="Get Start time" v-if="selectionStartEndTime"></el-time-picker>-->
+                        <!--<el-time-picker type="time" v-model="txtTimeStart" value-format="hh:mm"-->
+                        <!--placeholder="Get Start time" v-if="selectionStartEndTime"></el-time-picker>-->
 
-                    <!--<el-time-picker type="time" v-model="txtTimeStop" value-format="hh:mm"-->
-                    <!--placeholder="Get End time" v-if="selectionStartEndTime"></el-time-picker>-->
+                        <!--<el-time-picker type="time" v-model="txtTimeStop" value-format="hh:mm"-->
+                        <!--placeholder="Get End time" v-if="selectionStartEndTime"></el-time-picker>-->
                     </el-form>
                 </div>
 
@@ -449,7 +458,6 @@
                     this.arrobj_Classes = [];
                     const response = await DataSource.shared.getAttendanceClass();
                     if (response) {
-                        this.$vs.loading.close();
                         let tempClasses = response.Table;
                         let tempStudent = [];
                         for (let obj of tempClasses) {
@@ -461,6 +469,8 @@
                             }
                         }
                         this.arrobj_Classes = tempStudent;
+
+                        this.$vs.loading.close();
                     }
                 } catch (e) {
                     this.results = e;
@@ -474,23 +484,16 @@
                         this.DailyRoutineList.forEach(m => {
                             m.checked = true;
                         });
-                        //
-                        // console.log("aa");
                         // this.$refs.chkitems.forEach(m => {
                         //     m.checked = true;
                         //     m.check = true;
                         // });
                         // this.selectItem = true;
-                        // console.log(this.selectItem);
                     } else {
 
                         this.DailyRoutineList.forEach(m => {
                             m.checked = false;
                         });
-
-                        //
-                        //
-                        // console.log("bbs");
                         // this.selectItem = false;
                         // this.$refs.chkitems.forEach(m => {
                         //     m.checked = false;
@@ -508,7 +511,6 @@
                     response.then((response) => {
                         this.DailyRoutineList = (response.Table) ? response.Table : [];
                         if (response.code === '2') {
-                            console.log("noach");
                             this.noActivity = true;
                         }
                     });
@@ -528,7 +530,6 @@
                 this.selectionStartEndTime = false;
                 this.selectionCurrentTime = false;
                 this.selectionRemark = false;
-                console.log(this.ddlTaskDescription);
                 if (this.ddlTaskDescription === 'Rest') {
                     this.selectionRest = true;
                     this.selectionStartEndTime = true;
@@ -617,16 +618,8 @@
                         btnAddObject.DrStartTime = this.txtTimeStart;
                         btnAddObject.DrEndTime = this.txtTimeStop;
                         btnAddObject.DrRemark = this.txtRemark;
-                        btnAddObject.studentID = this.obj_Student.Student_ID;
+                        btnAddObject.studentIDArray = JSON.stringify(this.obj_Student.Student_ID);
                         btnAddObject.DrReferenceType = drReferenceType;
-
-                        // console.log(btnAddObject.DrEndTime);
-                        // if (this.txtTimeStop === null || this.txtTimeStart === null || this.txtTimeStop === "" || this.txtTimeStart === ""){
-                        //     this.$notify.error({
-                        //         title: 'Error',
-                        //         message: 'Please fill in content'
-                        //     });
-                        // }else{
 
 
                         if (this.selectionRest === true && this.txtTimeStop === "") {
@@ -640,17 +633,16 @@
                                 message: 'Please fill in content'
                             });
                         } else if (this.selectionFeed === true && this.txtTimeStart === "") {
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Please fill in content'
-                                });
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please fill in content'
+                            });
                         } else if (this.selectionHygiene === true && this.txtTimeStart === "") {
                             this.$notify.error({
                                 title: 'Error',
                                 message: 'Please fill in content'
                             });
-                        }else  {
-                            console.log("33");
+                        } else {
                             const resp = DataSource.shared.addDailyRoutine(btnAddObject);
                             resp.then((resp) => {
 
@@ -663,7 +655,6 @@
 
                                 this.obj_Student = tempStudent;
                                 this.Load(this.obj_Student);
-                                console.log(this.obj_Student.Student_ID);
 
                                 if (resp.code === '1') {
                                     this.$notify({
@@ -671,14 +662,12 @@
                                         message: 'Task added.',
                                         type: 'success'
                                     });
-                                    // alert('Task added.');
 
                                 } else {
                                     this.$notify.error({
                                         title: 'Error',
                                         message: 'Error'
                                     });
-                                    // alert('Error.');
                                 }
                             });
                         }
@@ -688,11 +677,9 @@
                             title: 'Error',
                             message: 'Please select student.'
                         });
-                        // alert("Please select student.");
                     }
 
                 } catch (e) {
-                    alert(e);
                     console.log(e);
                 }
             },
@@ -702,12 +689,10 @@
                     let btnDelObject = [];
                     this.DailyRoutineList.forEach((m, index) => {
                         if (m.checked === true) {
-                            console.log("go");
                             Count++;
                             btnDelObject.DrStudentID = m.DrStudentID;
                             btnDelObject.drID = m.DrID;
                             DataSource.shared.deleteDailyRoutine(btnDelObject);
-                            console.log("deleted");
                             this.selectall = false;
                             this.$notify({
                                 title: 'Success',
@@ -729,7 +714,6 @@
                             title: 'Error',
                             message: 'Nothing selected!'
                         });
-                        // alert("Nothing selected!");
                     }
                     this.Load(this.obj_Student);
 
@@ -742,7 +726,6 @@
                     //if no checkbox is checked, pop up alert
                     let Count = 0;
                     let btnUpdateObject = [];
-                    console.log(this.DailyRoutineList);
                     this.DailyRoutineList.forEach((m, index) => {
 
                         if (m.checked === true) {
@@ -771,14 +754,12 @@
                             title: 'Error',
                             message: 'Nothing selected!'
                         });
-                        // alert("Nothing selected!");
                     } else {
                         this.$notify({
                             title: 'Success',
                             message: 'Task Updated.',
                             type: 'success'
                         });
-                        // alert("Task Updated.");
                     }
                     this.Load(this.obj_Student);
                 } catch (exception) {

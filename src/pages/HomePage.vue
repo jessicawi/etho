@@ -139,6 +139,36 @@
                     </div>
                 </div>
             </div>
+            <div class="row mb-3">
+                <div class="col-lg-12 " v-loading="loading">
+                    <div class="chartBox">
+                        <div class="dashboard-title"><h4 class="text-left">Student Attendance ({{ currentDateWithAlphabet }})</h4></div>
+                        <div class="col-lg-12" v-if="attendanceTodayNumberInt.length < 1" >
+                            <div style="padding:100px 0 0 0;">
+                                Please Wait...
+                            </div>
+                        </div>
+                        <div class="col-lg-12" v-if="attendanceTodayNumberInt.length > 0" >
+                            <data-tables :data="attendanceTodayNumberInt" :filters="attendanceTodayNumberFilter" :page-size="5" :pagination-props="{ pageSizes: [5, 10, 20] }">
+                                <el-row slot="tool" style="margin: 10px 0">
+                                    <el-col :span="5">
+                                        <label>Search Class:</label>
+                                    </el-col>
+                                    <el-col :span="10">
+                                        <el-input v-model="attendanceTodayNumberFilter[0].value">
+                                        </el-input>
+                                    </el-col>
+                                </el-row>
+
+                                <el-table-column v-for="attendanceTodayNumberInfo in attendanceTodayNumber" :prop="attendanceTodayNumberInfo.prop"
+                                                 :label="attendanceTodayNumberInfo.label" :key="attendanceTodayNumberInfo.prop"
+                                                 sortable="custom">
+                                </el-table-column>
+                            </data-tables>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!--<div class=" mb-3 home-news">-->
             <!--<div class="dashboard-title"><h4 class="text-left float-left">Upcoming</h4><a class="float-right"-->
             <!--href="#">MORE </a></div>-->
@@ -198,6 +228,7 @@
     import {countDuplicates} from "../helper/utily";
     import Cookies from "js-cookie";
     import DoubleBarChart from "../components/charts/doubleBarChart";
+    import moment from 'moment';
 
     export default {
         name: 'homePage',
@@ -221,11 +252,12 @@
                 loading: false,
                 emptyImage: false,
                 noresponse: false,
+
                 chartdata: {
                     labels: [],
                     datasets: [
                         {
-                            label: 'Students by Crs',
+                            label: 'Students by level',
                             backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(0, 123, 255, 0.6)', 'rgba(23, 162, 184, 0.6)', 'rgba(255, 193, 7, 0.6)', 'rgba(237, 33, 124, 0.6)', 'rgba(0, 186, 255, 0.6)', 'rgba(18, 189, 215, 0.6)', 'rgba(255, 181, 0, 0.6)', 'rgba(154, 244, 23, 0.6)'],
                             hoverBackgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(0, 123, 255, 1)', 'rgba(23, 162, 184, 1)', 'rgba(255, 193, 7, 1)', 'rgba(237, 33, 124, 1)', 'rgba(0, 186, 255, 1)', 'rgba(18, 189, 215, 1)', 'rgba(255, 181, 0, 1)', 'rgba(154, 244, 23, 1)'],
                             borderColor: 'rgba(237, 240, 244, 1)',
@@ -257,11 +289,17 @@
                     labels: [],
                     datasets: [
                         {
-                            label: "",
-                            backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(0, 123, 255, 0.6)', 'rgba(23, 162, 184, 0.6)', 'rgba(255, 193, 7, 0.6)', 'rgba(237, 33, 124, 0.6)', 'rgba(0, 186, 255, 0.6)', 'rgba(18, 189, 215, 0.6)', 'rgba(255, 181, 0, 0.6)', 'rgba(154, 244, 23, 0.6)'],
-                            hoverBackgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(0, 123, 255, 1)', 'rgba(23, 162, 184, 1)', 'rgba(255, 193, 7, 1)', 'rgba(237, 33, 124, 1)', 'rgba(0, 186, 255, 1)', 'rgba(18, 189, 215, 1)', 'rgba(255, 181, 0, 1)', 'rgba(154, 244, 23, 1)'],
-                            borderColor: 'rgba(237, 240, 244, 1)',
-                            borderWidth: 5,
+                            type: 'bar',
+                            label: '',
+                            backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                            fill: false,
+                            data: []
+                        },
+                        {
+                            type: 'bar',
+                            label: '',
+                            backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                            fill: false,
                             data: []
                         }
                     ]
@@ -284,7 +322,28 @@
                             barPercentage: 0.8
                         }]
                     }
-                }
+                },
+
+                attendanceTodayNumberInt: [],
+                attendanceTodayNumberFilter: [{
+                    value: '',
+                    prop: 'ClassName_Batch',
+                }, {
+                    value: []
+                }],
+                attendanceTodayNumber: [{
+                    prop: "ClassName_Batch",
+                    label: "Class"
+                }, {
+                    prop: "TotalAttanded",
+                    label: "Attended"
+                }, {
+                    prop: "TotalUnAttanded",
+                    label: "Not Attend"
+                }, {
+                    prop: "TotalNumberOfStudent",
+                    label: "Total Students"
+                }],
             };
         },
         components: {
@@ -293,6 +352,11 @@
             barChart
             // Step,
             // LineChart
+        },
+        async created() {
+            if (Cookies.get('userTypeSession') === 'Teacher') {
+                window.location.replace("/attendancelist");
+            }
         },
         async mounted() {
             try {
@@ -443,8 +507,6 @@
                 if (forecastResponse) {
                     let compareData = forecastResponse.Table;
 
-                    console.log("compareData", compareData);
-
                     let yearGroup = [];
                     for (const d of compareData) {
                         if (!yearGroup.includes(d.Year)) {
@@ -452,14 +514,11 @@
                         }
                     }
 
-                    console.log("yearGroup", yearGroup);
                     yearGroup.forEach((d, i) => {
                         const data = compareData.filter(a => {
                             return a.Year === d;
                         });
-                        console.log("data", data);
                         const firstDataMonth = Number(data[0].Month);
-                        console.log("firstDataMonth", firstDataMonth);
 
                         let monthToPush = [];
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach((d, index) => {
@@ -473,14 +532,9 @@
                             }
                         });
 
-                        console.log("newData", monthToPush);
-
                         const finalData = [...monthToPush, ...data];
-                        console.log("finalData", finalData);
-                        console.log("=========");
 
                         if (this.chartdata2 && this.chartdata2.datasets && this.chartdata2.datasets[i]) {
-                            console.log("this.chartdata2", this.chartdata2);
                             this.chartdata2.datasets[i].data = compareData.map((b, i) => {
                                 if (b.Year === d) {
                                     return b.Value;
@@ -524,7 +578,63 @@
                 //show new enroll graph
                 const newEnrollResponse = await DataSource.shared.getStudentMovementDetailNewEnroll();
 
+                if (newEnrollResponse) {
+                    let enrollData = newEnrollResponse.Table;
 
+                    let yearGroup = [];
+                    for (const d of enrollData) {
+                        if (!yearGroup.includes(d.Year)) {
+                            yearGroup.push(d.Year);
+                        }
+                    }
+
+                    yearGroup.forEach((d, i) => {
+                        const data = enrollData.filter(a => {
+                            return a.Year === d;
+                        });
+                        const firstDataMonth = Number(data[0].Month);
+
+                        let monthToPush = [];
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach((d, index) => {
+                            const startFromOne = index + 1;
+                            if (firstDataMonth > startFromOne) {
+                                monthToPush.push({
+                                    Month: String(d),
+                                    Value: "0",
+                                    Year: data[0].Year
+                                });
+                            }
+                        });
+
+
+                        //const finalData = [...monthToPush, ...data];
+
+                        if (this.chartdata3 && this.chartdata3.datasets && this.chartdata3.datasets[i]) {
+                            this.chartdata3.datasets[i].data = enrollData.map((b, i) => {
+                                if (b.Year === d) {
+                                    return b.Enroll;
+                                }
+                            });
+                            this.chartdata3.labels = enrollData.map(c => c.Month);
+                            this.chartdata3.datasets[i].label = yearGroup[i];
+                        }
+
+                    });
+
+                    switch (newEnrollResponse.code) {
+                        case "2":
+                            this.emptyImage = true;
+                            break;
+                        case "99":
+                            this.emptyImage = true;
+                            this.loading = false;
+                            break;
+                    }
+
+                    this.loading = false;
+                    this.isLoaded = true;
+
+                }
                 // const newEnrollResponse = {
                 //     "Table1": [
                 //         {"Year": "2019", "Enroll": "1", "Month": "5"},
@@ -541,89 +651,8 @@
                 //         {"Year": "2020", "Enroll": "1", "Month": "4"}
                 //     ]
                 // };
-                if (newEnrollResponse) {
-                    let enrollData = newEnrollResponse.Table;
 
-                    console.log("enrollData", enrollData);
-
-                    let yearGroup = [];
-                    for (const d of enrollData) {
-                        if (!yearGroup.includes(d.Year)) {
-                            yearGroup.push(d.Year);
-                        }
-                    }
-
-                    console.log("yearGroup", yearGroup);
-                    yearGroup.forEach((d, i) => {
-                        const data = enrollData.filter(a => {
-                            console.log("d", a);
-                            console.log();
-                            return a.Year === d;
-                        });
-                        console.log("data", data);
-                        if (this.chartdata3 && this.chartdata3.datasets && this.chartdata3.datasets[i]) {
-                            console.log("this.chartdata3", this.chartdata3);
-                            console.log("this.chartdata", this.chartdata);
-                            this.chartdata3.datasets[i].data = data.map(b => b.Enroll);
-                            this.chartdata3.datasets[i].label = yearGroup[i];
-                            this.chartdata3.labels = data.map(c => c.Month);
-                        }
-
-                    });
-                    switch (newEnrollResponse.code) {
-                        case "2":
-                            this.emptyImage = true;
-                            break;
-                        case "99":
-                            this.emptyImage = true;
-                            this.loading = false;
-                            break;
-                    }
-
-                    this.loading = false;
-                    this.isLoaded = true;
-                }
-                // if (newEnrollResponse) {
-                //     console.log(newEnrollResponse);
-                //
-                //     const NewData = newEnrollResponse.Table;
-                //     const NewDataMonth = NewData.map(d => d.Month);
-                //
-                //     this.chartdata3.labels = [...new Set(NewDataMonth)];
-                //     this.chartdata3.datasets[0].data = NewData.map(d => d.Enroll);
-                //
-                //     console.log(this.chartdata3);
-
-
-                //CompareData2019
-                // let Enroll2019 = [];
-                // Enroll2019 = NewData.filter(d => {
-                //     return d.Year === "2019";
-                // });
-                // this.chartdata3.datasets[0].data = Enroll2019.map(d => d.Enroll);
-                // this.chartdata3.labels = Enroll2019.map(d => d.Month);
-
-                //CompareData2020
-                // let Enroll2020 = [];
-                // Enroll2020 = NewData.filter(d => {
-                //     return d.Year === "2020";
-                // });
-                // this.chartdata3.datasets[1].data = Enroll2020.map(d => d.Enroll);
-
-                // let uniqueMonths = [];
-                // NewData.forEach(object => {
-                //     const isExist = uniqueMonths.find(month => month.Month === object.Month);
-                //     if (!isExist) {
-                //         uniqueMonths.push(object);
-                //     }
-                // });
-                // console.log(uniqueMonths, "uniqueMonths");
-                // this.chartdata3.labels = uniqueMonths.map(d => d.Month);
-                // console.log(this.chartdata3.labels, "uniqueMonths2");
-                // console.log(this.chartdata3);
-
-
-                // }
+                this.getAttendanceData();
             } catch (e) {
                 console.log(e);
             }
@@ -655,7 +684,6 @@
                 };
             },
             async showCompareData() {
-                console.log("aa");
                 const response = await DataSource.shared.getStudentForecastByBranchMonthly();
                 if (response) {
                     let compareData = response.Table1;
@@ -666,9 +694,22 @@
 
                     if (this.chartdata2 && this.chartdata2.datasets) {
                         this.chartdata2.datasets[0].data = allCompareData.map(d => d.Value);
-                        console.log(this.chartdata2);
                     }
 
+                }
+            },
+            async getAttendanceData() {
+                const response = await DataSource.shared.getNumberOfAttendanceAllClassBySchool();
+                if (response) {
+                    if (response.code === '88') {
+                        console.log('Attendance list: Expired');
+                    } else if (response.code === '99') {
+                        console.log('Attendance list: Error');
+                    } else if (response.code === '22') {
+                        console.log('Attendance list: No Record');
+                    } else {
+                        this.attendanceTodayNumberInt = response.Table ;
+                    }
                 }
             }
         },
@@ -678,7 +719,10 @@
                     height: `${this.height}px`,
                     position: 'relative'
                 };
-            }
+            },
+            currentDateWithAlphabet() {
+                return moment().format("DD MMM YYYY");
+            },
         }
     };
 </script>
@@ -782,11 +826,5 @@
     .thumbnail {
         width: 80%;
         margin: 20px auto;
-    }
-
-    .dashboard-title {
-        display: table;
-        width: 100%;
-        position: relative;
     }
 </style>

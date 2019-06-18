@@ -10,8 +10,6 @@
                 {{student.Student_Name}}
             </el-tag>
         </div>
-
-
         <div class="row promotion-clear-select" v-if="isStudent === true">
             <div class="col-6">
             </div>
@@ -22,7 +20,7 @@
                 </button>
             </div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row mt-4">
             <label for="ddl_NewYear">Academic Year</label>
             <select id="ddl_NewYear" class="mb-3 form-control" v-model="obj_SelectedNewYear"
                     @change="loadNewClasses">
@@ -33,8 +31,7 @@
                 </option>
             </select>
         </div>
-
-        <div class="form-group row">
+        <div class="form-group row ">
             <label for="ddl_NewClass">Class </label>
             <select id="ddl_NewClass" class="mb-3 form-control" v-model="obj_SelectedNewClass" @change="emitclasslevel">
                 <optgroup v-for="tempobj_Level of arrobj_NewClasses" :label="tempobj_Level.Str_SortBy"
@@ -46,7 +43,6 @@
                 </optgroup>
             </select>
         </div>
-
         <div class="row" v-if="showStudentTag === true">
             <div class="col-6">
                 <button class="btn btn-primary" @click="promoteStudents">OK</button>
@@ -57,7 +53,6 @@
         </div>
     </div>
 </template>
-
 <script>
     "use strict";
     import $ from 'jquery';
@@ -72,18 +67,12 @@
                 obj_SelectedNewYear: null,
                 obj_SelectedNewClass: null,
                 filterStudents: "",
-                nextlvl: null
+                nextlvl: null,
             };
         },
         props: ["selectedStudents", "courseId", "arrobjSelectedStudentID", "showStudentTag", "isStudent"],
         // props: {selectedStudents: [Array], CourseId: String, arrobjSelectedStudentID: [Array]},
         methods: {
-            clearSelection() {
-                if (this.isStudent === true) {
-                    this.obj_SelectedNewYear = "";
-                    this.obj_SelectedNewClass = "";
-                }
-            },
             sleep(milliseconds) {
                 return new Promise(resolve => setTimeout(resolve, milliseconds));
             },
@@ -100,6 +89,7 @@
             },
             async promoteStudents() {
                 let str_StudentIDs = "";
+
                 for (let i of this.arrobjSelectedStudentID) {
                     str_StudentIDs += i + ",";
                 }
@@ -140,8 +130,14 @@
             },
             emitclasslevel() {
                 if (this.isStudent === true) {
-                    console.log("isstudent");
                     this.$emit('studentPromoteAction', this.obj_SelectedNewYear.PK_Semester_ID, this.obj_SelectedNewClass.PK_Course_ID, this.obj_SelectedNewClass.PK_Class_ID);
+                }
+            },
+            clearSelection() {
+                if (this.isStudent === true) {
+                    this.obj_SelectedNewYear = null;
+                    this.obj_SelectedNewClass = null;
+                    this.$emit('studentPromoteAction', this.obj_SelectedNewYear, this.obj_SelectedNewClass);
                 }
             },
             loadNewYears() {
@@ -266,7 +262,5 @@
         }
     };
 </script>
-
 <style scoped>
-
 </style>

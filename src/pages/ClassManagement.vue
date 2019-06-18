@@ -234,7 +234,7 @@
         <b-modal id="editClassModal" size="lg" title="Edit Class" ok-only ok-variant="secondary"
                  ref="editClassShowModal" hide-footer v-model="editClassShowModal">
             <div class="row ml-2 mr-2">
-                <div style="display: none;">{{ editSemesterID }} - {{ editCourseID }} - {{ editClassName }}</div>
+                <div style="display: none;">{{ editSemesterID }} - {{ editCourseID }} - {{ editClassName }} - {{ editClassClassTeacher }}</div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Level</label>
                     <input type="text" class="form-control" v-model="inputeditLevel" readonly="readonly" disabled>
@@ -262,6 +262,17 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Maximum Student</label>
                     <input type="text" class="form-control" v-model="inputEditMaxStudents" @keypress="onlyNumber">
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <label>Class Teacher</label>
+                    <el-select v-model="ddlEditClassTeacher" filterable placeholder="Select" class="fullwidth">
+                        <el-option
+                                v-for="item in classTeacherList"
+                                :key="item.CONid"
+                                :label="item.CONname"
+                                :value="item.CONid">
+                        </el-option>
+                    </el-select>
                 </div>
                 <hr class="custom-hr"/>
                 <div class="col-lg-6">
@@ -386,10 +397,10 @@
                  ref="classListShowModal" v-model="ClassListModal">
             <div class="row ml-2 mr-2">
                 <div style="display: none;">{{ classListSemesterID }} - {{ classListCourseID }} - {{ classListClassName
-                    }} - {{ classListLevelName }} - {{ classListMaxStudents }}
+                    }} - {{ classListLevelName }} - {{ classListMaxStudents }} - {{ classListClassTeacher }}
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
-                    <div class="classModal-button-group">
+                    <div class="">
                         <el-button-group class=" ">
                             <el-button type="primary" v-on:click="editClass()" variant="primary"><i class="material-icons">
                                 edit
@@ -401,14 +412,14 @@
                             </i> Create New Programme
                             </el-button>
                         </el-button-group>
-                        <div class="delete_programme_btn">
-                            <small>Remove Programme</small>
-                            <el-button type="info" round v-on:click="" variant="primary"><i
-                                    class="material-icons">
-                                delete
-                            </i>
-                            </el-button>
-                        </div>
+                        <!--<div class="delete_programme_btn">-->
+                            <!--<small>Remove Programme</small>-->
+                            <!--<el-button type="info" round v-on:click="" variant="primary"><i-->
+                                    <!--class="material-icons">-->
+                                <!--delete-->
+                            <!--</i>-->
+                            <!--</el-button>-->
+                        <!--</div>-->
                     </div>
 
                     <div class="totalNumberOfStudentAssignedToClass" v-if="totalNumberOfStudentAssignedToClass">
@@ -541,7 +552,6 @@
                 </transition>
             </template>
         </v-tour>
-
         <div style="display:none;">
             <el-button type="primary" class="btn btn-primary waves-effect waves-light m-r-10 float-left"
                        @click="classManagementPageVueTourStart()">
@@ -609,6 +619,9 @@
                 assignStudentsListSearchFilter: '',
                 totalNumberOfStudentAssignedToClass: '',
                 assignClassSemID: '',
+                classListClassTeacher: '',
+                editClassClassTeacher: '',
+                ddlEditClassTeacher: '',
 
                 levelList: [],
                 semesterList: [],
@@ -739,6 +752,7 @@
                             this.classListClassName = row.CLS_ClassName;
                             this.classListLevelName = row.CRS_Course_Name;
                             this.classListMaxStudents = row.Average_MaxStudents;
+                            this.classListClassTeacher = row.TeacherInCharge;
                             this.getClass();
                             this.$refs.classListShowModal.show();
                             this.showbackBtn = true;
@@ -1021,7 +1035,7 @@
                             message: 'Please fill in all information'
                         });
                     } else {
-                        const response = await DataSource.shared.updateClass(this.ddlEditClassStatus, this.inputEditClassName, this.inputEditMaxStudents, this.editClassName, this.editCourseID, this.editSemesterID);
+                        const response = await DataSource.shared.updateClass(this.ddlEditClassStatus, this.inputEditClassName, this.inputEditMaxStudents, this.editClassName, this.editCourseID, this.editSemesterID, this.ddlEditClassTeacher);
                         if (response) {
                             if (response.code === '88') {
                                 window.location.replace('/');
@@ -1216,10 +1230,12 @@
                 this.editSemesterID = this.classListSemesterID;
                 this.editCourseID = this.classListCourseID;
                 this.editClassName = this.classListClassName;
+                this.editClassClassTeacher = this.classListClassTeacher;
                 this.inputEditClassName = this.classListClassName;
                 this.ddlEditClassStatus = 'Active';
                 this.inputEditMaxStudents = this.classListMaxStudents;
                 this.inputeditLevel = this.classListLevelName;
+                this.ddlEditClassTeacher = this.classListClassTeacher;
                 this.$refs.editClassShowModal.show();
             },
             assignStudentsListChangePage(currentPage) {

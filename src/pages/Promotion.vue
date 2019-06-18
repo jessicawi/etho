@@ -108,7 +108,7 @@
                             <span v-if="!isNull(tempobj_Student.First_Name)">{{tempobj_Student.First_Name}}</span>
                             <span v-if="!isNull(tempobj_Student.Middle_Name)">{{" " + tempobj_Student.Middle_Name}}</span>
                             <span v-if="!isNull(tempobj_Student.Last_Name)">{{" " + tempobj_Student.Last_Name}}</span>
-                            <span v-if="!isNull(tempobj_Student.Last_Name)">{{" " + tempobj_Student.Student_ID}}</span>
+                            <span v-if="!isNull(tempobj_Student.Index_No)"><br>{{" " + tempobj_Student.Index_No}}</span>
                         </label>
                     </div>
                 </div>

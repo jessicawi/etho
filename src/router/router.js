@@ -34,6 +34,11 @@ import classManagement from "../pages/ClassManagement";
 import studentPaymentPlan from "../pages/StudentPaymentPlan";
 import event from "../pages/Event";
 import vuetour from "../pages/vuetour";
+import busMaster from "../pages/BusMaster";
+import dailyRoutineMassUpdate from "../pages/DailyRoutineMassUpdate";
+import busAttendance from "../pages/BusAttendance";
+import ecaMaster from "../pages/EcaMaster";
+import ecaAttendance from "../pages/EcaAttendance";
 
 Vue.use(VueRouter);
 
@@ -154,6 +159,11 @@ const router = new VueRouter({
             component: dailyRoutine
         },
         {
+            path: '/DailyRoutineMassUpdate',
+            name: 'Daily Routine Mass Update',
+            component: dailyRoutineMassUpdate
+        },
+        {
             path: '/PendingApprover',
             name: 'Pending Approver',
             component: pendingApprover
@@ -207,6 +217,26 @@ const router = new VueRouter({
             path: '/vuetour',
             name: 'Vue Tour',
             component: vuetour
+        },
+        {
+            path: '/BusMaster',
+            name: 'Bus Master',
+            component: busMaster
+        },
+        {
+            path: '/BusAttendance',
+            name: 'Bus Attendance',
+            component: busAttendance
+        },
+        {
+            path: '/EcaMaster',
+            name: 'ECA Master',
+            component: ecaMaster
+        },
+        {
+            path: '/EcaAttendance',
+            name: 'ECA Attendance',
+            component: ecaAttendance
         },
     ]
 });

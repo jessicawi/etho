@@ -25,11 +25,25 @@
                 <vs-input label-placeholder="Parent Name" v-model="stud_parname" v-on:keyup.enter="Search"/>
             </div>
 
+            <div class="datatable-form__input form-group">
+                <el-select placeholder="Select" v-model="statusSearch" class="ddlSearchStatua" @change="Search">
+                    <el-option
+                        v-for="statusSearchListInfo in statusSearchList"
+                        :key="statusSearchListInfo"
+                        :label="statusSearchListInfo"
+                        :value="statusSearchListInfo"
+                    >
+                    </el-option>
+                </el-select>
+            </div>
+
             <div class="datatable-form__submit text-center">
-                <button class="btn btn-success searchbtn" v-on:click="Search">Search</button>
+                <button class="btn btn-success searchbtn" id="btnSearch" v-on:click="Search">Search</button>
             </div>
         </div>
-        {{stud_id}}
+
+        <div style="display: none;">{{stud_id}}</div>
+
         <div class="mt-5 container" :class="{'admin-wrap' :listCount>0}">
             <div class="row header mb-2" v-if="listCount>0">
                 <div class="col-lg-5 ">
@@ -75,6 +89,37 @@
                 </data-tables>
             </div>
         </div>
+
+        <el-button type="primary" class="btn btn-primary waves-effect waves-light m-r-10 float-left" style="display: none;"
+                   @click="studentListPageVueUpdateLevelClassTourStart()">
+            Guided Tour - UpdateLevelClass
+        </el-button>
+
+        <v-tour name="StudentListPageUpdateLevelClassVueTourName" :steps="studentListPageUpdateLevelClassVueTour" :options="studentListPageUpdateLevelClassVueTourOptions" :callbacks="studentListPageUpdateLevelClassVueTourCallBacks">
+            <template slot-scope="tour">
+                <transition name="fade">
+                    <v-step
+                            v-if="tour.currentStep === index"
+                            v-for="(step, index) of tour.steps"
+                            :key="index"
+                            :step="step"
+                            :previous-step="tour.previousStep"
+                            :next-step="tour.nextStep"
+                            :stop="tour.stop"
+                            :is-first="tour.isFirst"
+                            :is-last="tour.isLast"
+                            :labels="tour.labels"
+                    >
+                        <template v-if="tour.currentStep === 0">
+                            <div slot="actions">
+                                <button class="v-step__button" @click="tour.stop">Close</button>
+                                <!--<button class="v-step__button" @click="studentListPageUpdateLevelClassVueTourCallBacksNextPage()">Next</button>-->
+                            </div>
+                        </template>
+                    </v-step>
+                </transition>
+            </template>
+        </v-tour>
     </div>
 </template>
 
@@ -85,6 +130,8 @@
         name: 'StudentList',
         data() {
             return {
+                statusSearchList: ['', 'Active', 'Closed', 'Pending', 'Withdrawn', 'Graduated', 'Waitlist', 'Void', 'Rejected', 'Blacklist'],
+                statusSearch: '',
                 list: [],
                 listCount:'',
                 Father_Name: "",
@@ -115,9 +162,13 @@
                             icon: 'el-icon-edit'
                         },
                         handler: row => {
-                            if (this.$route.query.mode == "Search") {
-                                this.$router.push('student?id=' + row.Student_ID);
-                            } else if (this.$route.query.mode == "Course") {
+                            if (this.$route.query.mode === "Search") {
+                                if (this.$route.query.tour === 'UpdateLevelClass') {
+                                    this.$router.push('student?id=' + row.Student_ID + '&tour=UpdateLevelClass');
+                                } else {
+                                    this.$router.push('student?id=' + row.Student_ID);
+                                }
+                            } else if (this.$route.query.mode === "Course") {
                                 this.$router.push('student-edit-level?id=' + row.Student_ID);
                             } else {
                                 alert('Error! Please try again later');
@@ -150,10 +201,40 @@
                         prop: 'Status',
                     }
                 ],
-                studentFilterItem:[]
+                studentFilterItem:[],
+
+                //vue tour Update Level Class
+                studentListPageUpdateLevelClassVueTourOptions: {
+                    useKeyboardNavigation: false,
+                    labels: {
+                        buttonSkip: 'Skip tour',
+                        buttonPrevious: 'Previous',
+                        buttonNext: 'Next',
+                        buttonStop: 'Finish'
+                    }
+                },
+                studentListPageUpdateLevelClassVueTourCallBacks: {
+                    onPreviousStep: this.studentListPageUpdateLevelClassVueTourCallBacksPreviousSteps,
+                    onNextStep: this.studentListPageUpdateLevelClassVueTourCallBacksNextSteps
+                },
+                studentListPageUpdateLevelClassVueTour: [
+                    {
+                        target: '#btnSearch',
+                        content: `<div>Step 1 / 3 <br>Fill the searching info and click Search button</div>`,
+                        params: {
+                            placement: 'top',
+                        }
+                    },
+                ],
+                //vue tour Update Level Class
             };
         },
         async mounted() {
+            window.addEventListener('load', () => {
+                if (this.$route.query.tour === 'UpdateLevelClass') {
+                    this.studentListPageVueUpdateLevelClassTourStart();
+                }
+            })
         },
         methods: {
             handleSelectionChange(val) {
@@ -162,23 +243,56 @@
             async Search() {
                 this.$vs.loading();
                 try {
-                    const response = await DataSource.shared.getStudent('', this.stud_id, this.stud_fname, this.stud_lname, this.stud_parname);
+                    const response = await DataSource.shared.getStudentWithStatus('', this.stud_id, this.stud_fname, this.stud_lname, this.stud_parname, this.statusSearch);
                     if (response) {
-                        this.list = response.Table ;
-                        this.listCount = response.Table && response.Table.length;
-                        this.list.forEach(object => {
-                            const found = this.studentFilterItem.find(d => d === object.Status);
-                            if (!found) {
-                                this.studentFilterItem.push(object.Status);
-                            }
-                        });
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '99') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Search Student: Error',
+                            });
+                        } else if (response.code === '2') {
+                            this.$notify.error({
+                                title: 'No Record',
+                                message: 'No Student Found',
+                            });
+                        } else {
+                            this.list = response.Table ;
+                            this.listCount = response.Table && response.Table.length;
+                            this.list.forEach(object => {
+                                const found = this.studentFilterItem.find(d => d === object.Status);
+                                if (!found) {
+                                    this.studentFilterItem.push(object.Status);
+                                }
+                            });
+                        }
                     }
-
-
                 } catch (e) {
                     this.results = e;
                 }
                 this.$vs.loading.close();
+            },
+            studentListPageVueUpdateLevelClassTourStart () {
+                this.$tours['StudentListPageUpdateLevelClassVueTourName'].start();
+            },
+            studentListPageUpdateLevelClassVueTourCallBacksPreviousSteps (currentStep) {
+                let finalSteps = currentStep - 1;
+
+                this.windowsSrollUpdateLevelClass(finalSteps);
+            },
+            studentListPageUpdateLevelClassVueTourCallBacksNextSteps (currentStep) {
+                let finalSteps = currentStep + 1;
+
+                this.windowsSrollUpdateLevelClass(finalSteps);
+            },
+            studentListPageUpdateLevelClassVueTourCallBacksNextPage () {
+                window.location.replace('/student?id=TOURDEMO');
+            },
+            windowsSrollUpdateLevelClass(finalSteps) {
+                // if (finalSteps >= 0 && finalSteps <= 1) {
+                //     this.activeTab = 'Level';
+                // }
             },
         },
     };
@@ -207,4 +321,16 @@
         margin: 0px 0px;
         display: block;
     }
+
+    .ddlSearchStatua .el-input__inner {
+        color: white;
+        height: 37px;
+        border: 1px solid;
+        border-color: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        top: 1px;
+        position: relative;
+    }
+
+
 </style>

@@ -23,10 +23,11 @@ import VueBootstrapTypeahead from 'vue-bootstrap-typeahead';
 import Cookies from "js-cookie";
 import Vuex from "vuex";
 import VueTour from 'vue-tour';
+import VueClipboard from 'vue-clipboard2';
 
 Vue.component('file-upload', VueUploadComponent);
 
-require('vue-tour/dist/vue-tour.css')
+require('vue-tour/dist/vue-tour.css');
 
 locale.use(lang);
 Vue.config.productionTip = false;
@@ -42,6 +43,7 @@ Vue.use(VueCharts);
 Vue.use(Cookies);
 Vue.use(Vuex);
 Vue.use(VueTour);
+Vue.use(VueClipboard);
 Vue.component('vue-bootstrap-typeahead', VueBootstrapTypeahead);
 new Vue({
     router,

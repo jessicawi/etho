@@ -11,14 +11,14 @@
                     <el-input placeholder="Search for..." v-model="search" @change="searchInputChange" ></el-input>
                 </div>
                 <div class="col-lg-3">
-                    <router-link :to="{name: 'Student List'}">
-                        <el-button type="primary" round
-                                   class="float-right large-btn classManage-filter"><i
-                                class="material-icons">
-                            swap_horiz
-                        </i> Transfer More
-                        </el-button>
-                    </router-link>
+                    <!--<router-link :to="{name: 'Student List'}">-->
+                        <!--<el-button type="primary" round-->
+                                   <!--class="float-right large-btn classManage-filter"><i-->
+                                <!--class="material-icons">-->
+                            <!--swap_horiz-->
+                        <!--</i> Transfer More-->
+                        <!--</el-button>-->
+                    <!--</router-link>-->
                 </div>
             </div>
             <div class="empty-list_image" v-if="transferInListInt&&transferInListInt.length<1 || showEmpty === true">

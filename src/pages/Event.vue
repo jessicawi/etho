@@ -496,7 +496,6 @@
         },
         methods:{
             showMore(obj){
-                console.log('test href a');
                 this.upComingDetailClicked = true;
                 this.LoadUpComingEventDetail(obj);
             },
@@ -669,7 +668,6 @@
                             SelectedConEmail:conEmail,
                         };
                         this.ParticipantNameListInt.push(addNameList);
-                        console.log(this.ParticipantNameListInt);
 
                         this.CurrentParticipantList.forEach(m => {
                             if (m.CONid === this.ddlParticipant) {
@@ -734,7 +732,6 @@
                 let year = new Date(startTime).getFullYear();
                 // let utcyear = new Date(startTime).getUTCFullYear();
                 // let utcmonth = new Date(startTime).getUTCMonth();
-                // console.log(day,utcmonth,year);
                 let date;
 
                 let monthValue = new Array();

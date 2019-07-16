@@ -11,7 +11,7 @@
                     <img v-bind:src="imgStudentProfile" type="file" @click="uploadStudentProfileImg()"
                          class="imgStudentProfile"/>
                     <span>{{inputStudentFirstName}}</span>
-                    <small class="parent_wrap" @click="backPrevious()">Parent: {{inputFatherFirstName}} & {{inputMotherFirstName}}</small>
+                    <small class="parent_wrap" @click="backPrevious()">Back</small>
                 </div>
             </div>
             <input type="file" ref="file" accept="image/*" style="display:none" @change="previewImgStudentProfile">
@@ -185,71 +185,6 @@
                                     </select>
                                 </div>
 
-                                <!--<div class=" form-group ">-->
-                                    <!--<div class="medAreaDiv">-->
-                                        <!--<div class="">-->
-                                            <!--<h5 class="text-left student-form__title">Student's Medical Details</h5>-->
-                                        <!--</div>-->
-                                        <!--<div class="row form-group__wrapper">-->
-                                            <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                                <!--<label>Major Ailments List</label>-->
-                                                <!--<textarea rows="3" class="textArea"-->
-                                                          <!--v-model="taMajorAilmentsList"></textarea>-->
-                                            <!--</div>-->
-
-                                            <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                                <!--<label>Medication Allergies List</label>-->
-                                                <!--<textarea rows="3" class="textArea"-->
-                                                          <!--v-model="taMedicationAllergiesList"></textarea>-->
-                                            <!--</div>-->
-
-                                            <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                                <!--<label>Blood Group</label>-->
-                                                <!--<input type="text" class="form-control" v-model="inputBloodGroup">-->
-                                            <!--</div>-->
-
-                                            <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                                <!--<label>Blood Donor No</label>-->
-                                                <!--<input type="text" class="form-control" v-model="inputBloodDonorNo">-->
-                                            <!--</div>-->
-
-                                            <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                                <!--<label>Name of Family Doctor</label>-->
-                                                <!--<input type="text" class="form-control" v-model="inputNameofFamilyDoctor">-->
-                                            <!--</div>-->
-
-                                            <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                                <!--<label>Clinic Address</label>-->
-                                                <!--<input type="text" class="form-control" v-model="inputClinicAddress">-->
-                                            <!--</div>-->
-
-                                            <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                                <!--<label>Clinic Phone No</label>-->
-                                                <!--<input type="text" class="form-control" v-model="inputClinicPhoneNo">-->
-                                            <!--</div>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-
-                                <div class=" form-group ">
-                                    <div class="ecAreaDiv">
-                                        <div class="">
-                                            <h5 class="text-left student-form__title">Emergency Contact</h5>
-                                        </div>
-                                        <div class="row form-group__wrapper">
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                <label>1st Emergency Contact No</label>
-                                                <input type="text" class="form-control" v-model="inputStudent1stEmergencyContactNo">
-                                            </div>
-
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                <label>2nd Emergency Contact No</label>
-                                                <input type="text" class="form-control" v-model="inputStudent2ndEmergencyContactNo">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
@@ -357,9 +292,53 @@
                         </div>
                     </div>
                 </b-tab>
+                <b-tab title="Emergency Contact">
+                    <div class=" form-group ">
+                        <div class="ecAreaDiv">
+                            <div class="">
+                                <h5 class="text-left student-form__title">1st Emergency Contact</h5>
+                            </div>
+                            <div class="row form-group__wrapper">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>Contact Person</label>
+                                    <input type="text" class="form-control" v-model="inputStudent1stEmergencyContact">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>Contact No</label>
+                                    <input type="text" class="form-control" v-model="inputStudent1stEmergencyContactNo">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>Contact Relation</label>
+                                    <input type="text" class="form-control"
+                                           v-model="inputStudent1stEmergencyContactRelation">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ecAreaDiv">
+                            <div class="">
+                                <h5 class="text-left student-form__title">2nd Emergency Contact</h5>
+                            </div>
+                            <div class="row form-group__wrapper">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label> Contact Person</label>
+                                    <input type="text" class="form-control" v-model="inputStudent2ndEmergencyContact">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>Contact No</label>
+                                    <input type="text" class="form-control" v-model="inputStudent2ndEmergencyContactNo">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>Contact Relation</label>
+                                    <input type="text" class="form-control"
+                                           v-model="inputStudent2ndEmergencyContactRelation">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </b-tab>
             </b-tabs>
         </div>
-
+        <br>
         <div>
             <button type="button" v-on:click="Update" class="btn btn-primary waves-effect waves-light m-r-10">Update</button>
         </div>
@@ -424,8 +403,12 @@
                     ddlStudentNationality: '',
                     ddlStudentBirthPlace: '',
                     inputStudentIdentificationNo: '',
+                    inputStudent1stEmergencyContact: '',
+                    inputStudent2ndEmergencyContact: '',
                     inputStudent1stEmergencyContactNo: '',
                     inputStudent2ndEmergencyContactNo: '',
+                    inputStudent1stEmergencyContactRelation: '',
+                    inputStudent2ndEmergencyContactRelation: '',
                     inputStudentFirstLanguageSpoken: '',
                     inputSecondLanguageSpoken: '',
                     ddlStudentSelectLevel: '',
@@ -712,6 +695,12 @@
                         this.inputStudentFirstLanguageSpoken = m.St_AdditionalLanguage;
                         this.inputSecondLanguageSpoken = m.St_SecondLanguageSpoken;
                         this.ddlStudentMembership = m.ST_StudentMemership;
+
+                        this.inputStudent1stEmergencyContact = m.St_EmergencyContact;
+                        this.inputStudent1stEmergencyContactRelation = m.St_EmergencyContactRelation;
+                        this.inputStudent2ndEmergencyContact = m.St_2ndEmergencyContact;
+                        this.inputStudent2ndEmergencyContactRelation = m.St_2ndEmergencyContactRelation;
+
                         if (m.ID_ExpDate_convert !== '01/01/1901') {
                             this.inputStudentIdentificationExpiryDate = m.ID_ExpDate_convert;
                         }
@@ -861,6 +850,11 @@
                     jsonString = jsonString + ',"St_Passport_Number":"' + this.inputStudentPassport + '"';
                     jsonString = jsonString + ',"St_Passport_ExpDate":"' + this.inputStudentPassportExpiryDate + '"';
                     jsonString = jsonString + ',"St_Identification_Others":"' + this.inputStudentOtherIdentification + '"';
+
+                    jsonString = jsonString + ',"St_EmergencyContact":"' + this.inputStudent1stEmergencyContact + '"';
+                    jsonString = jsonString + ',"St_EmergencyContactRelation":"' + this.inputStudent1stEmergencyContactRelation + '"';
+                    jsonString = jsonString + ',"St_2ndEmergencyContact":"' + this.inputStudent2ndEmergencyContact + '"';
+                    jsonString = jsonString + ',"St_2ndEmergencyContactRelation":"' + this.inputStudent2ndEmergencyContactRelation + '"';
                     //students
 
                     jsonString = '{ ' + jsonString + ' }';

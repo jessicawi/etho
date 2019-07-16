@@ -1,37 +1,29 @@
 <template>
-    <div id="student-list">
+    <div id="student-list-payment">
         <div class="datatable-form__header ">
             <div class="datatable-form__input form-group">
-                <!--<label>Student No</label>-->
-                <!--<input class="form-control" ref="stud_id">-->
                 <vs-input label-placeholder="Student No" v-model="stud_id" v-on:keyup.enter="Search"/>
             </div>
 
             <div class="datatable-form__input form-group">
-                <!--<label>Student First Name</label>-->
-                <!--<input class="form-control" ref="stud_fname">-->
                 <vs-input label-placeholder="Student First Name" v-model="stud_fname" v-on:keyup.enter="Search"/>
             </div>
 
             <div class="datatable-form__input form-group">
-                <!--<label>Student Last Name</label>-->
-                <!--<input class="form-control" ref="stud_lname">-->
                 <vs-input label-placeholder="Student Last Name" v-model="stud_lname" v-on:keyup.enter="Search"/>
             </div>
 
             <div class="datatable-form__input form-group">
-                <!--<label>Parent Name</label>-->
-                <!--<input class="form-control" ref="stud_parname">-->
                 <vs-input label-placeholder="Parent Name" v-model="stud_parname" v-on:keyup.enter="Search"/>
             </div>
 
             <div class="datatable-form__input form-group">
-                <el-select placeholder="Select" v-model="statusSearch" class="ddlSearchStatua" @change="Search">
+                <el-select placeholder="Select" v-model="statusSearch" class="ddlSearchStatus" @change="Search">
                     <el-option
-                        v-for="statusSearchListInfo in statusSearchList"
-                        :key="statusSearchListInfo"
-                        :label="statusSearchListInfo"
-                        :value="statusSearchListInfo"
+                            v-for="statusSearchListInfo in statusSearchList"
+                            :key="statusSearchListInfo"
+                            :label="statusSearchListInfo"
+                            :value="statusSearchListInfo"
                     >
                     </el-option>
                 </el-select>
@@ -113,7 +105,6 @@
                         <template v-if="tour.currentStep === 0">
                             <div slot="actions">
                                 <button class="v-step__button" @click="tour.stop">Close</button>
-                                <!--<button class="v-step__button" @click="studentListPageUpdateLevelClassVueTourCallBacksNextPage()">Next</button>-->
                             </div>
                         </template>
                     </v-step>
@@ -127,7 +118,7 @@
     import DataSource from "../data/datasource";
 
     export default {
-        name: 'StudentList',
+        name: 'StudentListPayment',
         data() {
             return {
                 statusSearchList: ['', 'Active', 'Closed', 'Pending', 'Withdrawn', 'Graduated', 'Waitlist', 'Void', 'Rejected', 'Blacklist'],
@@ -147,48 +138,22 @@
                 }, {
                     prop: "Status",
                     label: "Status"
-                }, {
-                    prop: "Father_Name",
-                    label: "Father_Name"
-                }],
+                },],
                 actionCol: {
-                    label: 'Edit',
+                    label: 'More',
                     props: {
                         align: 'center',
                     },
                     buttons: [{
                         props: {
                             type: 'primary',
-                            icon: 'el-icon-edit'
+                            icon: 'el-hand-up'
                         },
                         handler: row => {
-                            if (this.$route.query.mode === "Search") {
-                                if (this.$route.query.tour === 'UpdateLevelClass') {
-                                    this.$router.push('student?id=' + row.Student_ID + '&tour=UpdateLevelClass');
-                                } else {
-                                    this.$router.push('student?id=' + row.Student_ID);
-                                }
-                            } else if (this.$route.query.mode === "Course") {
-                                this.$router.push('student-edit-level?id=' + row.Student_ID);
-                            } else {
-                                alert('Error! Please try again later');
-                            }
+                                this.$router.push('studentCourse-List?id=' + row.Student_ID);
                         },
-                        label: 'Edit'
-                    },
-                        // {
-                        //     props: {
-                        //         type: 'primary',
-                        //         icon: 'el-icon-document'
-                        //     },
-                        //     handler: row => {
-                        //         this.isModalOpen = true;
-                        //         this.Father_Name = row.Father_Name;
-                        //         console.log(this.Father_Name);
-                        //     },
-                        //     label: 'View'
-                        // }
-                    ]
+                        label: 'More'
+                    },]
                 },
                 selectedRow: null,
                 stud_id: "",
@@ -299,15 +264,15 @@
 </script>
 
 <style>
-    #student-list .vs-con-input {
+    #student-list-payment .vs-con-input {
         text-align: left;
     }
 
-    #student-list .vs-input--placeholder {
+    #student-list-payment .vs-input--placeholder {
         color: rgba(255, 255, 255, 0.6);
     }
 
-    #student-list .isFocus .vs-placeholder-label {
+    #student-list-payment .isFocus .vs-placeholder-label {
         color: #fff;
     }
 

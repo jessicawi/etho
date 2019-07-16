@@ -29,6 +29,8 @@
                                                @click="deleteEca(ecaListInfo.EcaID)"></el-button>
                                     <el-button icon="el-icon-plus" circle
                                                @click="newECAAssign(ecaListInfo.EcaID)"></el-button>
+                                    <el-button icon="el-icon-upload" circle
+                                               @click="importNewECAWithDateStudentIndex(ecaListInfo.EcaID, ecaListInfo.EcaName)"></el-button>
                                 </div>
                             </div>
                             <div @click="getECASummary(ecaListInfo.EcaID)" class="busListCLick">
@@ -165,12 +167,12 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div style="display:none;">{{editAssignedECAID}}</div>
                 <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-8">
                         <h4 class="text-left">
                             {{editAssignedECAName}} : {{editAssignedECAAttendDate}}
                         </h4>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="text-align:right;">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-4 icon-round-button" style="text-align:right;">
                         <el-button icon="el-icon-plus" circle @click="updateAssignedStudent()"></el-button>
                     </div>
                 </div>
@@ -189,11 +191,51 @@
                 </div>
             </div>
         </b-modal>
+        <b-modal size="lg" title="Import New ECA with Date & Student ID" ok-only ok-variant="secondary" hide-footer
+                 ref="importNewEcaWithDateStudentIndex">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div style="display:none;">{{importNewEcaWithDateStudentIndexECAID}}</div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <h3>{{importNewEcaWithDateStudentIndexECAName}}</h3>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label>
+                        Note: Successfully imported will auto download a report status
+                    </label>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="upload-box">
+                            <label><i class="material-icons">
+                                attachment
+                            </i> Select File</label>
+                            <div class="file-upload-wrapper" :data-text="importNewEcaWithDateStudentIndexFileName">
+                                <input name="file-upload-field" type="file" class="file-upload-field" value=""
+                                       ref="inputImportNewEcaWithDateStudentIndexFile" @change="importNewEcaWithDateStudentIndexFileNameShow">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <button class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch"
+                                v-on:click="importNewEcaWithDateStudentIndexTemplate()">
+                            Template
+                        </button>
+
+                        <button class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch"
+                                v-on:click="importNewEcaWithDateStudentIndexSave()">
+                            Import
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 <script>
     import DataSource from "../data/datasource";
     import moment from 'moment';
+    import Export_CSV from "../components/Export_CSV";
+    import XLSX from 'xlsx';
 
     export default {
         name: "EcaMaster",
@@ -215,6 +257,9 @@
                 assignStudentEcaUpdateAttendDate: '',
                 copyAttendDate: false,
                 ddlCopyAttendDate: '',
+                importNewEcaWithDateStudentIndexECAID: '',
+                importNewEcaWithDateStudentIndexFileName: '',
+                importNewEcaWithDateStudentIndexECAName: '',
 
                 ecaListInt: [],
                 multipleSelection: [],
@@ -738,8 +783,91 @@
                     this.results = e;
                 }
             },
+            importNewECAWithDateStudentIndex(ecaID , ecaName) {
+                try {
+                    this.importNewEcaWithDateStudentIndexECAID = ecaID;
+                    this.importNewEcaWithDateStudentIndexECAName = ecaName;
+                    this.$refs.importNewEcaWithDateStudentIndex.show();
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            importNewEcaWithDateStudentIndexFileNameShow (event) {
+                for (let file of event.target.files) {
+                    this.importNewEcaWithDateStudentIndexFileName = file.name;
+                }
+            },
+            async importNewEcaWithDateStudentIndexSave () {
+                try {
+                    if (this.$refs.inputImportNewEcaWithDateStudentIndexFile.files.length === 0) {
+                        this.$notify({
+                            title: 'Require',
+                            message: 'Please select File'
+                        });
+                    } else {
+                        this.$vs.loading();
+
+                        await this.sleep(500);
+                        const response = await DataSource.shared.importECADetailsByCSVExcel(this.$refs.inputImportNewEcaWithDateStudentIndexFile.files, this.importNewEcaWithDateStudentIndexECAID);
+                        if (response) {
+                            if (response.code === '88') {
+                                window.location.replace('/');
+                            } else if (response.code === '99') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Import New ECA Error!'
+                                });
+                            } else {
+                                this.$notify({
+                                    title: 'Success',
+                                    message: 'Successfully Added!',
+                                    type: 'success'
+                                });
+
+                                if (this.ecaCurrentID !== null) {
+                                    this.getECASummary(this.ecaCurrentID);
+                                }
+
+                                Export_CSV.CsvExport(response.Table, '', '', 'Report Import ECA');
+                            }
+                        }
+
+                        this.importNewEcaWithDateStudentIndexFileName = '';
+                        this.$refs.inputImportNewEcaWithDateStudentIndexFile.value = '';
+                        this.$refs.importNewEcaWithDateStudentIndex.hide();
+
+                        this.$vs.loading.close();
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            importNewEcaWithDateStudentIndexTemplate () {
+                let templateList = [];
+
+                let tempTemplate = {
+                    'Date of Attend': '25/5/2019',
+                    'Student ID': 'SG-016-19-000',
+                };
+
+                templateList.push(tempTemplate);
+
+                // https://lovemewithoutall.github.io/it/json-to-excel/
+                var sheet1WS = XLSX.utils.json_to_sheet(templateList)
+                var wb = XLSX.utils.book_new() // make Workbook of Excel
+                XLSX.utils.book_append_sheet(wb, sheet1WS, 'sheet1') // sheetAName is name of Worksheet
+                XLSX.writeFile(wb, 'Template Import ECA.xlsx') // name of the file is 'book.xlsx'
+            },
+            sleep(milliseconds) {
+                return new Promise(resolve => setTimeout(resolve, milliseconds));
+            },
         },
     };
 </script>
+
 <style scoped>
+    .btnFamilyIDSearch {
+        display:inline;
+        margin-left:10px;
+    }
 </style>

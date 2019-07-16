@@ -2,10 +2,10 @@
     <div id="busmaster">
         <div class="container ">
             <div class="row header mb-5">
-                <div class="col-lg-5 ">
+                <div class="col-lg-5  ">
                     <h3 class="text-left ">{{$route.name}}</h3>
                 </div>
-                <div class="col-lg-7">
+                <div class="col-lg-7 ">
                     <div class=" searchingArea attendance-search">
                         <!--<button v-on:click="createNewBus()"-->
                                 <!--class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">New Bus-->
@@ -52,13 +52,13 @@
                 <div class="busMaster-wrap col-lg-12">
                     <div class="busMaster-item mb-4" v-for="(busListInfo, index) in intBusList">
                         <div class="busMaster-heading row">
-                            <div class="busMaster-item_title col-lg-10">
+                            <div class="busMaster-item_title col-lg-10 col-8">
                                 <i class="material-icons">
                                     directions_bus
                                 </i>
                                 <span>Bus No: {{busListInfo.BusNo}}</span>
                             </div>
-                            <div class="busMaster-item_close col-lg-2">
+                            <div class="busMaster-item_close col-lg-2 col-4">
                                 <el-button icon="el-icon-close" circle @click="updateBus(busListInfo.BusID)"></el-button>
                                 <el-button icon="el-icon-plus" circle @click="assignStudentToBus(busListInfo.BusNo)"></el-button>
                             </div>

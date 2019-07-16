@@ -39,7 +39,7 @@
                     <!--</router-link>-->
                     <img src="../assets/attendance.jpg"/>
                 </div>
-                <div v-if="studentList.length>0" class="">
+                <div v-if="studentList.length>0" class="responsive-table">
                     <!--<div class="row actionBar">-->
                     <!--<data-tables :data="studentList" @selection-change="handleSelectionChange">-->
                     <!--<el-table-column type="selection" width="55">-->
@@ -561,7 +561,9 @@
     .taTempImport {
         width: 100%;
         border-radius: 5px;
-        box-shadow: 10px 10px 5px grey;
+        /* box-shadow: 10px 10px 5px grey; */
+        border: 0px;
+        background: #ededed;
     }
 
     .tempImportButtonArea {

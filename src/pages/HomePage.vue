@@ -143,12 +143,12 @@
                 <div class="col-lg-12 " v-loading="loading">
                     <div class="chartBox">
                         <div class="dashboard-title"><h4 class="text-left">Student Attendance ({{ currentDateWithAlphabet }})</h4></div>
-                        <div class="col-lg-12" v-if="attendanceTodayNumberInt.length < 1" >
+                        <div class="" v-if="attendanceTodayNumberInt.length < 1" >
                             <div style="padding:100px 0 0 0;">
                                 Please Wait...
                             </div>
                         </div>
-                        <div class="col-lg-12" v-if="attendanceTodayNumberInt.length > 0" >
+                        <div class="" v-if="attendanceTodayNumberInt.length > 0" >
                             <data-tables :data="attendanceTodayNumberInt" :filters="attendanceTodayNumberFilter" :page-size="5" :pagination-props="{ pageSizes: [5, 10, 20] }">
                                 <el-row slot="tool" style="margin: 10px 0">
                                     <el-col :span="5">

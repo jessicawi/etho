@@ -12,7 +12,6 @@
                 </div>
                 <div class="row">
                     <!--<el-button @click="show3 = !show3">Click Me</el-button>-->
-
                     <!--<el-collapse-transition>-->
                     <!--<div v-show="show3">-->
                     <!--<div class="transition-box">el-collapse-transition</div>-->
@@ -37,7 +36,6 @@
                         </el-button>
                         <!--<textarea rows="1" class="textArea" v-model="taEnduringThemes"-->
                         <!--@input="textareaResize($event)"></textarea>-->
-
                         <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
                         <!--v-if="commentField">-->
                     </div>
@@ -45,12 +43,10 @@
                         <el-collapse-transition>
                             <div v-show="!show3" class="spanComment">
                                 <h6 class="text-left">Remark:</h6>
-
                                 <!--<textarea rows="1" class="textArea" v-model="inputEndduringThemesComment" @input="textareaResize($event)"></textarea>-->
                                 <input type="text" class="form-control" v-model="inputEndduringThemesComment">
                                 <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
                                      v-if="value.AppComValue !== undefined && value.AppComDesc==='Enduring Themes' && value.AppComType === 'Portfolio Header'">
-
                                     <label class="preview-comment__commenter">
                                         Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span>Date: {{ value.AppComCreatedDate_convert }}</span>
                                     </label>
@@ -62,7 +58,6 @@
                         </el-collapse-transition>
                     </div>
                     <div class="preview-top">
-
                         <label class="ppResearchQuestionTitle">Research Question: </label>
                         <el-input
                                 type="textarea"
@@ -73,10 +68,8 @@
                         </el-input>
                         <!--<textarea rows="1" class="textArea" v-model="taResearchQuestion"-->
                         <!--@input="textareaResize($event)"></textarea>-->
-
                         <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
                         <!--v-if="commentField">                        </i>-->
-
                         <el-button @click="showResearch = !showResearch" class="preview-comment__btn" size="mini"
                                    v-if="commentField">
                             <i class="material-icons">
@@ -84,13 +77,10 @@
                             </i>
                         </el-button>
                     </div>
-
-
                     <div class="preview-comment">
                         <el-collapse-transition>
                             <div v-show="!showResearch" class="spanComment">
                                 <h6 class="text-left">Remark:</h6>
-
                                 <!--<textarea rows="1" class="textArea" v-model="inputResearchQuestionComment" @input="textareaResize($event)"></textarea>-->
                                 <input type="text" class="form-control" v-model="inputResearchQuestionComment">
                                 <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
@@ -107,7 +97,6 @@
                         </el-collapse-transition>
                     </div>
                 </div>
-
                 <!--div class="row ppEndduringThemes">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 ppEndduringThemesTitle">Enduring Themes: </div>
                     <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9" >
@@ -121,7 +110,6 @@
 
                     </div>
                 </div-->
-
                 <div v-for="item in postList" class="ppEachPost" ref="ppEachPost_Update">
                     <div class="ppDateOfObservation">
                         <span class="ppDateOfObservationTitle">Date of observation: </span>
@@ -129,11 +117,12 @@
                                      :value="item.PostCreatedDate_convert.trim()" readonly></span>
                         <!--<span ref="postCreatedDate">{{item.PostCreatedDate_convert.trim()}}</span>-->
                     </div>
-
                     <div class="preview-content-wrap">
                         <el-tooltip class="item" effect="dark" content="Post Content" placement="top">
                             <input type="text" class="form-control ppPostContent" ref="postContent"
-                                   :value="item.PostContent.trim()">
+                                   v-model="item.PostContent">
+                            <!--<input type="text" class="form-control ppPostContent" ref="postContent"-->
+                            <!--:value="item.PostContent.trim()" v-model="item.PostContent">-->
                         </el-tooltip>
                         <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
                         <!--v-if="commentField">-->
@@ -147,7 +136,6 @@
                         <!--{{ value.AppComValue }}-->
                         <!--</label>-->
                         <!--</div>-->
-
                         <!--<input type="text" class="form-control" ref="postContentComment">-->
                         <!--</span>-->
                         <!--</i>-->
@@ -162,7 +150,6 @@
                         <el-collapse-transition>
                             <div v-show="!showContent" class="spanComment">
                                 <h6 class="text-left">Remark:</h6>
-
                                 <input type="text" class="form-control" ref="postContentComment">
                                 <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
                                      v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Title'">
@@ -177,7 +164,6 @@
                             </div>
                         </el-collapse-transition>
                     </div>
-
                     <div class="carousel-wrap">
                         <b-carousel id="carousel1"
                                     style="text-shadow: 1px 1px 2px #333;"
@@ -194,23 +180,20 @@
                             </div>
                         </b-carousel>
                     </div>
-
                     <!--<div v-for="media in postList[item.PostID]" >-->
                     <!--<img slot="img" class="card-img-top d-block img-fluid w-100"-->
                     <!--:src="getLowSource(media)"/>-->
                     <!--</div>-->
-
                     <div class="ppGoals">
                         <div class="ppGoalsTitle mb-2">Connection with long-term goals</div>
                         <div class="preview-top mb-3">
                             <el-input
                                     type="textarea"
                                     autosize
-                                    v-model="connection"
+                                    v-model="item.PostPorDtlDevelopmentGoals"
                                     ref="postGoal"
                                     class="mb-2"
                             >
-
                             </el-input>
                             <!--<textarea rows="1" class="textArea" @input="textareaResize($event)" ref="postGoal">{{ item.PostPorDtlDevelopmentGoals }}</textarea>-->
                             <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
@@ -225,11 +208,9 @@
                             <!--{{ value.AppComValue }}-->
                             <!--</label>-->
                             <!--</div>-->
-
                             <!--<input type="text" class="form-control" ref="postGoalComment">-->
                             <!--</span>-->
                             <!--</i>-->
-
                             <el-button @click="showConnection = !showConnection" class="preview-comment__btn"
                                        size="mini" v-if="commentField">
                                 <i class="material-icons">
@@ -237,12 +218,10 @@
                                 </i>
                             </el-button>
                         </div>
-
                         <div class="preview-comment">
                             <el-collapse-transition>
                                 <div v-show="!showConnection" class="spanComment">
                                     <h6 class="text-left">Remark:</h6>
-
                                     <input type="text" class="form-control" ref="postGoalComment">
                                     <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
                                          v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Goals'">
@@ -258,15 +237,13 @@
                             </el-collapse-transition>
                         </div>
                     </div>
-
                     <div class="ppObservation">
                         <div class="ppObservationTitle mb-2">Anecdotal Observations</div>
                         <div class="preview-top mb-3">
-
                             <el-input
                                     type="textarea"
                                     autosize
-                                    v-model="analysis"
+                                    v-model="item.newAnalysis"
                                     ref="postObservation"
                             >
                             </el-input>
@@ -284,7 +261,6 @@
                             <!--{{ value.AppComValue }}-->
                             <!--</label>-->
                             <!--</div>-->
-
                             <!--<input type="text" class="form-control" ref="postObservationComment">-->
                             <!--</span>-->
                             <!--</i>-->
@@ -299,7 +275,6 @@
                             <el-collapse-transition>
                                 <div v-show="!showObservation" class="spanComment">
                                     <h6 class="text-left">Remark:</h6>
-
                                     <input type="text" class="form-control" ref="postObservationComment">
                                     <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
                                          v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Observations'">
@@ -316,9 +291,8 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="portfolio-preview__submit">
-                    <button v-on:click="savePortfolio" v-if="savePortfolioAction"
+                    <button v-on:click="savePortfolio()" v-if="savePortfolioAction"
                             class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Submit
                     </button>
                     <button v-on:click="approvePortfolio('Approved')" v-if="approverPortfolioAction"
@@ -327,14 +301,15 @@
                     <button v-on:click="approvePortfolio('Reject')" v-if="approverPortfolioAction"
                             class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Reject
                     </button>
+                    <button v-on:click="generatePortfolioPdf()" v-if="btnDownloadPDF"
+                            class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Download PDF
+                    </button>
                 </div>
             </div>
-
         </div>
     </div>
     </div>
 </template>
-
 <script>
     import DataSource from "../data/datasource";
     import Vue from 'vue';
@@ -369,6 +344,7 @@
                 showContent: true,
                 showConnection: true,
                 showObservation: true,
+                btnDownloadPDF: false,
             };
         },
         async created() {
@@ -380,7 +356,7 @@
 
                     await this.deString(this.$route.query.id);
                 } else {
-                    this.$router.push('/pendingapprover');
+                    this.$router.push('/Portfolio');
                 }
             } else {
                 if (this.$route.params.mode === 'NEW') {
@@ -394,6 +370,10 @@
 
                     await this.getPortfolioComment(this.$route.params.portfolioID);
                     await this.getPortfolioPost(this.$route.params.portfolioID);
+
+                    if (this.$route.params.status === 'Approved') {
+                        this.btnDownloadPDF = true;
+                    }
                 } else if (this.$route.params.mode === 'APPROVER') {
                     this.saveEditMode = 'APPROVER';
                     this.portfolioID = this.$route.params.portfolioID;
@@ -476,6 +456,10 @@
                         this.postList = tempPortfolioDetails;
 
                         this.getImage();
+                        this.postList = this.postList.map(m => {
+                            m.newAnalysis = m.PostPorDtlAnalysisReflection;
+                            return m;
+                        });
 
                         // if (response.code === '88') {
                         //     window.location.replace('/');
@@ -528,17 +512,31 @@
                             });
                         } else {
                             this.postList = response.Table;
+                            console.log(this.postList, "postList");
                             if (response.Table.length > 0) {
-                                let tempAnalysis = response.Table[0].PostPorDtlAnalysisReflection
-                                let tempObservation = response.Table[0].PostPorDtlObservation
+                                let tempAnalysis = response.Table[0].PostPorDtlAnalysisReflection;
+                                let tempObservation = response.Table[0].PostPorDtlObservation;
                                 this.analysis = tempAnalysis + '\n' + tempObservation;
                                 console.log(this.analysis);
                                 let tempConnection = JSON.stringify(response.Table[0].PostPorDtlDevelopmentGoals);
                                 this.connection = JSON.parse(tempConnection);
+
                                 // let tempLearning = JSON.stringify(response.Table[0].PostPorDtlTitle);
                                 // this.inputLearningStory = JSON.parse(tempLearning);
+
                             }
+
+                            // response.Table.forEach((m, index) => {
+                            //     let my_object = {
+                            //         newAnalysis: m.PostPorDtlAnalysisReflection + '\n' + m.PostPorDtlObservation
+                            //     };
+                            //     m.push(my_object);
+                            // });
                             this.getImage();
+                            this.postList = this.postList.map(m => {
+                                m.newAnalysis = m.PostPorDtlAnalysisReflection + '\n' + m.PostPorDtlObservation;
+                                return m;
+                            });
                         }
                     }
                 } catch (e) {
@@ -601,16 +599,28 @@
                         this.$vs.loading();
                         let postDetails = [];
 
-                        this.$refs.ppEachPost_Update.forEach((m, index) => {
-                            let my_object = {
-                                postID: this.postList[index].PostID,
-                                postContent: this.$refs.postContent[index].value,
-                                postGoal: this.$refs.postGoal[index].value,
-                                postObservation: this.$refs.postObservation[index].value,
-                                postCreatedDate: this.$refs.postCreatedDate[index].value
+                        // this.$refs.ppEachPost_Update.forEach((m, index) => {
+                        //     let my_object = {
+                        //         postID: this.postList[index].PostID,
+                        //         postContent: this.$refs.postContent[index].value,
+                        //         postGoal: this.$refs.postGoal[index].value,
+                        //         postObservation: this.$refs.postObservation[index].value,
+                        //         postCreatedDate: this.$refs.postCreatedDate[index].value
+                        //     };
+                        //     postDetails.push(my_object);
+                        // });
+
+                        this.postList.forEach((m) => {
+                            let objects = {
+                                postID: m.PostID,
+                                postContent: m.PostContent,
+                                postGoal: m.PostPorDtlDevelopmentGoals,
+                                postObservation: m.newAnalysis,
+                                postCreatedDate: m.PostCreatedDate_convert
                             };
-                            postDetails.push(my_object);
+                            postDetails.push(objects);
                         });
+
 
                         const response = await DataSource.shared.savePortfolio(this.$route.params.portfolioDesc, this.$route.params.studentID, this.$route.params.portfolioID, this.inputLearningStory, this.taEnduringThemes, this.taResearchQuestion, JSON.stringify(postDetails));
                         if (response) {
@@ -720,10 +730,53 @@
                     this.results = e;
                 }
             },
+            async generatePortfolioPdf() {
+                try {
+                    const response = await DataSource.shared.generatePortfolioPDF(this.$route.params.portfolioID);
+                    if (response) {
+                        //console.log(response);
+
+                        // const bytes = new Uint8Array(response); // pass your byte response to this constructor
+                        //
+                        // const blob=new Blob([bytes], {type: "application/pdf"});// change resultByte to bytes
+                        //
+                        // const link = document.createElement('a');
+                        // link.href=window.URL.createObjectURL(blob);
+                        // link.download="myFileName.pdf";
+                        // link.click();
+
+                        //
+
+                        // const url = window.URL.createObjectURL(new Blob([response.data]));
+                        // const link = document.createElement('a');
+                        // link.href = url;
+                        // link.setAttribute('download', 'file' + fileExt);
+                        // document.body.appendChild(link);
+                        // link.click();
+
+                        this.$vs.loading.close();
+
+                        var byteChar = atob(response);
+                        var byteNo = new Array(byteChar.length);
+                        for (var i = 0; i < byteChar.length; i++) {
+                            byteNo[i] = byteChar.charCodeAt(i);
+                        }
+
+                        var byteArray = new Uint8Array(byteNo);
+                        var file = new Blob([byteArray], {type: 'application/pdf;base64'});
+                        var fileUrl = URL.createObjectURL(file);
+                        // window.openBrowser(fileUrl);
+                        window.open(fileUrl, '_blank', 'width=500, height=500');
+
+                        this.$vs.loading.close();
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
         },
     };
 </script>
-
 <style scoped>
     .carousel {
         /*width: 70%;*/

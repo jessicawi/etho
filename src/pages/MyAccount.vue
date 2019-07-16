@@ -833,8 +833,8 @@
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                     <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
-                        <button v-on:click="Save" type="button"
-                                class="btn btn-primary waves-effect waves-light m-r-10">Save
+                        <button v-on:click="Update" type="button"
+                                class="btn btn-primary waves-effect waves-light m-r-10">Update
                         </button>
                     </div>
                 </div>
@@ -1624,7 +1624,7 @@
                     this.result = e;
                 }
             },
-            async Save() {
+            async Update() {
                 try {
                     this.lblParentID;
                     if (this.lblParentID != '') {

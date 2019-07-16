@@ -87,7 +87,7 @@
                             </i>
                         </a>
                     </div>
-                    <span>{{inputStudentFirstName}}</span>
+                    <span>{{inputStudentID}} <br> {{inputStudentFirstName}}</span>
                 </div>
                 <div class="student-status" v-if="changeStatusAction">
                     <div class="d-flex align-items-center">
@@ -365,7 +365,8 @@
                                         <el-date-picker v-model="inputFirstCommencementDate" type="date"
                                                         format="dd/MM/yyyy"
                                                         value-format="dd/MM/yyyy" placeholder="Pick a day"
-                                                        :class="{ 'requiredFields': $v.inputFirstCommencementDate.$error }"></el-date-picker>
+                                                        :class="{ 'requiredFields': $v.inputFirstCommencementDate.$error }"
+                                                        v-bind:disabled="editModeDisable" :picker-options="firstCommencementDatePickerOptions"></el-date-picker>
                                     </div>
                                     <div class="requiredFieldsMsg" v-if="$v.inputFirstCommencementDate.$error">
                                         First commencement date required
@@ -394,11 +395,11 @@
                                         Payer required
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <label>Student ID</label>
-                                    <input type="text" class="form-control" v-model="inputStudentID"
-                                           readonly="readonly">
-                                </div>
+                                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
+                                    <!--<label>Student ID</label>-->
+                                    <!--<input type="text" class="form-control" v-model="inputStudentID"-->
+                                           <!--readonly="readonly">-->
+                                <!--</div>-->
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
                                 <!--<label>* Select Level</label>-->
                                 <!--<select v-model="ddlStudentSelectLevel"-->
@@ -1736,6 +1737,10 @@
                 this.studentPageVueUpdateLevelClassTourStart();
             }
 
+            if (this.$route.query.generalsearch === 'editclass') {
+                this.activeTab = 'Level';
+            }
+
             window.addEventListener('load', () => {
                 if (this.$route.query.tour === 'YES') {
                     // if (this.$route.params.guidedTour === 'YES') {
@@ -1964,7 +1969,7 @@
                     prop: "Regst_date_convert",
                     label: "Regisration Date"
                 }, {
-                    prop: "CRS_Course_Name",
+                    prop: "SiblingLevelName",
                     label: "Level"
                 }, {
                     prop: "Status",
@@ -1999,9 +2004,6 @@
 
                 familyIDList: [],
                 familyIDListAll: [{
-                    prop: "PAR_ID",
-                    label: "Parent ID"
-                }, {
                     prop: "PAR_Family_Number",
                     label: "Family No"
                 }, {
@@ -2014,8 +2016,8 @@
                     prop: "Parent_GName",
                     label: "Guardian's Name"
                 }, {
-                    prop: "PAR_Status",
-                    label: "Parent's Status"
+                    prop: "StudentName",
+                    label: "Student's Name"
                 }],
                 actionCol: {
                     label: 'Select',
@@ -2290,6 +2292,12 @@
                     },
                 ],
                 //vue tour Update Level Class
+
+                firstCommencementDatePickerOptions: {
+                    disabledDate(time) {
+                        return time.getDay() === 0 || time.getDay() === 6;
+                    },
+                },
             };
         },
         computed: {
@@ -2560,7 +2568,7 @@
                         let parentID;
                         let courseID;
 
-                        const stuRes = await DataSource.shared.getStudent(this.$route.query.id, "", "", "", "");
+                        const stuRes = await DataSource.shared.getStudentWithPendingCourse(this.$route.query.id, "", "", "", "", "");
                         if (stuRes) {
                             if (stuRes.code === '88') {
                                 window.location.replace('/');
@@ -2746,8 +2754,8 @@
                         this.inputStudentMiddleName = m.Middle_name;
                         this.inputStudentLastName = m.Last_name;
                         this.ddlStudentGender = m.Sex;
-                        this.inputStudentCorrespondanceAddress1 = m.st_corr_add_flrNo;
-                        this.inputStudentCorrespondanceAddress2 = m.st_corr_add_blkNo;
+                        this.inputStudentCorrespondanceAddress1 = m.st_corr_add_blkNo;
+                        this.inputStudentCorrespondanceAddress2 = m.st_corr_add_flrNo;
                         this.inputStudentCorrespondanceCity = m.st_corr_add_stName;
                         this.inputStudentCorrespondancePostalCode = m.st_corr_add_pstcode;
                         this.inputStudentPostalCode = m.st_prm_add_pstcode;
@@ -2889,8 +2897,8 @@
                     jsonString = jsonString + ',"Middle_name":"' + this.inputStudentMiddleName + '"';
                     jsonString = jsonString + ',"Last_name":"' + this.inputStudentLastName + '"';
                     jsonString = jsonString + ',"Sex":"' + this.ddlStudentGender + '"';
-                    jsonString = jsonString + ',"st_corr_add_flrNo":"' + this.inputStudentCorrespondanceAddress1 + '"';
-                    jsonString = jsonString + ',"st_corr_add_blkNo":"' + this.inputStudentCorrespondanceAddress2 + '"';
+                    jsonString = jsonString + ',"st_corr_add_blkNo":"' + this.inputStudentCorrespondanceAddress1 + '"';
+                    jsonString = jsonString + ',"st_corr_add_flrNo":"' + this.inputStudentCorrespondanceAddress2 + '"';
                     jsonString = jsonString + ',"st_corr_add_stName":"' + this.inputStudentCorrespondanceCity + '"';
                     jsonString = jsonString + ',"st_corr_add_pstcode":"' + this.inputStudentCorrespondancePostalCode + '"';
                     jsonString = jsonString + ',"st_prm_add_pstcode":"' + this.inputStudentPostalCode + '"';
@@ -3055,8 +3063,12 @@
                                             type: 'success'
                                         });
                                         window.location.replace('/student?id=' + saveStuRes.studentID);
+                                    } else if (saveStuRes.code === "2") {
+                                        this.$notify.error({
+                                            title: 'Error',
+                                            message: 'Commencement date out of range',
+                                        });
                                     } else {
-
                                         this.$notify.error({
                                             title: 'Error',
                                             message: 'Save Student Error - Please try again later'
@@ -3518,6 +3530,22 @@
                             this.ddlStudentAdditionalLanguage = response.Table[0].St_Mother_Tongue;
                             this.inputStudentFirstLanguageSpoken = response.Table[0].St_AdditionalLanguage;
                             this.inputSecondLanguageSpoken = response.Table[0].St_SecondLanguageSpoken;
+
+                            //address
+                            this.ddlStudentAddressCountry = response.Table[0].st_prm_add_country;
+                            this.inputStudentPostalCode = response.Table[0].st_prm_add_pstcode;
+                            this.inputStudentAddress1 = response.Table[0].st_prm_add_blkNo;
+                            this.inputStudentAddress2 = response.Table[0].st_prm_add_flrNo;
+                            this.inputStudentAddress3 = response.Table[0].st_prm_add_BlgName;
+                            this.inputStudentCity = response.Table[0].st_prm_add_stName;
+
+                            this.ddlStudentAddressCorrespondanceCountry = response.Table[0].st_corr_add_country;
+                            this.inputStudentCorrespondancePostalCode = response.Table[0].st_corr_add_pstcode;
+                            this.inputStudentCorrespondanceAddress1 = response.Table[0].st_corr_add_blkNo;
+                            this.inputStudentCorrespondanceAddress2 = response.Table[0].st_corr_add_flrNo;
+                            this.inputStudentCorrespondanceAddress3 = response.Table[0].st_corr_add_BlgName;
+                            this.inputStudentCorrespondanceCity = response.Table[0].st_corr_add_stName;
+                            //address
                         }
                     }
                 } catch (e) {
@@ -3592,6 +3620,7 @@
             async transferSave() {
                 try {
                     if (this.ddlTransferSchool !== '' && this.ddlTransferSchool !== undefined) {
+                        this.$vs.loading();
                         const response = await DataSource.shared.saveTransferSchool(this.lblStudentID, this.ddlTransferSchool, this.inputTransferSchoolRemark, this.inputTransferSchoolEffDate);
                         if (response) {
                             if (response.code === '88') {
@@ -3625,6 +3654,7 @@
                                 this.hideModal();
                             }
                         }
+                        this.$vs.loading.close();
                     } else {
                         this.$notify.error({
                             title: 'Error',

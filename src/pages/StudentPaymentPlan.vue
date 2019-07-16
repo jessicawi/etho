@@ -2,33 +2,86 @@
     <div id="studentpaymentplan">
         <div class="container">
             <div class="row">
-                <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <h5 class="text-left">Student Payment List</h5>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <h5 class="text-left student-form__title" id="StudentInformation">
+                       <b>Student Information</b></h5>
+                </div>
 
-                    <div class="col-lg-12 actionDiv">
-                        <el-button-group>
-                            <el-button type="primary" variant="primary" v-on:click="applyPaymentPlanClick()">
-                                Apply Payment Plan
-                            </el-button>
-                            <el-button type="primary" variant="primary" v-on:click="addItemClick()">
-                                Add Item
-                            </el-button>
-                        </el-button-group>
+                <div class="row form-group__wrapper">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label>Student Name</label>
+                        <input type="text" class="form-control form__input" v-model="inputStudentName" disabled>
                     </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label>Student NO</label>
+                        <input type="text" class="form-control form__input" v-model="inputStudentNO" disabled>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label>Meal Preferences</label>
+                        <input type="text" class="form-control" v-model="inputMealPreferences" disabled>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label>Payee Name</label>
+                        <input type="text" class="form-control" v-model="inputPayeeName" disabled>
+                    </div>
+                </div>
 
-                    <div v-if="studentPaymentListInt.length>0" class="datatable_group">
-                        <data-tables :data="studentPaymentListInt" @selection-change="changeSelection" :action-col="studentPaymentListAction" :filters="StudentPaymentListFilters" >
-                            <el-table-column type="selection" width="55" :reserve-selection="true">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <h5 class="text-left student-form__title" id="StudentSibling">
+                        <b>Siblings</b></h5>
+                    <div v-if="siblingListTableInt.length>0">
+                        <data-tables :data="siblingListTableInt">
+                            <el-table-column v-for="siblingItem in siblingListTableList" :prop="siblingItem.prop"
+                                             :label="siblingItem.label" :key="siblingItem.prop">
                             </el-table-column>
-                            <el-table-column v-for="studentPaymentItem in studentPaymentList" :prop="studentPaymentItem.prop"
-                                             :label="studentPaymentItem.label" :key="studentPaymentItem.prop">
+                        </data-tables>
+                    </div>
+                    <div v-else class="siblingNoRecordArea">
+                        <label>No Sibling...</label>
+                    </div>
+                </div>
+
+                <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <h5 class="text-left student-form__title" id="Payment_List">
+                        <b>Payment List</b></h5>
+                    <div v-if="PaymentListInt.length>0" class="datatable_group">
+                        <data-tables :data="PaymentListInt" :filters="PaymentListFilters" >
+                            <el-table-column v-for="PaymentItem in PaymentList" :prop="PaymentItem.prop"
+                                             :label="PaymentItem.label" :key="PaymentItem.prop">
                             </el-table-column>
-                            <el-table-column label="Action" min-width="100px">
+                            <el-table-column label="CN/Receipt" min-width="70px">
                                 <template slot-scope="scope">
-                                    <a href="#" style="color:red" @click="showViewTransaction(scope.row)">View Transaction</a><br>
-                                    <a href="#" style="color:green" @click="showGenerateReceiptByHistory(scope.row)">Generate Receipt</a><br>
-                                    <a href="#" style="color:#ffe21f" @click="showGenerateCreditNote(scope.row)">Generate CreditNote</a><br>
-                                    <a href="#" style="color:rebeccapurple" @click="showReInvoice(scope.row)">Re-Invoice</a><br>
+                                    <div class="receiptScope" v-for="item in splitReceiptList(scope.row.recNameList)"
+                                                              v-bind:key="item.ID">
+<!--                                        <a href="#" id="link">{{item}}</a>-->
+                                       {{item}}
+                                    </div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="Action" min-width="70px">
+                                <template slot-scope="scope">
+                                    <div>
+                                        <a href="#" style="color:red" @click="showTransaction(scope.row)">
+                                            <i class="fa fa-list-alt" aria-hidden="true" style='font-size:24px'
+                                               title="Show Transaction" ></i></a>&nbsp
+
+                                        <a href="#" v-if="scope.row.generateReceiptFlag =='Yes'&&btnDisabled==false"
+                                           style="color:green"
+                                           @click="showGenerateReceiptByHistory(scope.row)">
+                                            <i class="fa fa-btc" aria-hidden="true" style='font-size:24px'
+                                               title="Generate Receipt"></i></a>&nbsp
+
+                                        <a href="#" v-if="scope.row.generateCNFlag=='Yes'&&btnDisabled==false"
+                                           style="color:blue" @click="showGenerateCreditNote(scope.row)">
+                                            <i class="fa fa-money" aria-hidden="true" style='font-size:24px'
+                                            title="Generate CreditNote"></i></a>&nbsp
+
+                                        <a href="#" v-if="scope.row.reInvoiceFlag=='Yes'&&btnDisabled==false"
+                                           style="color:rebeccapurple" @click="showReInvoice(scope.row)">
+                                            <i class="fa fa-files-o" aria-hidden="true" style='font-size:24px'
+                                               title="Re-Invoice"></i></a>&nbsp
+                                    </div>
+
                                 </template>
                             </el-table-column>
                         </data-tables>
@@ -36,122 +89,44 @@
                 </div>
 
                 <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <h5 class="text-left">Batch Payment</h5>
                     <div class="row form-group__wrapper">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                            <h5 class="text-left">INVOICING</h5>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <label>* Payment Due Date</label>
-                            <div class="date">
-                                <el-date-picker v-model="inputPaymentDueDate" format="dd/MM/yyyy"
-                                                value-format="dd/MM/yyyy" type="date"
-                                                placeholder="Pick a day" ></el-date-picker>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <!--<label>Letterhead (Hong Kong only):</label>-->
-                            <label>
-                                <input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">
-                                Print monthly breakdown
-                                <span>
-                                    <span>
-                                        <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
-                                                                                         fill="none" stroke="white"
-                                                                                         d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>
-                                    </span>
-                                </span>
-                            </label>
-                        </div>
                         <div class="buttonArea col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
-                                <button v-on:click="PreviewInvoiceClick" type="button"
-                                        class="btn btn-primary waves-effect waves-light m-r-10">Preview Invoice
+                                <button v-on:click="showGenerateInvoice" type="button" :disabled="btnDisabled"
+                                        class="btn btn-primary waves-effect waves-light m-r-10">Generate/Preview Invoice
                                 </button>
                             </div>
                         </div>
                         <div class="buttonArea col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
-                                <button v-on:click="GenerateInvoiceClick" type="button"
-                                        class="btn btn-primary waves-effect waves-light m-r-10">Generate Invoice
-                                </button>
-                            </div>
-                        </div>
-
-                        <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">-->
-                            <!--<h5 class="text-left">RECEIPTS</h5>-->
-                        <!--</div>-->
-                        <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                            <!--<label>Payment Mode</label>-->
-                            <!--<select v-model="ddlPaymentMode"-->
-                                    <!--class="form-control pro-edt-select form-control-primary" >-->
-                                <!--<option v-for="item in paymentModeList" v-bind:value="item.OPTvalue.trim()">{{-->
-                                    <!--item.OPTvalue.trim() }}-->
-                                <!--</option>-->
-                            <!--</select>-->
-                        <!--</div>-->
-                        <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                            <!--<label>Cheque/DD No & Bank Name</label>-->
-                            <!--<input type="text" class="form-control" v-model="inputChequeNoBankName">-->
-                        <!--</div>-->
-                        <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                            <!--<label>Receipt Date</label>-->
-                            <!--<div class="date">-->
-                                <!--<el-date-picker v-model="inputReceiptDate" format="dd/MM/yyyy"-->
-                                                <!--value-format="dd/MM/yyyy" type="date"-->
-                                                <!--placeholder="Pick a day"></el-date-picker>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                        <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                            <!--<label>Remarks</label>-->
-                            <!--<input type="text" class="form-control" v-model="inputRemarks">-->
-                        <!--</div>-->
-
-                        <div class="buttonArea col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                            <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
-                                <button v-on:click="ValidationPreviewReceipt" type="button"
-                                        class="btn btn-primary waves-effect waves-light m-r-10" :disabled="true">Preview Receipt
-                                </button>
-                            </div>
-                        </div>
-                        <div class="buttonArea col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                            <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
-                                <button v-on:click="GenerateReceipt" type="button"
-                                        class="btn btn-primary waves-effect waves-light m-r-10">Generate Receipt
+                                <button v-on:click="showGenerateReceipt" type="button" :disabled="btnDisabled"
+                                        class="btn btn-primary waves-effect waves-light m-r-10">Generate/Preview Receipt
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
 
-        <b-modal id="viewTransactionModal" size="lg" title="All Transactions for Student Payment Item" ok-only ok-variant="secondary" ok-title="Cancel" ref="viewTransactionShowModal">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <label>Payment Item Name: {{this.viewSPPDPayerName}}</label>
-            </div>
+        <b-modal id="viewTransactionModal" size="lg" title="Transactions History" ok-only ok-variant="secondary" ok-title="Cancel" ref="viewTransactionShowModal">
+<!--            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
+<!--                <label>Payment Item Name: {{this.viewSPPDPayerName}}</label>-->
+<!--            </div>-->
             <div class="row">
                 <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div v-if="itemTransDetailsInt.length>0">
-                        <data-tables :data="itemTransDetailsInt"  >
-                            <el-table-column v-for="itemTransDetailsListItem in itemTransDetailsList" :prop="itemTransDetailsListItem.prop"
-                                             :label="itemTransDetailsListItem.label" :key="itemTransDetailsListItem.prop"
+                    <div v-if="studentReceiptGenerationByTransactionHistoryListInt.length>0">
+                        <data-tables :data="studentReceiptGenerationByTransactionHistoryListInt">
+                            <el-table-column label="Document Number" min-width="70px">
+                                <template slot-scope="scope">
+                                    <a href="#" style="color:blue" @click="getTransactionDocumentPdf(scope.row)">{{scope.row.DocumentNo}}</a>
+                                </template>
+                            </el-table-column>
+                            <el-table-column v-for="item in studentReceiptGenerationByTransactionHistoryList" :prop="item.prop"
+                                             :label="item.label" :key="item.prop"
                                              sortable="custom">
                             </el-table-column>
-
-                            <!--TODO: check if enable the make credit note button or not by adding v-if on div-->
-                            <!--v-if="allowCN"-->
-                                <el-table-column label="Action" min-width="100px" v-if="allowCN">
-                                    <template slot-scope="scope">
-                                        <el-button v-for="invoiceDetails in makeCreditNoteClick(scope.row)"
-                                                   :key="invoiceDetails.name" type="primary"
-                                                   @click="invoiceDetails.handler" >
-                                            {{invoiceDetails.name}}
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-
-
                         </data-tables>
 
                     </div>
@@ -162,30 +137,47 @@
         <b-modal id="newApplyPaymentPlanModal" size="lg" title="Apply Payment Plan" ok-only ok-variant="secondary" hide-footer ref="newApplyPaymentPlanShowModal">
             <div class="row ml-2 mr-2">
 
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>* Payment Plan</label>
-                    <el-select class="float-left fullwidth" v-model="ddlPaymentPlan">
-                        <el-option
-                                v-for="item in paymentPlanList"
-                                :key="item.PK_Course_Fee_Scheme_ID"
-                                :label="item.PPM_Fee_Scheme_Name"
-                                :value="item.PK_Course_Fee_Scheme_ID">
-                        </el-option>
-                    </el-select>
-                    <button v-on:click="viewPaymentPlan()"
-                            class="btn btn-primary waves-effect waves-light float-right">View Payment Plan
-                    </button>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label>* Payment Plan</label>
+                        <el-select class="float-left fullwidth" v-model="ddlPaymentPlan">
+                            <el-option
+                                    v-for="item in paymentPlanList"
+                                    :key="item.PK_Course_Fee_Scheme_ID"
+                                    :label="item.PPM_Fee_Scheme_Name"
+                                    :value="item.PK_Course_Fee_Scheme_ID">
+                            </el-option>
+                        </el-select>
+                        <button v-on:click="viewPaymentPlan()"
+                                class="btn btn-primary waves-effect waves-light float-right">View Payment Plan
+                        </button>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Start Date</label>
                     <input type="text" class="form-control" v-model="inputPaymentPlanStartDate" readonly="readonly">
-
                 </div>
 
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label>
+                            <input type="checkbox" class="form-control" v-model="cbProRateFees" :disabled="disabledCbProRateFees" @change="cbProRateFeesClick()">
+                            Pro-Rate Fees
+                            <span>
+                            <span>
+                                <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
+                                                                                 fill="none" stroke="white"
+                                                                                 d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>
+                            </span>
+                        </span>
+                        </label>
+                        <input type="text" class="form-control EligibleColor" v-model="inputEligible" v-show="isProRateFeesEligible" readonly="readonly">
+                        <input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible" v-show="isProRateFeesNotEligible" readonly="readonly">
+
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>
-                        <input type="checkbox" class="form-control" v-model="cbProRateFees" :disabled="disabledCbProRateFees" @change="cbProRateFeesClick()">
-                        Pro-Rate Fees
+                        <input type="checkbox" class="form-control" v-model="cbPostRateFees" :disabled="disabledCbPostRateFees" @change="cbPostRateFeesClick()">
+                        Post-Rate Fees
                         <span>
                             <span>
                                 <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
@@ -194,9 +186,58 @@
                             </span>
                         </span>
                     </label>
-                    <input type="text" class="form-control EligibleColor" v-model="inputEligible" v-show="isProRateFeesEligible" readonly="readonly">
-                    <input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible" v-show="isProRateFeesNotEligible" readonly="readonly">
+                    <input type="text" class="form-control EligibleColor" v-model="inputEligible" v-show="isPostRateFeesEligible" readonly="readonly">
+                    <input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible" v-show="isPostRateFeesNotEligible" readonly="readonly">
                 </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
+                    <label><span v-show="isDdlProRateFeesRequired">* </span>Rule to Apply</label>
+                    <el-select v-model="ddlPaymentPlanRuleApplyProRateFees" ref="ddlPaymentPlanRuleApplyProRateFees" class="fullwidth" :disabled="disablePaymentPlanRuleProRateFees" @change="onchangePaymentPlanRuleProRateFees()">
+                        <el-option
+                                v-for="item in paymentPlanRuleApplyProRateFeesList"
+                                :key="item.PK_PPR_ID"
+                                :label="item.PPR_Name"
+                                :value="item.PK_PPR_ID">
+                        </el-option>
+                    </el-select>
+                    <input type="text" class="form-control" v-model="inputPaymentPlanRuleProRateAmount" v-show="isInputPaymentPlanRuleProRateAmount" readonly="readonly">
+                </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
+                    <label>Rule to Apply</label>
+                    <el-select v-model="ddlPaymentPlanRuleApplyPostRateFees" class="fullwidth" :disabled="disablePaymentPlanRulePostRateFees">
+                        <el-option
+                                v-for="item in paymentPlanRuleApplyPostRateFeesList"
+                                :key="item.PK_PPR_ID"
+                                :label="item.PPR_Name"
+                                :value="item.PK_PPR_ID">
+                        </el-option>
+                    </el-select>
+                </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <label>Level Start Date</label>
+                    <input type="text" class="form-control" v-model="inputPaymentPlanLevelStartDate" readonly="readonly">
+                </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <!--todo: to check what value for level end date-->
+                        <label>Level End Date</label>
+                        <!--existing ems no assign value for level end date-->
+                        <input type="text" class="form-control" v-model="inputPaymentPlanLevelEndDate" readonly="readonly">
+                    </div>
+
+                <hr class="custom-hr"/>
+                <div class="col-lg-6">
+                    <button v-on:click="savePaymentPlanClick()"
+                            class="btn btn-primary waves-effect waves-light">Add Payment Plan
+                    </button>
+                </div>
+            </div>
+        </b-modal>
+
+        <b-modal id="newApplyDiscountPlanModal" size="lg" title="Add Discount Plan" ok-only ok-variant="secondary" hide-footer ref="newApplyDiscountPlanShowModal">
+            <div class="row ml-2 mr-2">
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>
@@ -212,64 +253,31 @@
                     </label>
                     <input type="text" class="form-control EligibleColor" v-model="inputEligible" v-show="isSiblingDiscountEligible" readonly="readonly">
                     <input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible" v-show="isSiblingDiscountNotEligible" readonly="readonly">
-                </div>
-
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <label>Level Start Date</label>
-                    <input type="text" class="form-control" v-model="inputPaymentPlanLevelStartDate" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <div><label>List of Siblings</label></div>
-                    <div>
-                        <div v-if="siblingList">
-                            <label v-for="(item, index) in siblingListInfo">{{index + 1}}. {{item.Full_Name}} {{item.Middle_name}} {{item.Last_name}} ({{item.Status}})</label>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div><label>List of Siblings</label></div>
+                        <div>
+                            <div v-if="siblingList">
+                                <label v-for="(item, index) in siblingListInfo">{{index + 1}}. {{item.Full_Name}} {{item.Middle_name}} {{item.Last_name}} ({{item.Status}})</label>
+                            </div>
+                            <div v-if="!siblingList">
+                                No Siblings....
+                            </div>
                         </div>
-                        <div v-if="!siblingList">
-                            No Siblings....
-                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 mb3">
+                        <label><span v-show="isDdlSiblingDiscRequired">* </span>Rule to Apply</label>
+                        <el-select v-model="ddlPaymentPlanRuleApplySiblings" class="fullwidth" :disabled="disablePaymentPlanRuleApplySiblings" @change="onchangePaymentPlanRuleSiblings()">
+                            <el-option
+                                    v-for="item in paymentPlanRuleApplySiblingsList"
+                                    :key="item.PK_PPR_ID"
+                                    :label="item.PPR_Name"
+                                    :value="item.PK_PPR_ID">
+                            </el-option>
+                        </el-select>
+                        <input type="text" class="form-control" v-model="inputPaymentPlanRuleSiblingsAmount" v-show="isInputPaymentPlanRuleSiblingsAmount" readonly="readonly">
                     </div>
                 </div>
 
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label><span v-show="isDdlProRateFeesRequired">* </span>Rule to Apply</label>
-                    <el-select v-model="ddlPaymentPlanRuleApplyProRateFees" ref="ddlPaymentPlanRuleApplyProRateFees" class="fullwidth" :disabled="disablePaymentPlanRuleProRateFees" @change="onchangePaymentPlanRuleProRateFees()">
-                        <el-option
-                                v-for="item in paymentPlanRuleApplyProRateFeesList"
-                                :key="item.PK_PPR_ID"
-                                :label="item.PPR_Name"
-                                :value="item.PK_PPR_ID">
-                        </el-option>
-                    </el-select>
-                    <input type="text" class="form-control" v-model="inputPaymentPlanRuleProRateAmount" v-show="isInputPaymentPlanRuleProRateAmount" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label><span v-show="isDdlSiblingDiscRequired">* </span>Rule to Apply</label>
-                    <el-select v-model="ddlPaymentPlanRuleApplySiblings" class="fullwidth" :disabled="disablePaymentPlanRuleApplySiblings" @change="onchangePaymentPlanRuleSiblings()">
-                        <el-option
-                                v-for="item in paymentPlanRuleApplySiblingsList"
-                                :key="item.PK_PPR_ID"
-                                :label="item.PPR_Name"
-                                :value="item.PK_PPR_ID">
-                        </el-option>
-                    </el-select>
-                    <input type="text" class="form-control" v-model="inputPaymentPlanRuleSiblingsAmount" v-show="isInputPaymentPlanRuleSiblingsAmount" readonly="readonly">
-                </div>
-
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <label>
-                        <input type="checkbox" class="form-control" v-model="cbPostRateFees" :disabled="disabledCbPostRateFees" @change="cbPostRateFeesClick()">
-                        Post-Rate Fees
-                        <span>
-                            <span>
-                                <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
-                                                                                 fill="none" stroke="white"
-                                                                                 d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>
-                            </span>
-                        </span>
-                    </label>
-                    <input type="text" class="form-control EligibleColor" v-model="inputEligible" v-show="isPostRateFeesEligible" readonly="readonly">
-                    <input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible" v-show="isPostRateFeesNotEligible" readonly="readonly">
-                </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>
                         <input type="checkbox" class="form-control" v-model="cbStaffDiscount" :disabled="disabledCbStaffDiscount" @change="cbStaffDiscountClick()">
@@ -284,49 +292,25 @@
                     </label>
                     <input type="text" class="form-control EligibleColor" v-model="inputEligible" v-show="isStaffDiscountEligible" readonly="readonly">
                     <input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible" v-show="isStaffDiscountNotEligible" readonly="readonly">
-                </div>
-
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <!--todo: to check what value for level end date-->
-                    <label>Level End Date</label>
-                    <!--existing ems no assign value for level end date-->
-                    <input type="text" class="form-control" v-model="inputPaymentPlanLevelEndDate" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label><span v-show="isDdlStaffDiscRequired">* </span>Rule to Apply</label>
-                    <el-select v-model="ddlPaymentPlanRuleApplyStaff" class="fullwidth" :disabled="disablePaymentPlanRuleApplyStaff" @change="onchangePaymentPlanRuleStaff()">
-                        <el-option
-                                v-for="item in ddlPaymentPlanRuleApplyStaffList"
-                                :key="item.staffContactID"
-                                :label="item.staffName"
-                                :value="item.staffContactID">
-                        </el-option>
-                    </el-select>
-                    <input type="text" class="form-control" v-model="inputPaymentPlanRuleStaffAmount" v-show="isInputPaymentPlanRuleStaffAmount" readonly="readonly">
-                </div>
-
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Rule to Apply</label>
-                    <el-select v-model="ddlPaymentPlanRuleApplyPostRateFees" class="fullwidth" :disabled="disablePaymentPlanRulePostRateFees">
-                        <el-option
-                                v-for="item in paymentPlanRuleApplyPostRateFeesList"
-                                :key="item.PK_PPR_ID"
-                                :label="item.PPR_Name"
-                                :value="item.PK_PPR_ID">
-                        </el-option>
-                    </el-select>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Staff Name</label>
-                    <input type="text" class="form-control" v-model="inputStaffName" readonly="readonly">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 mb3">
+                        <label><span v-show="isDdlStaffDiscRequired">* </span>Rule to Apply</label>
+                        <el-select v-model="ddlPaymentPlanRuleApplyStaff" class="fullwidth" :disabled="disablePaymentPlanRuleApplyStaff" @change="onchangePaymentPlanRuleStaff()">
+                            <el-option
+                                    v-for="item in ddlPaymentPlanRuleApplyStaffList"
+                                    :key="item.staffContactID"
+                                    :label="item.staffName"
+                                    :value="item.staffContactID">
+                            </el-option>
+                        </el-select>
+                        <input type="text" class="form-control" v-model="inputPaymentPlanRuleStaffAmount" v-show="isInputPaymentPlanRuleStaffAmount" readonly="readonly">
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 mb3">
+                        <label>Staff Name</label>
+                        <input type="text" class="form-control" v-model="inputStaffName" readonly="readonly">
+                    </div>
                 </div>
 
                 <hr class="custom-hr"/>
-                <div class="col-lg-6">
-                    <button v-on:click="savePaymentPlanClick()"
-                            class="btn btn-primary waves-effect waves-light">Add Payment Plan
-                    </button>
-                </div>
                 <div class="col-lg-6">
                     <button v-on:click="addDiscountPlanClick()"
                             class="btn btn-primary waves-effect waves-light">Add Discount Plan
@@ -487,50 +471,45 @@
 
         <b-modal id="creditNoteModal" size="lg" title="Credit Note" ok-only ok-variant="secondary" hide-footer ref="creditNoteModal">
             <div class="row ml-2 mr-2">
+
+                <div><h5>History Detail</h5></div>
+
+                    <div class= "col-lg-12">
+                        <div v-if="studentReceiptGenerationByTransactionHistoryListInt.length>0" class="datatable_group">
+                            <data-tables :data="studentReceiptGenerationByTransactionHistoryListInt">
+                                <el-table-column v-for="item in studentReceiptGenerationByTransactionHistoryList" :prop="item.prop"
+                                                 :label="item.label" :key="item.prop">
+                                </el-table-column>
+                            </data-tables>
+                        </div><br>
+
+                        <div v-if="studentReceiptLeftOverPaymentListInt.length>0" class="datatable_group">
+                            <data-tables :data="studentReceiptLeftOverPaymentListInt" @selection-change="changeSelection"
+                                         ref="ReceiptGenerationByTransactionHistoryTable">
+                                <el-table-column type="selection" width="55" :reserve-selection="false">
+                                </el-table-column>
+                                <el-table-column v-for="item in studentReceiptLeftOverPaymentList" :prop="item.prop"
+                                                 :label="item.label" :key="item.prop">
+                                </el-table-column>
+<!--                                <el-table-column label="Pay Amount" min-width="100px">-->
+<!--                                    <template slot-scope="scope">-->
+<!--                                        <el-input v-model="scope.row.newPayAmount" type="number" placeholder="Amount"></el-input>-->
+<!--                                    </template>-->
+<!--                                </el-table-column>-->
+                            </data-tables>
+                        </div><br>
+                    </div>
+
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
+                    <label>Remarks *</label>
+                    <b-form-textarea rows="3" class="textArea" v-model="taCnRemarks" placeholder="Please enter comment"
+                    :state="taCnRemarks.length >=1"></b-form-textarea>
+
+                </div>
                 <div class="col-lg-12">
                     <button v-on:click="generateCNClick()"
-                            class="btn btn-primary waves-effect waves-light float-right">Generate
+                            class="btn btn-primary waves-effect waves-light float-right">Generate CN
                     </button>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Invoice Number</label>
-                    <input type="text" class="form-control" v-model="inputCnInvoiceName" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Invoice Date</label>
-                    <input type="text" class="form-control" v-model="inputCnInvoiceDate" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Payment Due Date</label>
-                    <input type="text" class="form-control" v-model="inputCnPaymentDueDate" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Status</label>
-                    <input type="text" class="form-control" v-model="inputCnInvoiceStatus" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Student No</label>
-                    <input type="text" class="form-control" v-model="inputCnStudentNo" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Student</label>
-                    <input type="text" class="form-control" v-model="inputCnStudentName" readonly="readonly">
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
-                    <label>Remarks</label>
-                    <textarea rows="3" class="textArea" v-model="taCnRemarks"></textarea>
-                </div>
-            </div>
-            <div class="row">
-                <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div v-if="invoiceDetailsListInt.length>0">
-                        <data-tables :data="invoiceDetailsListInt"  >
-                            <el-table-column v-for="invoiceDetailsItem in invoiceDetailsList" :prop="invoiceDetailsItem.prop"
-                                             :label="invoiceDetailsItem.label" :key="invoiceDetailsItem.prop"
-                                             sortable="custom">
-                            </el-table-column>
-                        </data-tables>
-                    </div>
                 </div>
             </div>
         </b-modal>
@@ -546,18 +525,18 @@
                 </div>
 
                 <div v-if="studentReceiptGenerationListInt.length>0" class="datatable_group">
-                    <data-tables :data="studentReceiptGenerationListInt" @selection-change="changeSelection" :action-col="studentReceiptItemListAction">
-                        <el-table-column type="selection" width="55" :reserve-selection="true">
+                    <data-tables :data="studentReceiptGenerationListInt" @selection-change="changeSelection" :action-col="studentReceiptItemListAction"
+                                 ref="receiptGenerationTable">
+                        <el-table-column type="selection" width="55" >
                         </el-table-column>
-                        <el-table-column v-for="studentReceiptItem in studentReceiptGenerationList" :prop="studentReceiptItem.prop"
-                                         :label="studentReceiptItem.label" :key="studentReceiptItem.prop">
+                        <el-table-column v-for="item in studentReceiptGenerationList" :prop="item.prop"
+                                         :label="item.label" :key="item.prop">
                         </el-table-column>
                         <el-table-column label="Pay Amount" min-width="100px">
                             <template slot-scope="scope">
                                 <el-input v-model="scope.row.newPayAmount" type="number" placeholder="Amount"></el-input>
                             </template>
                         </el-table-column>
-
                     </data-tables>
                 </div>
 
@@ -605,26 +584,103 @@
             </div>
         </b-modal>
 
+        <b-modal id="generateInvoiceModal" size="xl" title="Generate Invoice" ok-only ok-variant="secondary" hide-footer ref="generateInvoiceModal">
+            <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="col-lg-12 actionDiv">
+                    <el-button-group>
+                        <el-button type="primary" variant="primary" v-on:click="showDiscountPlanClick()">
+                            Apply Discount plan
+                        </el-button>
+                        <el-button type="primary" variant="primary" v-on:click="applyPaymentPlanClick()">
+                            Apply Payment Plan
+                        </el-button>
+                        <el-button type="primary" variant="primary" v-on:click="addItemClick()">
+                            Add Item
+                        </el-button>
+                    </el-button-group>
+                </div>
+                <div v-if="studentInvoiceGenerationListInt.length>0" class="datatable_group">
+                    <data-tables :data="studentInvoiceGenerationListInt" @selection-change="changeSelection" :action-col="studentInvoiceItemListAction"
+                                 ref="invoiceGenerationTable">
+                        <el-table-column type="selection" width="55">
+                        </el-table-column>
+                        <el-table-column v-for="item in studentInvoiceGenerationList" :prop="item.prop"
+                                         :label="item.label" :key="item.prop">
+                        </el-table-column>
+                    </data-tables>
+                </div>
+
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
+                    <h5 class="text-left">INVOICING</h5>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <label>* Payment Due Date</label>
+                    <div class="date">
+                        <el-date-picker v-model="inputPaymentDueDate" format="dd/MM/yyyy"
+                                        value-format="dd/MM/yyyy" type="date"
+                                        placeholder="Pick a day" ></el-date-picker>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <!--<label>Letterhead (Hong Kong only):</label>-->
+                    <label>
+                        <input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">
+                        Print monthly breakdown
+                        <span>
+                                    <span>
+                                        <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
+                                                                                         fill="none" stroke="white"
+                                                                                         d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>
+                                    </span>
+                                </span>
+                    </label>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <label>Remarks</label>
+                    <input type="text" class="form-control" v-model="inputRemarks">
+                </div>
+
+                <div class="col-lg-12 actionDiv">
+                    <el-button-group>
+                        <el-button type="primary" variant="primary" v-on:click="previewInvoiceClick()">
+                            <b><h5>Preview</h5></b>
+                        </el-button>
+                    </el-button-group>
+                    <el-button-group>
+                        <el-button type="primary" variant="primary" v-on:click="generateInvoiceClick('')">
+                            <b><h5>Generate</h5></b>
+                        </el-button>
+                    </el-button-group>
+                </div>
+
+            </div>
+        </b-modal>
+
         <b-modal id="showGenerateReceiptByHistoryModal" size="xl" title="Generate Receipt Detail(With Transaction History)" ok-only ok-variant="secondary" hide-footer ref="showGenerateReceiptByHistoryModal">
             <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div><h5>Transaction History Detail</h5></div>
                 <div v-if="studentReceiptGenerationByTransactionHistoryListInt.length>0" class="datatable_group">
-                    <data-tables :data="studentReceiptGenerationByTransactionHistoryListInt" @selection-change="changeSelection">
-                        <el-table-column type="selection" width="55" :reserve-selection="true">
-                        </el-table-column>
+                    <data-tables :data="studentReceiptGenerationByTransactionHistoryListInt"
+                    ref="ReceiptGenerationByTransactionHistoryTable">
                         <el-table-column v-for="item in studentReceiptGenerationByTransactionHistoryList" :prop="item.prop"
                                          :label="item.label" :key="item.prop">
                         </el-table-column>
                     </data-tables>
                 </div><br>
 
-                <div><h5>Transaction History(Left Over Payment)</h5></div>
+                <div><h5>Left Over Payment</h5></div>
                 <div v-if="studentReceiptLeftOverPaymentListInt.length>0" class="datatable_group">
-                    <data-tables :data="studentReceiptLeftOverPaymentListInt" @selection-change="changeSelection">
-                        <el-table-column type="selection" width="55" :reserve-selection="true">
+                    <data-tables :data="studentReceiptLeftOverPaymentListInt" @selection-change="changeSelection"
+                    ref="ReceiptLeftOverPaymentTable">
+                        <el-table-column type="selection" width="55" :reserve-selection="false">
                         </el-table-column>
                         <el-table-column v-for="item in studentReceiptLeftOverPaymentList" :prop="item.prop"
                                          :label="item.label" :key="item.prop">
+                        </el-table-column>
+                        <el-table-column label="Pay Amount" min-width="100px">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.newPayAmount" type="number" placeholder="Amount"></el-input>
+                            </template>
                         </el-table-column>
                     </data-tables>
                 </div>
@@ -633,7 +689,7 @@
                     <h5 class="text-left">RECEIPTS</h5>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <label>Payment Mode</label>
+                    <label>Payment Mode *</label>
                     <select v-model="ddlPaymentMode" v-on:click="validatePaymentMode()"
                             class="form-control pro-edt-select form-control-primary" >
                         <option v-for="item in paymentModeList" v-bind:value="item.OPTvalue.trim()">{{
@@ -646,7 +702,7 @@
                     <input type="text" class="form-control" v-model="inputChequeNoBankName">
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <label>Receipt Date</label>
+                    <label>Receipt Date *</label>
                     <div class="date">
                         <el-date-picker v-model="inputReceiptDate" format="dd/MM/yyyy"
                                         value-format="dd/MM/yyyy" type="date"
@@ -660,12 +716,12 @@
 
                 <div class="col-lg-12 actionDiv">
                     <el-button-group>
-                        <el-button type="primary" variant="primary" v-on:click="previewReceiptClick()">
+                        <el-button type="primary" variant="primary" v-on:click="previewLeftOverReceiptClick()">
                             <b><h5>Preview</h5></b>
                         </el-button>
                     </el-button-group>
                     <el-button-group>
-                        <el-button type="primary" variant="primary" v-on:click="generateReceiptClick()">
+                        <el-button type="primary" variant="primary" v-on:click="generateLeftOverReceiptClick()">
                             <b><h5>Generate</h5></b>
                         </el-button>
                     </el-button-group>
@@ -673,6 +729,84 @@
             </div>
         </b-modal>
 
+        <b-modal id="showReInvoiceModal" size="lg" title="Re-Invoice" ok-only ok-variant="secondary" ok-title="Cancel" ref="showReInvoiceModal">
+            <div class="row">
+                <div class= "col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="col-lg-12 actionDiv">
+                        <el-button-group>
+                            <el-button type="primary" variant="primary" v-on:click="addItemClick()">
+                                Add Item
+                            </el-button>
+                        </el-button-group>
+                    </div>
+
+                    <div v-if="ReInvoiceListInt.length>0">
+                        <data-tables :data="ReInvoiceListInt" @selection-change="changeSelection">
+                            <el-table-column type="selection" width="55" >
+                            </el-table-column>
+                            <el-table-column v-for="item in ReInvoiceList" :prop="item.prop"
+                                             :label="item.label" :key="item.prop"
+                                             sortable="custom">
+                            </el-table-column>
+                            <el-table-column label="Pay Amount(Included GST)" min-width="100px">
+                                <template slot-scope="scope">
+                                    <el-input v-model="scope.row.newPayAmount" type="number" placeholder="Amount"></el-input>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="isReivoiceItem" min-width="80px">
+                                <template slot-scope="scope">
+                                   <el-input v-model="scope.row.isReinvoiceItem" type="text" disabled></el-input>
+                                </template>
+                            </el-table-column>
+
+                        </data-tables>
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
+                            <h5 class="text-left">INVOICING</h5>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>* Payment Due Date</label>
+                            <div class="date">
+                                <el-date-picker v-model="inputPaymentDueDate" format="dd/MM/yyyy"
+                                                value-format="dd/MM/yyyy" type="date"
+                                                placeholder="Pick a day" ></el-date-picker>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <!--<label>Letterhead (Hong Kong only):</label>-->
+                            <label>
+                                <input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">
+                                Print monthly breakdown
+                                <span>
+                                    <span>
+                                        <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
+                                                                                         fill="none" stroke="white"
+                                                                                         d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Remarks</label>
+                            <input type="text" class="form-control" v-model="inputRemarks">
+                        </div>
+
+                        <div class="col-lg-12 actionDiv">
+                            <el-button-group>
+                                <el-button type="primary" variant="primary" v-on:click="previewInvoiceClick('reinvoice')">
+                                    <b><h5>Preview</h5></b>
+                                </el-button>
+                            </el-button-group>
+                            <el-button-group>
+                                <el-button type="primary" variant="primary" v-on:click="generateInvoiceClick('reinvoice')">
+                                    <b><h5>Generate</h5></b>
+                                </el-button>
+                            </el-button-group>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </b-modal>
 
     </div>
 </template>
@@ -685,14 +819,82 @@
 
         data() {
             return {
-                //Receipt
-                test:'',
+                //For Sibling data-table
+                siblingListTableInt: [],
+                siblingListTableList: [{
+                    prop: "Index_No",
+                    label: "Student No"
+                }, {
+                    prop: "Full_Name",
+                    label: "First Name"
+                }, {
+                    prop: "Last_name",
+                    label: "Last Name"
+                }, {
+                    prop: "Regst_date_convert",
+                    label: "Regisration Date"
+                }, {
+                    prop: "SiblingLevelName",
+                    label: "Level"
+                }, {
+                    prop: "Status",
+                    label: "Status"
+                }, {
+                    prop: "SCH_Name",
+                    label: "Center Name"
+                }],
+                //
 
+                //student info
+                test:'',
+                ReceiptList:[],
+
+                inputStudentName:'',
+                inputCreatedBy:'',
+                inputCreationDate:'',
+                inputStudentStatus:'',
+                inputStudentLevel:'',
+                inputIntake:'',
+                inputFromDate:'',
+                inputToDate:'',
+                inputStudentNO:'',
+                inputPayeeName:'',
+                inputMealPreferences:'',
+                sponsor_type:'',
+                studentDetail:[],
+                //
+
+                //temp
+                tempList:'',
+                btnDisabled:true,
+                courseStatus:false,
+                //
+
+                //For Credit Note
+                cnInvoiceName:'',
+                inputCNRemark:'',
+                isChecked:true,
+                //
+
+                //For Reinvoice
+                customizeReInvoiceResponce:[],
+                isSelectable:false,
+                reInvoiceName:'',
+                Re_InvoiceName:'',
+                //
+
+                viewTransactionFlag: '',
+                generateReceiptFlag: '',
+                generateCNFlag: '',
+                reinvoiceFlag: '',
+
+                transactionObj:[],
+                //Receipt
                 payValue:'',
                 inputNewPayAmount:'',
-                respTemp:[],
-                customizeResponse:[],
-                studentPaymentListInt: [],
+                respTempReceipt:[],
+                customizeReceiptResponse:[],
+
                 studentReceiptGenerationListInt:[],
                 studentReceiptGenerationList: [{
                     prop: "SPPD_PayerName",
@@ -707,9 +909,32 @@
                     prop: "SPPD_GstValue",
                     label: "GST Value"
                 }, {
-                    prop: "RecTotal",
-                    label: "Paid Amount"
+                    prop: "SPPD_TotalValue",
+                    label: "Total Amount"
                 }],
+
+                //Invoice
+                inputInvoiceDate: '',
+                respTempInvoice:[],
+                customizeInvoiceResponse:[],
+                studentInvoiceGenerationListInt:[],
+                studentInvoiceGenerationList: [{
+                    prop: "SPPD_PayerName",
+                    label: "Name"
+                }, {
+                    prop: "paymentDate",
+                    label: "Payment Date"
+                }, {
+                    prop: "SPPD_PaymentAmount",
+                    label: "Amount"
+                }, {
+                    prop: "SPPD_GstValue",
+                    label: "GST Value"
+                }, {
+                    prop: "SPPD_TotalValue",
+                    label: "Total Amount"
+                }],
+                //Invoice End
 
                 studentReceiptLeftOverPaymentListInt:[],
                 studentReceiptLeftOverPaymentList:[{
@@ -717,7 +942,7 @@
                     label: "Item Description"
                 }, {
                     prop: "GST_Applicable",
-                    label: "Document Status"
+                    label: "GST Applicable"
                 }, {
                     prop: "gstValue",
                     label: "GST Value"
@@ -731,9 +956,6 @@
 
                 studentReceiptGenerationByTransactionHistoryListInt:[],
                 studentReceiptGenerationByTransactionHistoryList: [{
-                    prop: "DocumentNo",
-                    label: "Document No"
-                }, {
                     prop: "DocumentStatus",
                     label: "Document Status"
                 }, {
@@ -748,24 +970,19 @@
                 }],
                 //End:Receipt
 
-                studentPaymentList: [{
-                    prop: "SPPD_PayerName",
-                    label: "Name"
+                PaymentListInt: [],
+                PaymentList: [{
+                    prop: "IH_Invoice_Name",
+                    label: "Invoice Name"
                 }, {
-                    prop: "SPPD_Status",
-                    label: "Invoice Status"
+                    prop: "invoiceDate",
+                    label: "Invoice Date"
                 }, {
-                    prop: "SPPD_PaymentDates",
-                    label: "Payment Date"
+                    prop: "invoiceAmount",
+                    label: "Invoice Amount"
                 }, {
-                    prop: "SPPD_PaymentAmount",
-                    label: "Amount"
-                }, {
-                    prop: "totalIncludeGst",
-                    label: "Incl. GST"
-                }, {
-                    prop: "RecTotal",
-                    label: "Paid Amount"
+                    prop: "invoiceRemarks",
+                    label: "Remarks"
                 }],
 
                 itemTransDetailsInt: [],
@@ -818,6 +1035,24 @@
                     prop: "ID_Item_Amount",
                     label: "Amount"
 
+                }],
+
+                ReInvoiceListInt:[],
+                ReInvoiceList:[{
+                    prop: "SPPD_PayerName",
+                    label: "Name"
+                }, {
+                    prop: "paymentDate",
+                    label: "Payment Date"
+                }, {
+                    prop: "SPPD_PaymentAmount",
+                    label: "Amount"
+                }, {
+                    prop: "SPPD_GstValue",
+                    label: "GST Value"
+                }, {
+                    prop: "SPPD_TotalValue",
+                    label: "Total Amount"
                 }],
 
                 inputPaymentDueDate: '',
@@ -931,13 +1166,46 @@
 
                 cbPrintMonthlyBreakdown: '',
 
-                studentPaymentListAction: {
+                PaymentListAction: {
                     label: 'Delete',
                     props: {
                         align: 'center',
                     },
                     buttons: [{
 
+                        props: {
+                            type: 'primary',
+                            icon: 'el-icon-delete'
+
+                        },
+
+                        handler: row => {
+                            this.status =  row.SPPD_Status;
+
+                            if(this.status == 'Active'){
+                                this.deleteSPDID =  row.PK_SPD_ID;
+                                this.paymentPlanDetailID = row.SPPD_FK_Payment_Plan_Detail_ID;
+                                this.studentCourseID = row.SPPD_FK_Student_Course_ID;
+
+                                this.deletePaymentItem();
+                            }
+                            else{
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'Payment item cannot be deleted'
+                                });
+                            }
+                        },
+                        label: 'Delete'
+                    }]
+                },
+
+                studentInvoiceItemListAction:{
+                    label: 'Delete',
+                    props: {
+                        align: 'center',
+                    },
+                    buttons: [{
                         props: {
                             type: 'primary',
                             icon: 'el-icon-delete'
@@ -998,7 +1266,7 @@
                     }]
                 },
 
-                StudentPaymentListFilters: [
+                PaymentListFilters: [
                     {
                         value: '',
                         prop: 'SPPD_PayerName',
@@ -1046,7 +1314,9 @@
         },
 
         async created() {
-            await this.getStudentPaymentList();
+            await this.BindStudentInfo();
+            await this.BindStudentSibling();
+            await this.getPaymentList();
             await this.BindPaymentModeDropdown();
             await this.BindPaymentTermPrintBreakdown();
 
@@ -1058,8 +1328,6 @@
             await this.BindCheckboxEligibility();
             await this.getApplyPaymentPlanStartDate();
 
-            //Receipt
-            await this.getStudentReceiptGenerationList();
         },
 
         async mounted() {
@@ -1067,9 +1335,61 @@
         },
 
         methods: {
-            async changeSelection(val) {
 
+            async changeSelection(val) {
                 this.spdSelection = val;
+            },
+
+            canSelectRow(row, index){
+                if(row.isReinvoiceItem==='Yes'){
+                    console.log(row.isReinvoiceItem,'Yes', index);
+                    this.isSelectable = false;
+                }else if(row.isReinvoiceItem==='No'){
+                    console.log(row.isReinvoiceItem,'No', index);
+                    this.isSelectable = true;
+                }
+                return this.isSelectable;
+            },
+
+            async BindStudentInfo(){
+                try{
+                    const resp = await DataSource.shared.getStudent(this.$route.query.sid, '', '', '', '');
+
+                    this.studentDetail = resp.Table;
+                    this.studentDetail.forEach(m=>{
+                        this.inputStudentName=m.Full_Name;
+                        this.inputStudentNO =m.Index_No;
+                        this.inputStudentStatus=m.Status;
+                        this.sponsor_type= m.sponsor_type;
+                        this.inputCreationDate=m.Created_On_convert;
+                        if(m.St_Meal_Preferences)
+                        {this.inputMealPreferences= m.St_Meal_Preferences;}
+                        else
+                        {this.inputMealPreferences='N/A'}
+                    })
+
+                    const PayeeResp = await DataSource.shared.getPayee(this.inputStudentNO);
+                    this.inputPayeeName = PayeeResp.PAR_Father_FirstName+' '+PayeeResp.PAR_Father_MiddleName+' '+PayeeResp.PAR_Father_LastName;
+
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            },
+
+            clearSelect (){
+                this.$refs.receiptGenerationTable.clearSelection();
+                this.$refs.invoiceGenerationTable.clearSelection();
+                this.$refs.ReceiptGenerationByTransactionHistoryTable.clearSelection();
+                this.$refs.ReceiptLeftOverPaymentTable.clearSelection();
+                this.inputRemarks='';
+                this.ddlPaymentMode='';
+                this.inputReceiptDate=new Date().getDate()+ '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
+                this.this.inputChequeNoBankName='';
+                //clear generate invoice
+                this.reInvoiceName='';
+                this.inputInvoiceDate = new Date().getDate()+ '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
+                this.Re_InvoiceName='';
             },
 
             async BindPaymentModeDropdown(){
@@ -1225,10 +1545,6 @@
                     const staffRuleResponse = await DataSource.shared.getPaymentPlanStaffRules(this.studentID);
                     if (staffRuleResponse) {
                         this.ddlPaymentPlanRuleApplyStaffList = staffRuleResponse.Table;
-                        // this.paymentPlanRuleApplyStaffRes.forEach(m => {
-                        //     console.log(m);
-                        //     this.ddlPaymentPlanRuleApplyStaffList.push(m);
-                        // });
                     }
 
 
@@ -1376,6 +1692,23 @@
                 }
             },
 
+            async BindStudentSibling() {
+                try {
+                    const response = await DataSource.shared.getSibling('', this.$route.query.sid);
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else {
+                            if (response.Table.length > 0) {
+                                this.siblingListTableInt = response.Table;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+
             async onchangePaymentPlanRuleProRateFees(){
                 const response = await DataSource.shared.getPaymentPlanRuleDetails(this.ddlPaymentPlanRuleApplyProRateFees);
                 if (response) {
@@ -1456,7 +1789,7 @@
             },
 
             async getApplyPaymentPlanStartDate(){
-                const response = await DataSource.shared.getStudentCourseSemesterInfo(this.studentCourseID);
+                const response = await DataSource.shared.getStudentCourseSemesterInfo('',this.studentCourseID);
 
                 if (response) {
                     if (response.code === '88') {
@@ -1473,29 +1806,38 @@
                 }
             },
 
-            async getStudentPaymentList(){
+            async getPaymentList(){
                 this.$vs.loading();
                 try {
-                    //todo: change the hardcode value to 'this.studentCourseID' --refer to parent vue
-                    // if (this.$route.query.id != null || this.$route.query.id != undefined) {
-                   //     this.studentCourseID = this.$route.query.id;
-                    this.studentCourseID = 'SCR2018192263'; //  SCR2019190104,SCR2019190092
-                    this.studentID = '11132';
-                    // ''STU201500011727'; //to get from query  //STU201900100552
+                        this.studentCourseID = this.$route.query.scid;
+                        this.studentID = this.$route.query.sid;
+                        this.courseStatus = this.$route.query.crsStatus;
+                        //todo: To disabled the generate invoice and receipt button if course status = 'closed'
+                        if(this.$route.query.crsStatus ==='Closed')
+                        {
+                            this.btnDisabled=true;
+                        }
+                        else
+                        {
+                            this.btnDisabled=false;
+                        }
 
-                    const response = await DataSource.shared.getStudentPaymentList(this.studentCourseID);
+                    const response = await DataSource.shared.getPaymentList(this.studentCourseID, this.studentID);
                     if (response) {
                         switch (response.code) {
                             case "2":
+                                this.btnDisabled = true;
                                 this.$notify.error({
                                     title: 'No Record Found',
                                     message: 'No Student Payment Record'
                                 });
                                 break;
                             case "88":
+                                this.btnDisabled = true;
                                 this.$router.push('/');
                                 break;
                             case "99":
+                                this.btnDisabled = true;
                                 this.$notify.error({
                                     title: 'Error',
                                     message: 'Error'
@@ -1503,7 +1845,34 @@
                                 break;
 
                             default:
-                                this.studentPaymentListInt = response.Table;
+                                // this.PaymentListInt = response.Table;
+                                // let recList = [];
+                                // response.Table.forEach(m => {
+                                //     recList.push(m.recNameList.split(','));
+                                // });
+                                // //todo:To split out the receipt for display purpose
+                                // this.ReceiptList = recList;
+
+                                let pList = [];
+                                response.Table.forEach(m => {
+                                    if(!m.IH_Invoice_Name){
+                                        m.IH_Invoice_Name='-';
+                                    }
+                                    if(!m.invoiceDate){
+                                        m.invoiceDate='-';
+                                    }
+                                    if(!m.invoiceAmount){
+                                        m.invoiceAmount='-';
+                                    }else{
+                                        m.invoiceAmount='$'+ m.invoiceAmount;
+                                    }
+                                    if(!m.invoiceRemarks){
+                                        m.invoiceRemarks='';
+                                    }
+                                    pList.push(m);
+                                });
+
+                                this.PaymentListInt = response.Table;
                         }
                     }
                 } catch (e) {
@@ -1523,10 +1892,13 @@
                 }];
             },
 
-            async getItemTransDetailsList(){
+            async getItemTransDetailsList(value){
                 this.$vs.loading();
+
+                this.transactionObj = value;
+
                 try {
-                    const response = await DataSource.shared.getItemTransDetailsList(this.viewSPDID);
+                    const response = await DataSource.shared.getItemTransDetailsList(this.transactionObj.PK_SPD_ID);
 
                     if (response) {
                         switch (response.code) {
@@ -1584,11 +1956,16 @@
                             });
                         } else {
                             //For main screen- refresh list
-                            const responseStudentPaymentList = await DataSource.shared.getStudentPaymentList(this.studentCourseID);
-                            this.studentPaymentListInt = responseStudentPaymentList.Table;
+                            const responsePaymentList = await DataSource.shared.getPaymentList(this.studentCourseID, this.studentID);
+                            this.PaymentListInt = responsePaymentList.Table;
 
                             //For receipt b-modal - refresh list
-                            this.getStudentReceiptGenerationList();
+                            await this.getStudentReceiptGenerationList();
+
+                            //For invoice b-modal - refresh list
+                            await this.getStudentInvoiceGenerationList();
+
+                            this.clearSelect();
 
                             this.$notify({
                                 title: 'Success',
@@ -1612,7 +1989,6 @@
             },
 
             onlyNumber($event) {
-                //console.log($event.keyCode); //keyCodes value
                 let keyCode = ($event.keyCode ? $event.keyCode : $event.which);
                 if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) { // 46 is dot
                     $event.preventDefault();
@@ -1684,10 +2060,18 @@
                                 });
                             } else {
                                 //main screen
-                                await this.getStudentPaymentList();
+                                await this.getPaymentList();
 
                                 //To refresh receipt preview and generate b-modal
                                 await this.getStudentReceiptGenerationList();
+
+                                //To refresh invoice preview and generate b-modal
+                                await this.getStudentInvoiceGenerationList();
+
+                                //To refresh reinvoice b-modal
+                                if(this.Re_InvoiceName){
+                                    await this.getReInvoice(this.Re_InvoiceName);
+                                }
 
                                 this.$notify({
                                     title: 'Success',
@@ -1696,8 +2080,7 @@
                                 });
                                 this.$refs.newAddItemShowModal.hide();
                                 this.clearAddItemField();
-
-
+                                this.clearSelect();
                             }
                         }
                     }
@@ -1732,6 +2115,10 @@
 
             applyPaymentPlanClick(){
                 this.$refs.newApplyPaymentPlanShowModal.show();
+            },
+
+            showDiscountPlanClick(){
+                this.$refs.newApplyDiscountPlanShowModal.show();
             },
 
             async viewPaymentPlan(){
@@ -1817,7 +2204,10 @@
                                     message: 'Add Payment Plan Error!'
                                 });
                             } else {
-                                await this.getStudentPaymentList();
+
+                                await this.getStudentReceiptGenerationList();
+
+                                await this.getStudentInvoiceGenerationList();
 
                                 this.$notify({
                                     title: 'Success',
@@ -1867,6 +2257,9 @@
                 this.isInputPaymentPlanRuleStaffAmount = false;
                 this.ddlPaymentPlanRuleApplyStaff = '';
                 this.inputStaffName = '';
+
+                //To refresh receipt preview and generate b-modal
+                this.getStudentReceiptGenerationList();
             },
 
             async addDiscountPlanClick(){
@@ -1917,7 +2310,11 @@
                                         });
                                     }
                                     else {
-                                        await this.getStudentPaymentList();
+                                        await this.getPaymentList();
+
+                                        await this.getStudentReceiptGenerationList();
+
+                                        await this.getStudentInvoiceGenerationList();
 
                                         this.$notify({
                                             title: 'Success',
@@ -1925,7 +2322,7 @@
                                             type: 'success'
                                         });
 
-                                        this.$refs.newApplyPaymentPlanShowModal.hide();
+                                        this.$refs.newApplyDiscountPlanShowModal.hide();
                                         this.clearAddPaymentPlanField();
                                     }
                                 }
@@ -1944,25 +2341,476 @@
                 }
             },
 
-            // todo:validation preview invoice
-            async PreviewInvoiceClick() {
-               // this.$vs.loading();
+            displayPdf(base64string)
+            {
+                var byteChar = atob(base64string);
+                var byteNo = new Array(byteChar.length);
+                for(var i=0; i< byteChar.length; i++)
+                {
+                    byteNo[i] = byteChar.charCodeAt(i);
+                }
+
+                var byteArray = new Uint8Array(byteNo);
+                var file = new Blob([byteArray], { type: 'application/pdf;base64'});
+                var fileUrl = URL.createObjectURL(file);
+                // window.openBrowser(fileUrl);
+                window.open(fileUrl, '_blank', 'width=500, height=500');
+            },
+
+            //todo - For receipt generation
+            async getStudentReceiptGenerationList(){
+                this.$vs.loading();
+                try {
+                        this.studentCourseID = this.$route.query.scid;
+                        this.studentID = this.$route.query.sid;
+
+                    const resp = await DataSource.shared.getActivePaymentNoTransactionHistoryList(this.studentCourseID, 'receipt');
+
+                    if (resp) {
+                        switch (resp.code) {
+                            case "88":
+                                this.$router.push('/');
+                                break;
+                            case "99":
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Error'
+                                });
+                                break;
+
+                            default:
+
+                                this.respTempReceipt = resp.Table;
+                                this.respTempReceipt.forEach(m => {
+                                    if(m.RecTotal==null)
+                                    {
+                                        m.RecTotal=0;
+                                    }
+                                    else{
+                                        m.RecTotal=m.SPPD_TotalValue;
+                                    }
+                                    m.newPayAmount=m.SPPD_TotalValue;
+                                    m.IsCheck = false;
+                                    this.customizeReceiptResponse.push(m);
+                                });
+                                this.studentReceiptGenerationListInt = this.customizeReceiptResponse;
+                                this.customizeReceiptResponse=[];
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+                this.$vs.loading.close();
+            },
+
+            async previewReceiptClick()
+            {
                 try{
-                    console.log(this.spdSelection);
+                    if(!this.ddlPaymentMode)
+                    {
+                        alert('Please select payment mode.');
+                    }
+                    else{
+                        let SPD_List = [];
+                        this.spdSelection.forEach(item => {
+
+                            let spdDetail = {
+                                PK_SPD_ID: item.PK_SPD_ID,
+                                paymentMode:this.ddlPaymentMode,
+                                remarks:this.inputRemarks,
+                                receiptDate:this.inputReceiptDate,
+                                RD_Cheque_No:this.inputChequeNoBankName,
+                                RD_Item_Description:item.SPPD_PayerName,
+                                RD_GST_Applicable:item.SPPD_PaymentItemType,
+                                newAmount:item.newPayAmount,
+                                RD_Item_Amount:item.SPPD_PaymentAmount,
+                                RD_GSTValue:item.SPPD_GstValue,
+
+                            };
+                            SPD_List.push(spdDetail);
+                        });
+
+                        if (this.spdSelection.length === 0) {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please select at least 1 payment item'
+                            });
+                        } else {
+
+                            //to preview receipt
+                            const receiptResp = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID,'Preview');
+
+                            if (receiptResp.code === '88') {
+                                window.location.replace('/');
+                            } else if (receiptResp.code === '99' || receiptResp.code === '2') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Failed to preview receipt!'
+                                });
+                            } else {
+
+                                this.displayPdf(receiptResp.code);
+                                this.clearSelect();
+                            }
+                        }
+
+                    }
+
+                }catch (e) {
+                    this.results = e;
+                }
+            },
+
+            async generateReceiptClick()
+            {
+                this.$vs.loading();
+                try{
+                    if(!this.ddlPaymentMode)
+                    {
+                        alert('Please select payment mode.');
+                    }
+                    else{
+
+                        let SPD_List = [];
+                        this.spdSelection.forEach(item => {
+
+                            let spdDetail = {
+                                PK_SPD_ID: item.PK_SPD_ID,
+                                paymentMode:this.ddlPaymentMode,
+                                receiptDate:this.inputReceiptDate,
+                                remarks:this.inputRemarks,
+                                RD_Cheque_No:this.inputChequeNoBankName,
+                                RD_Item_Description:item.SPPD_PayerName,
+                                RD_GST_Applicable:item.SPPD_PaymentItemType,
+                                newAmount:item.newPayAmount,
+                                RD_Item_Amount:item.SPPD_PaymentAmount,
+                                RD_GSTValue:item.SPPD_GstValue,
+                            };
+
+                            SPD_List.push(spdDetail);
+
+                        });
+
+                        if (this.spdSelection.length === 0) {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please select at least 1 payment item'
+                            });
+                        } else {
+                            //to get receipt detail
+                            const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID,'Generate');
+
+                                if (receiptResponse.code === '88') {
+                                    window.location.replace('/');
+                                } else if (receiptResponse.code === '99' || receiptResponse.code === '2') {
+                                    this.$notify.error({
+                                        title: 'Error',
+                                        message: 'Failed to generate receipt!'
+                                    });
+                                } else {
+
+                                    this.displayPdf(receiptResponse.code);
+                                    await this.getStudentReceiptGenerationList();
+                                    await this.getPaymentList();
+                                    this.$refs.generateReceiptModal.hide();
+                                    this.clearSelect();
+
+                                }
+                        }
+
+                    }
+
+                }catch (e) {
+                    this.results = e;
+                }
+                this.$vs.loading.close();
+            },
+
+            async previewLeftOverReceiptClick()
+            {
+                try{
+                    if(!this.ddlPaymentMode)
+                    {
+                        alert('Please select payment mode.');
+                    }
+                    else{
+                        let SPD_List = [];
+                        this.spdSelection.forEach(item => {
+                            let spdDetail = {
+                                paymentMode:this.ddlPaymentMode,
+                                remarks:this.inputRemarks,
+                                receiptDate:this.inputReceiptDate,
+                                RD_Cheque_No:this.inputChequeNoBankName,
+
+                                //left Over Payment
+                                RD_GST_Applicable: item.GST_Applicable,
+                                RD_Item_Description: item.Item_Description,
+                                PK_SPD_ID: item.SPD_ID,
+                                RD_GSTValue: item.gstValue,
+                                RD_Item_Amount: item.itemAmount,
+                                totalValue: item.totalValue,
+                                newAmount:item.newPayAmount,
+                            };
+                            SPD_List.push(spdDetail);
+                        });
+
+                        if (this.spdSelection.length === 0) {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please select at least 1 payment item'
+                            });
+                        } else {
+
+                            //to preview receipt
+                            const receiptResp = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID,'Preview');
+
+                            if (receiptResp.code === '88') {
+                                window.location.replace('/');
+                            } else if (receiptResp.code === '99' || receiptResp.code === '2') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Failed to preview receipt!'
+                                });
+                            } else {
+                                this.displayPdf(receiptResp.code);
+                                this.clearSelect();
+                            }
+                        }
+
+                    }
+
+                }catch (e) {
+                    this.results = e;
+                }
+            },
+
+            async generateLeftOverReceiptClick()
+            {
+                // this.$vs.loading();
+                try{
+                    if(!this.ddlPaymentMode)
+                    {
+                        alert('Please select payment mode.');
+                    }
+                    else{
+
+                        let SPD_List = [];
+
+                        this.spdSelection.forEach(item => {
+                            let spdDetail = {
+                                paymentMode:this.ddlPaymentMode,
+                                remarks:this.inputRemarks,
+                                receiptDate:this.inputReceiptDate,
+                                RD_Cheque_No:this.inputChequeNoBankName,
+
+                                //left Over Payment
+                                RD_GST_Applicable: item.GST_Applicable,
+                                RD_Item_Description: item.Item_Description,
+                                PK_SPD_ID: item.SPD_ID,
+                                RD_GSTValue: item.gstValue,
+                                RD_Item_Amount: item.itemAmount,
+                                totalValue: item.totalValue,
+                                newAmount:item.newPayAmount,
+
+                            };
+                            SPD_List.push(spdDetail);
+                        });
+
+                        if (this.spdSelection.length === 0) {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please select at least 1 payment item'
+                            });
+                        } else {
+                            //to get receipt detail
+                            const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID,'Generate');
+
+                            if (receiptResponse.code === '88') {
+                                window.location.replace('/');
+                            } else if (receiptResponse.code === '99' || receiptResponse.code === '2') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Failed to generate receipt!'
+                                });
+                            } else {
+
+                                this.displayPdf(receiptResponse.code);
+                                await this.getStudentReceiptGenerationList();
+
+                                await this.getPaymentList();
+                                await this.getleftOverPaymentReceipt();
+                                this.$refs.showGenerateReceiptByHistoryModal.hide();
+                                this.ddlPaymentMode='';
+                                this.inputRemarks='';
+                                this.inputChequeNoBankName='';
+                                this.inputReceiptDate=new Date().getDate()+ '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
+                            }
+                        }
+
+                    }
+
+                }catch (e) {
+                    this.results = e;
+                }
+                // this.$vs.loading.close();
+            },
+
+            //todo: for CN generation
+            async generateCNClick()
+            {
+                try {
+                    if (this.spdSelection.length === 0) {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Please select at least 1 payment item'
+                        });
+                    }
+                    else if(this.taCnRemarks.length<1){
+                        alert('Remark required');
+                    }
+                    else
+                     {
+
+                        let SPD_List = [];
+                        this.spdSelection.forEach(item => {
+                            let spdDetail = {
+                                //left Over Payment
+                                ID_GST_Applicable: item.GST_Applicable,
+                                ID_Item_Description: item.Item_Description,
+                                SPD_ID: item.SPD_ID,
+                                ID_GSTValue: item.gstValue,
+                                ID_Item_Amount: item.itemAmount,
+                                // totalValue: item.totalValue,
+                                // newAmount:item.newPayAmount,
+
+                                InvHeaderID: this.InvHeaderID,
+                                IH_Invoice_Name: this.cnInvoiceName,
+                                studentCourseID: this.studentCourseID,
+                                studentID: this.studentID,
+                                cnRemarks: this.taCnRemarks,
+                                newAmount: item.newPayAmount,
+                            };
+                            SPD_List.push(spdDetail);
+                        });
+
+                        const response = await DataSource.shared.generateCN(JSON.stringify(SPD_List));
+
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '99' || response.code === '2') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Failed to generate credit note!'
+                            });
+                        } else {
+                            this.displayPdf(response.code);
+                            await this.getPaymentList();
+                            this.$refs.creditNoteModal.hide();
+                            this.$refs.viewTransactionShowModal.hide();
+                            this.taCnRemarks ='';
+                        }
+                    }
+                }catch (e) {
+                    this.results = e;
+                }
+
+            },
+
+            //todo - For invoice generation
+            async getStudentInvoiceGenerationList(){
+                this.$vs.loading();
+                try {
+                        this.studentCourseID = this.$route.query.scid;
+                        this.studentID = this.$route.query.sid;
+
+                    const resp = await DataSource.shared.getActivePaymentNoTransactionHistoryList(this.studentCourseID, 'invoice');
+
+                    if (resp) {
+                        switch (resp.code) {
+                            case "2":
+                                this.$notify.error({
+                                    title: 'No Record Found',
+                                    message: 'No Student Payment Record'
+                                });
+                                break;
+                            case "88":
+                                this.$router.push('/');
+                                break;
+                            case "99":
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Error'
+                                });
+                                break;
+
+                            default:
+                                this.respTempInvoice = resp.Table;
+                                this.respTempInvoice.forEach(m => {
+                                    if(m.RecTotal==null)
+                                    {
+                                        m.RecTotal=0;
+                                    }
+                                    else{
+                                        m.RecTotal=m.SPPD_TotalValue;
+                                    }
+                                    // m.newPayAmount=m.SPPD_TotalValue;
+                                    m.IsCheck = false;
+                                    this.customizeInvoiceResponse.push(m);
+                                });
+                                this.studentInvoiceGenerationListInt = this.customizeInvoiceResponse;
+                                this.customizeInvoiceResponse=[];
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+                this.$vs.loading.close();
+            },
+
+            async previewInvoiceClick(value) {
+                // this.$vs.loading();
+                try{
                     let SPD_List = [];
-                    this.spdSelection.forEach(item => {
-                        let spdDetail = {
-                            PK_SPD_ID: item.PK_SPD_ID,
-                            SPPD_Status: item.SPPD_Status,
-                            SPPD_PayerName: item.SPPD_PayerName,
-                            SPPD_FK_Payment_Plan_Detail_ID: item.SPPD_FK_Payment_Plan_Detail_ID,
-                            SPPD_FK_PaymentMaster_ID: item.SPPD_FK_PaymentMaster_ID,
-                            SPPD_PaymentAmount: item.SPPD_PaymentAmount,
-                            SPPD_PaymentItemType: item.SPPD_PaymentItemType,
-                            printBreakdownChecked: this.cbPrintMonthlyBreakdown,
-                        };
-                        SPD_List.push(spdDetail);
-                    });
+                    let InvoiceType = '';
+                    if(value=='reinvoice'){
+                        InvoiceType = 'PreviewReInvoice';
+                        this.spdSelection.forEach(item => {
+                            let spdDetail = {
+                                PK_SPD_ID: item.PK_SPD_ID,
+                                SPPD_Status: item.SPPD_Status,
+                                SPPD_PayerName: item.SPPD_PayerName,
+                                SPPD_FK_Payment_Plan_Detail_ID: item.SPPD_FK_Payment_Plan_Detail_ID,
+                                SPPD_FK_PaymentMaster_ID: item.SPPD_FK_PaymentMaster_ID,
+                                SPPD_PaymentItemType: item.SPPD_PaymentItemType,
+                                SPPD_GstValue:item.SPPD_GstValue,
+                                SPPD_PaymentAmount: item.SPPD_PaymentAmount,
+                                SPPD_NewPaymentAmount :item.newPayAmount,
+                                inputPaymentDueDate:this.inputPaymentDueDate,
+                                printBreakdownChecked: this.cbPrintMonthlyBreakdown,
+                            };
+                            SPD_List.push(spdDetail);
+                            this.reInvoiceName=item.invoiceName;
+                        });
+                    }
+                    else
+                    {
+                        InvoiceType = 'Preview';
+                        this.spdSelection.forEach(item => {
+                            let spdDetail = {
+                                PK_SPD_ID: item.PK_SPD_ID,
+                                SPPD_Status: item.SPPD_Status,
+                                SPPD_PayerName: item.SPPD_PayerName,
+                                SPPD_FK_Payment_Plan_Detail_ID: item.SPPD_FK_Payment_Plan_Detail_ID,
+                                SPPD_FK_PaymentMaster_ID: item.SPPD_FK_PaymentMaster_ID,
+                                SPPD_PaymentAmount: item.SPPD_PaymentAmount,
+                                SPPD_PaymentItemType: item.SPPD_PaymentItemType,
+                                SPPD_GstValue:item.SPPD_GstValue,
+                                inputPaymentDueDate:this.inputPaymentDueDate,
+                                printBreakdownChecked: this.cbPrintMonthlyBreakdown,
+                            };
+                            SPD_List.push(spdDetail);
+                        });
+                    }
 
                     //to prompt item closed
                     var bool = false;   var payerName = '';
@@ -1995,7 +2843,6 @@
                                 message: 'Please select at least 1 payment item'
                             });
                         } else {
-                            console.log(SPD_List);
 
                             var amountPositiveCount = 0;
                             SPD_List.forEach(m => {
@@ -2010,20 +2857,20 @@
                                 });
                             } else {
                                 //to preview invoice
-                                const invoiceResponse = await DataSource.shared.generateInvoice(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, this.inputPaymentDueDate, this.inputRemarks, 'Preview');
-                                console.log(invoiceResponse);
+                                const invoiceResponse = await DataSource.shared.generateInvoice(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, this.inputPaymentDueDate, this.inputRemarks, InvoiceType,this.reInvoiceName);
 
                                 if (invoiceResponse.code === '88') {
                                     window.location.replace('/');
                                 } else if (invoiceResponse.code === '99' || invoiceResponse.code === '2') {
                                     this.$notify.error({
                                         title: 'Error',
-                                        message: 'Failed to generate invoice!'
+                                        message: 'Failed to preview invoice!'
                                     });
                                 } else {
 
                                     this.displayPdf(invoiceResponse.code);
-
+                                    this.clearSelect();
+                                    this.reInvoiceName ='';
                                 }
                             }
                         }
@@ -2031,216 +2878,51 @@
                 }catch (e) {
                     this.results = e;
                 }
-               // this.$vs.loading.close();
 
-                    //todo invoice preview --use promise 22-05-2019
-                    //ASYNC
-                    // DataSource.shared.getStudentCourseSemesterInfo(this.studentCourseID).then((schoolResponse)=>{
-                    //     const parentResponse = DataSource.shared.getSiblingList(this.studentID);
-                    //     var schoolName, schoolAddress1, schoolCity, schoolPostal, schoolPhone, schoolFax, schoolEmail, schoolRegNo, schoolGstRegNo;
-                    //     if (schoolResponse) {
-                    //         schoolResponse.Table.forEach(m => {
-                    //             schoolName = m.SCH_LegalName;
-                    //             schoolAddress1 = m.SCH_Address1;
-                    //             schoolCity = m.SCH_City;
-                    //             schoolPostal = m.SCH_Zip;
-                    //             schoolPhone = m.SCH_Contact;
-                    //             schoolFax = m.SCH_Fax;
-                    //             schoolEmail = m.SCH_Email;
-                    //             schoolRegNo = m.SCH_RegistrationNumber;
-                    //             schoolGstRegNo = m.SCH_GST_Reg_No;
-                    //             console.log("t");
-                    //         });
-                    //     }
-                    //
-                    //     this.inputSchoolName = schoolName;
-                    //     this.schoolAddress1 = schoolAddress1 + schoolCity + schoolPostal;
-                    //     console.log(this.inputSchoolName);
-                    //
-                    //     //Start
-                    //     setTimeout(function() {
-                    //         var source = window.document.getElementById('previewInvoiceTemplate');
-                    //         window.html2canvas = html2canvas;
-                    //         var doc = new jsPDF({unit: 'pt', format: 'a4', orientation: 'portrait' });
-                    //             // var doc = new jsPDF('p','mm','a4','portrait');
-                    //         doc.html(source, {
-                    //             callback: function (pdf) {
-                    //                 // pdf.save('cv-a4.pdf');
-                    //                 pdf.output('dataurlnewwindow');
-                    //             }
-                    //         });
-                    //         // html2canvas(source, {
-                    //         //     onrendered: function (canvas) {
-                    //         //
-                    //         //         var img = canvas.toDataURL("image/png");
-                    //         //         var doc = new jsPDF();
-                    //         //         doc.addImage(img, 'JPEG', 20, 20);
-                    //         //         doc.output('dataurlnewwindow');
-                    //         //         // doc.save('test.pdf');
-                    //         //     }
-                    //         //
-                    //         // });
-                    //
-                    //     },
-                    //     30);
-                    //     //End
-                    //
-                    //     // var elementHandler = {
-                    //     //     '#previewInvoiceTemplate': function (element, renderer) {
-                    //     //         return true;
-                    //     //     }
-                    //     // };
-                    //     //var source = this.$refs.test1.innerHTML;
-                    //     // setTimeout(function(){
-                    //     //
-                    //     //     // var doc = new jsPDF();
-                    //     //     var source = window.document.getElementById('previewInvoiceTemplate');
-                    //     //     alert(source.innerHTML);
-                    //     //     console.log(source);
-                    //     //
-                    //     //     html2canvas(source).then(canvas => {
-                    //     //         let pdf = new jsPDF();
-                    //     //         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298);
-                    //     //         pdf.output("dataurlnewwindow");
-                    //     //     });
-                    //     //
-                    //     //     // doc.fromHTML(
-                    //     //     //     source,
-                    //     //     //     15,
-                    //     //     //     15,
-                    //     //     //     // {
-                    //     //     //     //     'width': 180,'elementHandlers': elementHandler
-                    //     //     //     // }
-                    //     //     // );
-                    //     //     //
-                    //     //     // console.log(doc);
-                    //     //     // doc.output("dataurlnewwindow");
-                    //     //     }, 30);
-                    //
-                    //     // var source = window.document.getElementById('previewInvoiceTemplate');
-                    //     // alert(source.innerHTML);
-                    //     // console.log(source);
-                    //     // doc.fromHTML(
-                    //     //     source,
-                    //     //     15,
-                    //     //     15,
-                    //     //     // {
-                    //     //     //     'width': 180,'elementHandlers': elementHandler
-                    //     //     // }
-                    //     // );
-                    // // });
-
-
-
-                    //PROMISE
-                    // new Promise((resolve, reject) => {
-                    //     const schoolResponse = DataSource.shared.getStudentCourseSemesterInfo(this.studentCourseID);
-                    //     const parentResponse = DataSource.shared.getSiblingList(this.studentID);  //can get parents only ---but cannot get student details because it return list of siblings
-                    //
-                    //     var schoolName, schoolAddress1, schoolCity, schoolPostal, schoolPhone, schoolFax, schoolEmail, schoolRegNo, schoolGstRegNo;
-                    //     if (schoolResponse) {
-                    //         schoolResponse.Table.forEach(m => {
-                    //            schoolName = m.SCH_LegalName;
-                    //             schoolAddress1 = m.SCH_Address1;
-                    //             schoolCity = m.SCH_City;
-                    //             schoolPostal = m.SCH_Zip;
-                    //             schoolPhone = m.SCH_Contact;
-                    //             schoolFax = m.SCH_Fax;
-                    //             schoolEmail = m.SCH_Email;
-                    //             schoolRegNo = m.SCH_RegistrationNumber;
-                    //             schoolGstRegNo = m.SCH_GST_Reg_No;
-                    //         });
-                    //         this.inputSchoolName = schoolName;
-                    //     }
-                    //
-                    //     resolve();
-                    // })
-                    //     .then(() => {
-                    //
-                    //         var doc = new jsPDF();
-                    //         // var elementHandler = {
-                    //         //     '#previewInvoiceTemplate': function (element, renderer) {
-                    //         //         return true;
-                    //         //     }
-                    //         // };
-                    //         var source = window.document.getElementById('previewInvoiceTemplate');
-                    //
-                    //         doc.fromHTML(
-                    //             source,
-                    //             15,
-                    //             15,
-                    //             // {
-                    //             //     'width': 180,'elementHandlers': elementHandler
-                    //             // }
-                    //         );
-                    //
-                    //         console.log(doc);
-                    //         doc.output("dataurlnewwindow");
-                    //     })
-
-
-
-
-
-
-                    //MANUAL
-                    // var textPhone = '';
-                    // var textFax = '';
-                    // var textRegNo = '';
-                    // var textGstRegNo = '';
-                    //
-                    //
-                    // var doc = new jsPDF('p','mm','a4');
-                    // var topMarginIncrement = 20;
-                    //
-                    //
-                    // console.log(doc);
-                    // doc.setFontSize(18);
-                    // doc.text(schoolName,298, 15,'center'); //105 pdf width size
-                    //
-                    // doc.setFontSize(9);
-                    // if(schoolPhone !== ''){textPhone = "   Phone : " + schoolPhone;}
-                    // if(schoolFax !== ''){textFax = "   Fax : " + schoolFax;}
-                    // doc.text(schoolAddress1 + " " + schoolCity + " " + schoolPostal + textPhone + textFax,298,topMarginIncrement+5,'center');
-                    // //var topMarginIncrement = topMarginIncrement + doc.internal.getFontSize();
-                    //
-                    // if(schoolEmail !== ''){doc.text("Email : " + schoolEmail,298, topMarginIncrement+10,'center');}
-                    // //var topMarginIncrement = topMarginIncrement + doc.internal.getFontSize();
-                    //
-                    // if(schoolRegNo !== ''){textRegNo = " ACRA.REG.No: " + schoolRegNo;}
-                    // if(schoolGstRegNo !== ''){textGstRegNo = " GST REG No: " + schoolGstRegNo;}
-                    // doc.text(textRegNo + " " + textGstRegNo,298,topMarginIncrement+15,'center');
-                    // //var topMarginIncrement = topMarginIncrement + doc.internal.getFontSize();
-                    //
-                    // doc.addPage();
-                    // doc.setFontSize(12);
-                    // doc.text(20, 20, 'Do you like that?');
-                    // //doc.save('a4.pdf');
-                    // doc.output("dataurlnewwindow");
-
-
-                    //});
             },
 
-            // todo: validation generate invoice
-            async GenerateInvoiceClick() {
-               // this.$vs.loading();
+            async generateInvoiceClick(value) {
+                // this.$vs.loading();
                 try {
-                    console.log(this.spdSelection);
                     let SPD_List = [];
-                    this.spdSelection.forEach(item => {
-                        let spdDetail = {
-                            PK_SPD_ID: item.PK_SPD_ID,
-                            SPPD_Status: item.SPPD_Status,
-                            SPPD_PayerName: item.SPPD_PayerName,
-                            SPPD_FK_Payment_Plan_Detail_ID: item.SPPD_FK_Payment_Plan_Detail_ID,
-                            SPPD_FK_PaymentMaster_ID: item.SPPD_FK_PaymentMaster_ID,
-                            SPPD_PaymentAmount: item.SPPD_PaymentAmount,
-                            SPPD_PaymentItemType: item.SPPD_PaymentItemType,
-                            printBreakdownChecked: this.cbPrintMonthlyBreakdown,
-                        };
-                        SPD_List.push(spdDetail);
-                    });
+                    let InvoiceType = '';
+                    if(value=='reinvoice'){
+                        InvoiceType = value;
+                        this.spdSelection.forEach(item => {
+                            let spdDetail = {
+                                PK_SPD_ID: item.PK_SPD_ID,
+                                SPPD_Status: item.SPPD_Status,
+                                SPPD_PayerName: item.SPPD_PayerName,
+                                SPPD_FK_Payment_Plan_Detail_ID: item.SPPD_FK_Payment_Plan_Detail_ID,
+                                SPPD_FK_PaymentMaster_ID: item.SPPD_FK_PaymentMaster_ID,
+                                SPPD_PaymentItemType: item.SPPD_PaymentItemType,
+                                SPPD_GstValue:item.SPPD_GstValue,
+                                printBreakdownChecked: this.cbPrintMonthlyBreakdown,
+                                inputPaymentDueDate:this.inputPaymentDueDate,
+                                SPPD_NewPaymentAmount: item.newPayAmount,
+                            };
+                            SPD_List.push(spdDetail);
+                            this.reInvoiceName=item.invoiceName;
+                        });
+                    }
+                    else{
+                        InvoiceType = 'Generate';
+                        this.spdSelection.forEach(item => {
+                            let spdDetail = {
+                                PK_SPD_ID: item.PK_SPD_ID,
+                                SPPD_Status: item.SPPD_Status,
+                                SPPD_PayerName: item.SPPD_PayerName,
+                                SPPD_FK_Payment_Plan_Detail_ID: item.SPPD_FK_Payment_Plan_Detail_ID,
+                                SPPD_FK_PaymentMaster_ID: item.SPPD_FK_PaymentMaster_ID,
+                                SPPD_PaymentAmount: item.SPPD_PaymentAmount,
+                                SPPD_PaymentItemType: item.SPPD_PaymentItemType,
+                                SPPD_GstValue:item.SPPD_GstValue,
+                                inputPaymentDueDate:this.inputPaymentDueDate,
+                                printBreakdownChecked: this.cbPrintMonthlyBreakdown,
+                            };
+                            SPD_List.push(spdDetail);
+                        });
+                    }
 
                     //to prompt item closed
                     var bool = false;   var payerName = '';
@@ -2278,14 +2960,21 @@
                         }
                         else
                         {
-                            console.log(SPD_List);
-
                             var amountPositiveCount = 0;
-                            SPD_List.forEach(m => {
-                                if (m.SPPD_PaymentAmount > 0) {
-                                    amountPositiveCount += 1;
-                                }
-                            });
+                            if(value==='reinvoice'){
+                                SPD_List.forEach(m => {
+                                    if (m.SPPD_NewPaymentAmount > 0) {
+                                        amountPositiveCount += 1;
+                                    }
+                                });
+                            }else{
+                                SPD_List.forEach(m => {
+                                    if (m.SPPD_PaymentAmount > 0) {
+                                        amountPositiveCount += 1;
+                                    }
+                                });
+                            }
+
                             if (amountPositiveCount === 0) {
                                 this.$notify.error({
                                     title: 'Error',
@@ -2295,19 +2984,21 @@
                             else
                             {
                                 //to generate invoice
-                                const invoiceResponse = await DataSource.shared.generateInvoice(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, this.inputPaymentDueDate, this.inputRemarks, 'Generate');
-                                console.log(invoiceResponse);
+                                const invoiceResponse = await DataSource.shared.generateInvoice(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, this.inputPaymentDueDate, this.inputRemarks, InvoiceType, this.reInvoiceName);
+
                                 if (invoiceResponse.code === '88') {
                                     window.location.replace('/');
                                 } else if (invoiceResponse.code === '99' || invoiceResponse.code === '2') {
-                                    console.log(invoiceResponse);
                                     this.$notify.error({
                                         title: 'Error',
                                         message: 'Failed to generate invoice!'
                                     });
                                 } else {
                                     this.displayPdf(invoiceResponse.code);
-                                    await this.getStudentPaymentList();
+                                    await this.getPaymentList();
+                                    await this.getStudentInvoiceGenerationList();
+                                    this.$refs.generateInvoiceModal.hide();
+                                    this.clearSelect();
                                 }
                             }
                         }
@@ -2315,153 +3006,41 @@
                 } catch (e) {
                     this.results = e;
                 }
-               // this.$vs.loading.close();
+                // this.$vs.loading.close();
             },
 
-            displayPdf(base64string)
-            {
-                var byteChar = atob(base64string);
-                var byteNo = new Array(byteChar.length);
-                for(var i=0; i< byteChar.length; i++)
-                {
-                    byteNo[i] = byteChar.charCodeAt(i);
-                }
-
-                var byteArray = new Uint8Array(byteNo);
-                var file = new Blob([byteArray], { type: 'application/pdf;base64'});
-                var fileUrl = URL.createObjectURL(file);
-                // window.openBrowser(fileUrl);
-                window.open(fileUrl, '_blank', 'width=500, height=500');
+            validatePaymentMode(){
+               if(this.ddlPaymentMode=='CASH'){
+                   this.inputChequeNoBankName ='';
+               }
             },
 
-            makeCreditNoteClick(row)
-            {
-                return [{
-                    name: 'Make Credit Note',
-                    handler: _ => {
-                        this.InvHeaderID =  row.InvRecID;
-                        this.IH_Invoice_Name = row.IH_Invoice_Name;
-                        this.getInvoiceDetails();
-                    }
-                }];
-            },
+            async getleftOverPaymentReceipt(objValue){
+                try{
+                    let obj_List = [];
+                    if(objValue.recNameList){
+                        this.tempList=objValue.recNameList.split(',');
+                        this.tempList.forEach(m => {
 
-            async getInvoiceDetails()
-            {
-                this.$vs.loading();
-                try {
-                    const invDetailResponse = await DataSource.shared.getInvoiceDetails(this.InvHeaderID);
-                    const invDetailListResponse = await DataSource.shared.getInvoiceDetailsList(this.InvHeaderID);
-
-                    if (invDetailResponse) {
-                        if (invDetailResponse.code === '88') {
-                            window.location.replace('/');
-                        } else if (invDetailResponse.code === '99') {
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'Error'
-                            });
-                        }else if (invDetailResponse.code === '2') {
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'No record found'
-                            });
-                        }else {
-                            this.invoiceDetailsResponse = invDetailResponse.Table;
-                            this.invoiceDetailsResponse.forEach(m => {
-                                this.inputCnInvoiceName = m.IH_Invoice_Name;
-                                this.inputCnInvoiceDate = m.invoiceDate;
-
-                                if (m.invoiceDueDate === '') {
-                                    this.inputCnPaymentDueDate = 'Jan 01, 1901';
-                                } else {
-                                    this.inputCnPaymentDueDate = m.invoiceDueDate;
-                                }
-
-                                this.inputCnInvoiceStatus = m.IH_Invoice_Status;
-                                this.inputCnStudentNo = m.Index_No;
-                                this.inputCnStudentName = m.Full_Name + ' ' + m.Last_name;
-                            });
-
-                            this.invoiceDetailsListInt = invDetailListResponse.Table;
-                            this.$refs.creditNoteModal.show();
-                        }
-                    }
-                }
-                catch (e) {
-                    this.results = e;
-                }
-                this.$vs.loading.close();
-            },
-
-            //todo: for CN generation
-            async generateCNClick()
-            {
-                console.log('generate : ' + this.InvHeaderID);
-                console.log(this.inputCnInvoiceName);
-                try {
-                    var cnObj = {
-                        InvHeaderID: this.InvHeaderID,
-                        IH_Invoice_Name: this.inputCnInvoiceName,
-                        studentCourseID: this.studentCourseID,
-                        studentID: this.studentID,
-                        cnRemarks: this.taCnRemarks,
-                    };
-                    const response = await DataSource.shared.generateCN(JSON.stringify(cnObj));
-
-                    if (response.code === '88') {
-                        window.location.replace('/');
-                    } else if (response.code === '99' || response.code === '2') {
-                        this.$notify.error({
-                            title: 'Error',
-                            message: 'Failed to generate credit note!'
+                            let objDetail = {
+                                receiptName: m,
+                            };
+                            obj_List.push(objDetail);
                         });
-                    } else {
-                        this.displayPdf(response.code);
-                        this.$refs.creditNoteModal.hide();
-                        this.$refs.viewTransactionShowModal.hide();
-
                     }
-                }catch (e) {
-                    this.results = e;
-                }
-
-            },
-
-            // todo:validation preview receipt
-            async ValidationPreviewReceipt() {
-                try {
-                    this.$v.$touch();
-
-                    if (this.$v.$error) {
-                        alert('Please select at least 1 item');
-                        return;
+                    else{
+                        let objDetail = {
+                            receiptName:'',
+                        };
+                        obj_List.push(objDetail);
                     }
-                    // todo: create function for preview receipt
-                    // this.PreviewReceipt();
-                } catch (e) {
-                    this.results = e;
-                }
-            },
 
-            //todo - For receipt generation
-            async getStudentReceiptGenerationList(){
-                this.$vs.loading();
-                try {
-                    //todo: change the hardcode value to 'this.studentCourseID' --refer to parent vue
-
-                    this.studentCourseID = 'SCR2018181854'; //  SCR2019190104,SCR2019190092
-                    this.studentID = '11132'; //to get from query  //STU201900100552
-
-                    const resp = await DataSource.shared.getActivePaymentNoTransactionHistoryList(this.studentCourseID, 'receipt');
+                    const resp = await DataSource.shared.getLeftOverPaymentReceipt(JSON.stringify(obj_List),this.studentID, objValue.IH_Invoice_Name, this.studentCourseID);
 
                     if (resp) {
                         switch (resp.code) {
                             case "2":
-                                this.$notify.error({
-                                    title: 'No Record Found',
-                                    message: 'No Student Payment Record'
-                                });
+                              console.log('no record found');
                                 break;
                             case "88":
                                 this.$router.push('/');
@@ -2474,179 +3053,72 @@
                                 break;
 
                             default:
-                                this.respTemp = resp.Table;
-                                this.respTemp.forEach(m => {
-                                    if(m.RecTotal==null)
-                                    {m.RecTotal=0;}
-                                    m.newPayAmount=m.SPPD_TotalValue;
-                                    m.IsCheck = false;
-                                    this.customizeResponse.push(m);
-                                });
-                                this.studentReceiptGenerationListInt = this.customizeResponse;
-                                this.customizeResponse=[];
+                                this.studentReceiptLeftOverPaymentListInt = resp.Table;
                         }
                     }
-                } catch (e) {
+                }
+                catch(e){
                     this.results = e;
                 }
-                this.$vs.loading.close();
             },
 
-            async previewReceiptClick()
-            {
-                try{
-                    if(!this.ddlPaymentMode)
-                    {
-                        alert('Please select payment mode.');
-                    }
-                    else{
+            // todo: CALL b-modal link only
+            async showTransaction(value){
+                await this.getReceiptWithTransactionHistory(value);
+                this.$refs.viewTransactionShowModal.show();
+            },
 
-                        let SPD_List = [];
-                        this.spdSelection.forEach(item => {
+            async getTransactionDocumentPdf(objValue){
+                try
+                {
+                    const resp = await DataSource.shared.getTransactionDocumentPdf(objValue.DocumentType,objValue.InvRecID);
 
-                            let spdDetail = {
-                                PK_SPD_ID: item.PK_SPD_ID,
-                                paymentMode:this.ddlPaymentMode,
-                                remarks:this.inputRemarks,
-                                receiptDate:this.inputReceiptDate,
-                                RD_Cheque_No:this.inputChequeNoBankName,
-                                RD_Item_Description:item.SPPD_PayerName,
-                                RD_GST_Applicable:item.SPPD_PaymentItemType,
-                                newAmount:item.newPayAmount,
-                                RD_Item_Amount:item.SPPD_PaymentAmount,
-                                RD_GSTValue:item.SPPD_GstValue,
-                            };
-                            SPD_List.push(spdDetail);
+                    if (resp.code === '88') {
+                        window.location.replace('/');
+                    } else if (resp.code === '99') {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Failed to preview!'
                         });
+                    } else {
 
-                        console.log(SPD_List);
-
-                        if (this.spdSelection.length === 0) {
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'Please select at least 1 payment item'
-                            });
-                        } else {
-                            //to preview receipt
-                            const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID,'Preview');
-                            console.log(receiptResponse);
-
-                            if (receiptResponse.code === '88') {
-                                window.location.replace('/');
-                            } else if (receiptResponse.code === '99' || receiptResponse.code === '2') {
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Failed to preview receipt!'
-                                });
-                            } else {
-
-                                this.displayPdf(receiptResponse.code);
-                            }
-                        }
-
+                        this.displayPdf(resp.code);
+                        this.clearSelect();
                     }
-
-                }catch (e) {
+                }
+                catch (e) {
                     this.results = e;
                 }
-            },
-
-            // todo: generate receipt
-            async GenerateReceipt()
-            {
-                try {
-                    this.$refs.generateReceiptModal.show();
-                } catch (e) {
-                    this.results = e;
-                }
-            },
-
-            async generateReceiptClick()
-            {
-                // this.$vs.loading();
-                try{
-                    if(!this.ddlPaymentMode)
-                    {
-                        alert('Please select payment mode.');
-                    }
-                    else{
-
-                        let SPD_List = [];
-                        this.spdSelection.forEach(item => {
-
-                            let spdDetail = {
-                                PK_SPD_ID: item.PK_SPD_ID,
-                                paymentMode:this.ddlPaymentMode,
-                                receiptDate:this.inputReceiptDate,
-                                remarks:this.inputRemarks,
-                                RD_Cheque_No:this.inputChequeNoBankName,
-                                RD_Item_Description:item.SPPD_PayerName,
-                                RD_GST_Applicable:item.SPPD_PaymentItemType,
-                                newAmount:item.newPayAmount,
-                                RD_Item_Amount:item.SPPD_PaymentAmount,
-                                RD_GSTValue:item.SPPD_GstValue,
-                            };
-                            SPD_List.push(spdDetail);
-                        });
-
-                        if (this.spdSelection.length === 0) {
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'Please select at least 1 payment item'
-                            });
-                        } else {
-                            //to get receipt detail
-                            const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID,'Generate');
-                            console.log(receiptResponse);
-
-                            if (receiptResponse.code === '88') {
-                                window.location.replace('/');
-                            } else if (receiptResponse.code === '99' || receiptResponse.code === '2') {
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Failed to generate receipt!'
-                                });
-                            } else {
-
-                                this.displayPdf(receiptResponse.code);
-                                this.getStudentReceiptGenerationList();
-                            }
-                        }
-
-                    }
-
-                }catch (e) {
-                    this.results = e;
-                }
-                // this.$vs.loading.close();
-            },
-
-            validatePaymentMode(){
-               if(this.ddlPaymentMode=='CASH'){
-                   this.inputChequeNoBankName ='';
-               }
             },
 
             async getReceiptWithTransactionHistory(objValue){
                 try{
-                    let ObjList = [];
-                    var obj = {
-                        receiptName:this.test,
-                    };
-                    ObjList.push(obj);
+                        let obj_List = [];
+                        if(objValue.recNameList){
+                            this.tempList=objValue.recNameList.split(',');
+                            this.tempList.forEach(m => {
 
-                    let invoiceName = 'SG-002-IN19-0596';
+                                let objDetail = {
+                                    receiptName: m,
+                                };
+                                obj_List.push(objDetail);
+                            });
+                        }
+                        else{
+                            let objDetail = {
+                                receiptName:'',
+                            };
+                            obj_List.push(objDetail);
+                        }
 
-                    const resp = await DataSource.shared.getReceiptWithTransactionHistory(JSON.stringify(ObjList),this.studentID,invoiceName);
-                    console.log(resp);
+                    let invoiceName = objValue.IH_Invoice_Name;
+                    //For credit note
+                    this.cnInvoiceName=objValue.IH_Invoice_Name;
+
+                    const resp = await DataSource.shared.getReceiptWithTransactionHistory(JSON.stringify(obj_List),this.studentID,invoiceName);
+
                     if (resp) {
                         switch (resp.code) {
-                            case "2":
-                                this.$notify.error({
-                                    title: 'No Record Found',
-                                    message: 'No History Record Found'
-                                });
-                                break;
                             case "88":
                                 this.$router.push('/');
                                 break;
@@ -2667,51 +3139,74 @@
                 }
             },
 
-            async getleftOverPaymentReceipt(objValue){
-                try{
-                    let ObjList = [];
-                    var obj = {
-                        receiptName:this.test,
-                    };
-                    ObjList.push(obj);
+            async getReInvoice(objValue){
+                try {
+                        this.studentCourseID = this.$route.query.scid; //
+                        this.studentID = this.$route.query.sid;
 
-                    let invoiceName = 'SG-002-IN19-0596';
+                        if(objValue.IH_Invoice_Name){
+                            const resp = await DataSource.shared.getReInvoice(this.studentID, this.studentCourseID,objValue.IH_Invoice_Name);
+                            if (resp) {
+                                switch (resp.code) {
+                                    case "88":
+                                        this.$router.push('/');
+                                        break;
+                                    case "99":
+                                        this.$notify.error({
+                                            title: 'Error',
+                                            message: 'Error'
+                                        });
+                                        break;
 
-                    const resp = await DataSource.shared.getLeftOverPaymentReceipt(JSON.stringify(ObjList),this.studentID,invoiceName);
-                    console.log(resp);
-                    if (resp) {
-                        switch (resp.code) {
-                            case "2":
-                              console.log('no record found');
-                                break;
-                            case "88":
-                                this.$router.push('/');
-                                break;
-                            case "99":
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Error'
-                                });
-                                break;
+                                    default:
 
-                            default:
-                                this.studentReceiptLeftOverPaymentListInt = resp.Table;;
+                                        this.tempReInvoiceResp = resp.Table;
+                                        this.tempReInvoiceResp.forEach(m=>{
+                                            m.newPayAmount=m.SPPD_TotalValue;
+                                            this.customizeReInvoiceResponce.push(m);
+                                        });
+                                        this.ReInvoiceListInt = this.customizeReInvoiceResponce;
+                                        this.customizeReInvoiceResponce=[];
+                                }
+                            }
                         }
-                    }
-                }
-                catch(e){
+                        else{
+                            const resp = await DataSource.shared.getReInvoice(this.studentID, this.studentCourseID,this.Re_InvoiceName);
+                            if (resp) {
+                                switch (resp.code) {
+                                    case "88":
+                                        this.$router.push('/');
+                                        break;
+                                    case "99":
+                                        this.$notify.error({
+                                            title: 'Error',
+                                            message: 'Error'
+                                        });
+                                        break;
+
+                                    default:
+
+                                        this.tempReInvoiceResp = resp.Table;
+                                        this.tempReInvoiceResp.forEach(m=>{
+                                            m.newPayAmount=m.SPPD_TotalValue;
+                                            this.customizeReInvoiceResponce.push(m);
+                                        });
+                                        this.ReInvoiceListInt = this.customizeReInvoiceResponce;
+                                        this.customizeReInvoiceResponce=[];
+                                }
+                            }
+                        }
+
+                } catch (e) {
                     this.results = e;
                 }
             },
 
-
-            // todo: CALL b-modal link only
-            showViewTransaction(value){},
-            showGenerateReceiptByHistory(value){
+            async showGenerateReceiptByHistory(value){
                 try {
 
-                    this.getReceiptWithTransactionHistory(value);
-                    this.getleftOverPaymentReceipt(value);
+                    await this.getReceiptWithTransactionHistory(value);
+                    await this.getleftOverPaymentReceipt(value);
                     this.$refs.showGenerateReceiptByHistoryModal.show();
 
                 }
@@ -2719,8 +3214,59 @@
                     this.results = e;
                 }
             },
-            showGenerateCreditNote(value){},
-            showReInvoice(value){},
+
+            async showGenerateCreditNote(value){
+
+                await this.getReceiptWithTransactionHistory(value);
+                await this.getleftOverPaymentReceipt(value);
+                this.$refs.creditNoteModal.show();
+
+            },
+
+            async showReInvoice(value){
+                await this.getReInvoice(value);
+                this.Re_InvoiceName=value.IH_Invoice_Name;
+                this.$refs.showReInvoiceModal.show();
+            },
+
+            // todo: generate receipt
+            async showGenerateReceipt()
+            {
+                try {
+                    await this.getStudentReceiptGenerationList();
+                    this.$refs.generateReceiptModal.show();
+
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+
+            //todo: call preview/generate invoice b-modal
+            async showGenerateInvoice()
+            {
+                try
+                {
+                    await this.getStudentInvoiceGenerationList();
+                    this.$refs.generateInvoiceModal.show();
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            },
+
+            splitReceiptList(value){
+                try{
+                    var splitList =[];
+
+                    splitList = value;
+
+                    return splitList.split(',');
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            }
+
         },
     }
 </script>
@@ -2732,6 +3278,11 @@
 
     .buttonArea {
         margin: 20px 0 0 0;
+    }
+
+    .requiredFieldsMsg {
+        color: red;
+        font-weight: bold;
     }
 
     .btn-primary {

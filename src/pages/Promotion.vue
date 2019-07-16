@@ -91,7 +91,7 @@
             </div-->
             <!--#endregion-->
             <!--#region CONTAINER FOR STUDENT LIST-->
-            <div class="row">
+            <div class="">
                 <div class=" promotion-student" id="studentListArea" v-bind:class="{divBorderClass:studentListAreaBorder}">
                     <div class="empty-list_image" v-if="emptyImage===true">
                         <img src="../assets/promotion.jpg"/>

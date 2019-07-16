@@ -33,12 +33,16 @@ import studentgraduation from "../pages/StudentGraduation";
 import classManagement from "../pages/ClassManagement";
 import studentPaymentPlan from "../pages/StudentPaymentPlan";
 import event from "../pages/Event";
-import vuetour from "../pages/vuetour";
 import busMaster from "../pages/BusMaster";
 import dailyRoutineMassUpdate from "../pages/DailyRoutineMassUpdate";
 import busAttendance from "../pages/BusAttendance";
 import ecaMaster from "../pages/EcaMaster";
 import ecaAttendance from "../pages/EcaAttendance";
+import attendanceReport from "../pages/AttendanceReport";
+import studentReceiptDetail from "../pages/StudentReceiptDetail";
+import studentListPayment from "../pages/StudentListPayment";
+import studentCourseList from "../pages/StudentCourseList";
+import batchPaymentList from "../pages/BatchPaymentList";
 
 Vue.use(VueRouter);
 
@@ -77,6 +81,16 @@ const router = new VueRouter({
             path: '/student-list',
             name: 'Student List',
             component: studentList
+        },
+        {
+            path: '/student-list-Payment',
+            name: 'Student List Payment',
+            component: studentListPayment
+        },
+        {
+            path: '/studentCourse-List',
+            name: 'Student Course List',
+            component: studentCourseList
         },
         {
             path: '/student',
@@ -214,11 +228,6 @@ const router = new VueRouter({
             component: event
         },
         {
-            path: '/vuetour',
-            name: 'Vue Tour',
-            component: vuetour
-        },
-        {
             path: '/BusMaster',
             name: 'Bus Master',
             component: busMaster
@@ -237,6 +246,21 @@ const router = new VueRouter({
             path: '/EcaAttendance',
             name: 'ECA Attendance',
             component: ecaAttendance
+        },
+        {
+            path: '/AttendanceReport',
+            name: 'Attendance Report',
+            component: attendanceReport
+        },
+        {
+            path: '/StudentReceiptDetail',
+            name: 'StudentReceiptDetail',
+            component: studentReceiptDetail
+        },
+        {
+            path:'/BatchPaymentList',
+            name:'BatchPaymentList',
+            component: batchPaymentList,
         },
     ]
 });

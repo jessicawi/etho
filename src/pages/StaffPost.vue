@@ -1,195 +1,237 @@
 <template>
-    <div id="staff-post" class="container">
+    <div id="staff-post" class="">
         <div class="profile-student" v-if="isParent === 'Parent' ">
             <div class="profile-student__wrapper">
-                <img src="../assets/boy.png">
-                <span class="studentName"><strong>Alexander</strong><br/>Student Name</span>
-                <span class="teacherName"><strong>Alice</strong><br/>Teacher Name</span>
-                <span class=""><strong>SG-016-16-0038</strong><br/>Student ID</span>
-                <span class=""><strong>Year 2018: 01/01/2018 - 31/12/2018</strong><br/>Academic Year</span>
-                <span class=""><strong>Class One</strong><br/>Class</span>
+                <div class="container">
+                    <img src="../assets/boy.png">
+                    <div class="profile-student-desc">
+                        <span class="fatherName">
+                            <strong>{{parentInfo.FatherFirstName}} {{parentInfo.FatherMiddleName}} {{parentInfo.FatherLastName}}</strong>
+                            <br/>
+                            Father
+                        </span>
+                        <span>.</span>
+                        <span class="motherName">
+                            <strong>{{parentInfo.MotherFirstName}} {{parentInfo.MotherMiddleName}} {{parentInfo.MotherLastName}}</strong>
+                            <br/>
+                            Mother
+                        </span>
+                    </div>
+                    <!--<span class=""><strong>SG-016-16-0038</strong><br/>Student ID</span>-->
+                    <!--<span class=""><strong>Year 2018: 01/01/2018 - 31/12/2018</strong><br/>Academic Year</span>-->
+                    <!--<span class=""><strong>Class One</strong><br/>Class</span>-->
+                </div>
             </div>
         </div>
-        <div class="whitespace-30"></div>
-        <div class="row">
-            <!--<b>result:</b> {{staffPostResults}}-->
-            <vs-col vs-justify="center" vs-w="4" class="right-sideBar">
-                <div class="dashboard-logo mt-4 mb-3"><img src="../assets/kagami-long.png"/></div>
-                <div class="sideBarSection__wrapper">
-                    <div class="sideBarSection__item">
-                        <div class="subtitle">
-                            <h6>Communities</h6>
-                        </div>
-                        <div class="desc flex">
-                            <ul>
-                                <li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> N2 Inquirers
-                                    Class
-                                </li>
-                                <li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> K2 Explorers
-                                    Class
-                                </li>
-                                <li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> PSA Group
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="sideBarSection__item">
-                        <div class="subtitle">
-                            <h6>Upcoming Events</h6>
-                        </div>
-                        <div class="desc">
-                            <ul>
-                                <li>22 DEC Christmas Party</li>
-                                <li>24 DEC Half Day Closure</li>
-                                <li>25 DEC Full Day Closure</li>
-                                <li>30 DEC Celebration of learning</li>
-                                <li>31 DEC Full Day Closure</li>
-                                <li>01 JAN Full Day Closure</li>
-                                <li>07 JAN Start of Term 1</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                </div>
-            </vs-col>
-            <div class="col-md-8 mt-4 pb-4">
-                <div class="notification">
-                    <div class="row">
-                        <div class="col-md-9">
-                            <h4 class="text-left mb-3">Broadcast</h4>
-                        </div>
-                        <div class="col-md-3">
-                            <button @click="showMoreBroadcastModal" class="btn btn-link">Show More <i
-                                    class="fa fa-ellipsis-h" aria-hidden="true"></i></button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4" v-for="obj_BroadcastPost of filteredBroadcastPost"
-                             :key="obj_BroadcastPost.id">
-                            <div class="notification__item">
-                                <div class="desc">
-                                    <span>{{obj_BroadcastPost.PostContent}}</span>
-                                </div>
-                                <div class="notification-item__footer">
-                                    <div class="notification__footer-item">
-                                        {{obj_BroadcastPost.CONname}}<br/>
-                                        {{obj_BroadcastPost.PostCreatedBy}}
-                                    </div>
-                                </div>
-                                <div class="notification-item__footer">
-                                    <div class="notification__footer-item">
-                                        <button class="btn text-center">Mark as read</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--<div class="notification">
-                    <h4 class="text-left mb-3">Important Notification</h4>
-                    <div class="row">
-                        <div class=" col-md-4">
-                            <div class="notification__item">
-                                <div class="subtitle">
-                                    <h6>Parent Teacher Conference 2018</h6>
-                                </div>
-                                <div class="desc">
-                                    <span>Please sign up for a slot for the Parent Teachers Conference by 30 Nov 2018.</span>
-                                </div>
-                                <div class="notification-item__footer ">
-                                    <div class="notification__footer-item">
-                                        Ms Lisa<br/>
-                                        23 February at 19:36
-                                    </div>
-                                    <div class="notification__footer-item">
-                                        <button class="btn text-center">Mark as read</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class=" col-md-4">
-                            <div class="notification__item">
-                                <div class="subtitle">
-                                    <h6>Parent Teacher Conference 2018</h6>
-                                </div>
-                                <div class="desc">
-                                    <span>Please sign up for a slot for the Parent Teachers Conference by 30 Nov 2018.</span>
-                                </div>
-                                <div class="notification-item__footer ">
-                                    <div class="notification__footer-item">
-                                        Ms Lisa<br/>
-                                        23 February at 19:36
-                                    </div>
-                                    <div class="notification__footer-item">
-                                        <button class="btn text-center">Mark as read</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class=" col-md-4">
-                            <div class="notification__item">
-                                <div class="subtitle">
-                                    <h6>Parent Teacher Conference 2018</h6>
-                                </div>
-                                <div class="desc">
-                                    <span>Please sign up for a slot for the Parent Teachers Conference by 30 Nov 2018.</span>
-                                </div>
-                                <div class="notification-item__footer ">
-                                    <div class="notification__footer-item">
-                                        Ms Lisa<br/>
-                                        23 February at 19:36
-                                    </div>
-                                    <div class="notification__footer-item">
-                                        <button class="btn text-center">Mark as read</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>-->
-
-                <div class="feed-header">
-                    <h4 class="text-left">Activity</h4>
-                    <div class="addPost" :class="{'d-none' :userType==='Teacher'}">
-                        <b-btn v-b-modal.modal1 @click="showBroadcast"><i class="fa fa-bullhorn" aria-hidden="true"></i>
-                            <span>Broadcast</span></b-btn>
-                    </div>
-                    <div class="addPost" :class="{'d-none' :userType==='Teacher'}">
-                        <b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"
-                                                                        aria-hidden="true"></i> <span>Updates</span>
-                        </b-btn>
-                    </div>
-                    <div class="addPost" :class="{'d-none' :userType==='Teacher'}">
-                        <b-btn v-b-modal.modal1 @click="showPortfolio"><i class="fa fa-book" aria-hidden="true"></i>
-                            <span>Portfolio</span></b-btn>
-                    </div>
-                </div>
-                <div class="success">{{success}}</div>
-                <div v-if="isLoading">Loading...</div>
-
-                <div class="" v-for="object of list"
-                     :key="`${object.PostID}${object.commentItems ? object.commentItems.length : ''}`">
-                    <PostComponent
-                            :parent-post="object"
-                            @commentitemSubmit="commentitemSubmit"
-                            @commentEdit="commentEdit"
-                            @commentDelete="commentDelete"
-                            :commentPostContent="commentPostContent"
-                            :PostID="commentPostID"
-                            @loadPosts="loadPosts"
-                    />
-                    <hr/>
-                </div>
-
+        <div class="parent-feed-menu">
+            <div class="container">
+                <el-menu class="el-menu-demo" mode="horizontal">
+                    <el-menu-item index="1">Attendance Report</el-menu-item>
+                    <el-submenu index="2">
+                        <template slot="title">Result Report</template>
+                        <el-menu-item index="2-1">item one</el-menu-item>
+                        <el-menu-item index="2-2">item two</el-menu-item>
+                        <el-menu-item index="2-3">item three</el-menu-item>
+                    </el-submenu>
+                </el-menu>
             </div>
         </div>
+        <div class="container">
+            <div class="whitespace-30"></div>
+            <div class="row">
+                <!--<b>result:</b> {{staffPostResults}}-->
+                <vs-col vs-justify="center" vs-w="4" class="right-sideBar">
+                    <!--<div class="dashboard-logo mt-4 mb-3"><img src="../assets/kagami-long.png"/></div>-->
+                    <div class="sideBarSection__wrapper">
+                        <div class="sideBarSection__item" v-if="isParent === 'Parent' ">
+                            <div class="subtitle">
+                                <h6>Student Information</h6>
+                            </div>
+                            <div class="desc flex">
+                                <!--<ul>-->
+                                    <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> N2-->
+                                        <!--Inquirers-->
+                                        <!--Class-->
+                                    <!--</li>-->
+                                    <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> K2-->
+                                        <!--Explorers-->
+                                        <!--Class-->
+                                    <!--</li>-->
+                                    <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> PSA Group-->
+                                    <!--</li>-->
+                                <!--</ul>-->
+                                <el-collapse v-model="studentsAccordion" accordion>
+                                    <el-collapse-item :title="student.StudentFirstName + ' ' + student.StudentMiddleName + ' ' + student.StudentLastName" :name="student.StudentFirstName" v-for="student in studentsInfo">
+                                        <ul>
+                                            <li>Level: {{student.StudentLevel}}</li>
+                                            <li>Class: {{student.StudentClass}}</li>
+                                        </ul>
+                                    </el-collapse-item>
+                                </el-collapse>
+                            </div>
+                        </div>
+                        <div class="sideBarSection__item">
+                            <div class="subtitle">
+                                <h6>Upcoming Events</h6>
+                            </div>
+                            <div class="desc">
+                                <ul>
+                                    <li>22 DEC Christmas Party</li>
+                                    <li>24 DEC Half Day Closure</li>
+                                    <li>25 DEC Full Day Closure</li>
+                                    <li>30 DEC Celebration of learning</li>
+                                    <li>31 DEC Full Day Closure</li>
+                                    <li>01 JAN Full Day Closure</li>
+                                    <li>07 JAN Start of Term 1</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </vs-col>
+                <div class="col-lg-8 col-md-12 col-12 mt-4 pb-4">
+                    <div class="notification">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <h4 class="text-left mb-3">Broadcast</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <button @click="showMoreBroadcastModal" class="btn btn-link">Show More <i
+                                        class="fa fa-ellipsis-h" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" v-for="obj_BroadcastPost of filteredBroadcastPost"
+                                 :key="obj_BroadcastPost.id">
+                                <div class="notification__item">
+                                    <div class="desc">
+                                        <span>{{obj_BroadcastPost.PostContent}}</span>
+                                    </div>
+                                    <div class="notification-item__footer">
+                                        <div class="notification__footer-item">
+                                            {{obj_BroadcastPost.CONname}}<br/>
+                                            {{obj_BroadcastPost.PostCreatedBy}}
+                                        </div>
+                                    </div>
+                                    <!--<div class="notification-item__footer">-->
+                                    <!--<div class="notification__footer-item">-->
+                                    <!--<button class="btn text-center">Mark as read</button>-->
+                                    <!--</div>-->
+                                    <!--</div>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<div class="notification">
+                        <h4 class="text-left mb-3">Important Notification</h4>
+                        <div class="row">
+                            <div class=" col-md-4">
+                                <div class="notification__item">
+                                    <div class="subtitle">
+                                        <h6>Parent Teacher Conference 2018</h6>
+                                    </div>
+                                    <div class="desc">
+                                        <span>Please sign up for a slot for the Parent Teachers Conference by 30 Nov 2018.</span>
+                                    </div>
+                                    <div class="notification-item__footer ">
+                                        <div class="notification__footer-item">
+                                            Ms Lisa<br/>
+                                            23 February at 19:36
+                                        </div>
+                                        <div class="notification__footer-item">
+                                            <button class="btn text-center">Mark as read</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class=" col-md-4">
+                                <div class="notification__item">
+                                    <div class="subtitle">
+                                        <h6>Parent Teacher Conference 2018</h6>
+                                    </div>
+                                    <div class="desc">
+                                        <span>Please sign up for a slot for the Parent Teachers Conference by 30 Nov 2018.</span>
+                                    </div>
+                                    <div class="notification-item__footer ">
+                                        <div class="notification__footer-item">
+                                            Ms Lisa<br/>
+                                            23 February at 19:36
+                                        </div>
+                                        <div class="notification__footer-item">
+                                            <button class="btn text-center">Mark as read</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class=" col-md-4">
+                                <div class="notification__item">
+                                    <div class="subtitle">
+                                        <h6>Parent Teacher Conference 2018</h6>
+                                    </div>
+                                    <div class="desc">
+                                        <span>Please sign up for a slot for the Parent Teachers Conference by 30 Nov 2018.</span>
+                                    </div>
+                                    <div class="notification-item__footer ">
+                                        <div class="notification__footer-item">
+                                            Ms Lisa<br/>
+                                            23 February at 19:36
+                                        </div>
+                                        <div class="notification__footer-item">
+                                            <button class="btn text-center">Mark as read</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>-->
+                    <div class="feed-header">
+                        <h5 class="text-left" v-if="isParent !=='Parent'">Activity</h5>
+                        <h5 class="text-left" v-else>Updates</h5>
+                        <div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
+                            <b-btn v-b-modal.modal1 @click="showBroadcast"><i class="fa fa-bullhorn"
+                                                                              aria-hidden="true"></i>
+                                <span>Broadcast</span></b-btn>
+                        </div>
+                        <div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
+                            <b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"
+                                                                            aria-hidden="true"></i> <span>Updates</span>
+                            </b-btn>
+                        </div>
+                        <div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
+                            <b-btn v-b-modal.modal1 @click="showPortfolio"><i class="fa fa-book" aria-hidden="true"></i>
+                                <span>Portfolio</span></b-btn>
+                        </div>
+                    </div>
+                    <div class="success">{{success}}</div>
+                    <div v-if="isLoading">Loading...</div>
+                    <div class="" v-for="object of list"
+                         :key="`${object.PostID}${object.commentItems ? object.commentItems.length : ''}`">
+                        <PostComponent
+                                :parent-post="object"
+                                @commentitemSubmit="commentitemSubmit"
+                                @commentEdit="commentEdit"
+                                @commentDelete="commentDelete"
+                                :commentPostContent="commentPostContent"
+                                :PostID="commentPostID"
+                                @loadPosts="loadPosts"
+                                ref="pComponent"
+                                @showDeleteModal="showDeleteModal"
+                        />
+                        <hr/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <b-modal class="alert-modal" title="ARE YOU SURE?" ref="modal_DeletePost" @ok="commentDelete()">
+            Once you delete a post, you can't undo it.
+        </b-modal>
         <b-modal id="modal_ShowMoreBroadcast" ref="modal_ShowMoreBroadcast" size="lg" hide-footer title="Broadcast">
             <button class="btn btn-primary" @click="showBroadcast"><i class="el-icon-bell"></i> Create Broadcast
             </button>
-            <div class="" v-for="object of arrobj_BroadcastPost" :key="object.id">
-                <BroadcastList :parent-post="object" :hideComment="true" :hideSubmenu="true"/>
-                <!--<hr/>-->
+            <div class="broadcast-list-wrap">
+                <div class="broadcast-item" v-for="object of arrobj_BroadcastPost.slice(0, 9)" :key="object.id">
+                    <BroadcastList :parent-post="object" :hideComment="true" :hideSubmenu="true"/>
+                </div>
             </div>
         </b-modal>
         <b-modal id="modal1" size="lg" hide-footer :title="modalTitle ? modalTitle : 'Post'" v-model="isModalOpen"
@@ -213,22 +255,21 @@
         </button>
     </div>
 </template>
-
 <script>
     import DataSource from "../data/datasource";
+
     import {required, minLength} from 'vuelidate/lib/validators';
     import isImage from "is-image";
+
+
     import PostComponent from "../components/postCompnent";
     import BroadcastList from "../components/BroadcastListCompnent";
     import VueTagsInput from '@johmun/vue-tags-input';
     import portfolio from "../components/Post_Portfolio_Component";
     import updates from "../components/Post_Updates_Component.vue";
     import broadcast from "../components/Post_Broadcast_Component.vue";
-    import $ from 'jquery';
+
     import Cookies from "js-cookie";
-
-
-    // import RichTextEditor from "../components/RichTextEditor/RichTextEditor";
 
     export default {
         name: 'staffPost',
@@ -275,7 +316,7 @@
                 actionMode: "",
                 readonly: true,
                 checkidcomment: "",
-                showDeleteModal: false,
+                toggleDeleteModal: false,
                 query: '',
                 tag: '',
                 tags: [],
@@ -287,6 +328,15 @@
                 arrobj_BroadcastPost: [],
                 intervalCheckNew: {},
                 bool_ShowRefresh: false,
+
+                tempPost: [],
+                deleteCmId: "",
+                deleteCmContent: "",
+                deleteCmPostId: "",
+
+                parentInfo: [],
+                studentsInfo: [],
+                studentsAccordion:""
             };
         },
         filters: {
@@ -304,7 +354,15 @@
         /*async mounted() {
             this.loadPosts();
         },*/
+        created() {
+            if (Cookies.get('userTypeSession') === 'Parent') {
+                this.LoadParentInfo();
+            }
+        },
         mounted() {
+            var $this = this;
+
+            $this.connectServer();
             const self = this;
             this.loadPosts();
             this.loadBroadcast();
@@ -374,12 +432,19 @@
         },
         methods: {
             initIntervalCheckNew() {
-                if (!this.bool_ShowRefresh)
-                    this.intervalCheckNew = setInterval(() => {
-                        this.CheckNew();
-                    }, 300000);
+                /* if (!this.bool_ShowRefresh)
+                     this.intervalCheckNew = setInterval(() => {
+                         this.CheckNew();
+                     }, 300000);*/
             },
+            showDeleteModal(deleteCmId, deleteCmContent, deleteCmPostId, post) {
+                this.$refs.modal_DeletePost.show();
+                this.tempPost = post;
+                this.deleteCmId = deleteCmId;
+                this.deleteCmContent = deleteCmContent;
+                this.deleteCmPostId = deleteCmPostId;
 
+            },
             CheckNew() {
                 this.isParent = Cookies.get('userTypeSession');
 
@@ -674,6 +739,30 @@
                 /*#endregion*/
             }
             ,
+            connectServer() {
+                var $this = this;
+                var conn = $.hubConnection("http://45.32.116.206/Kagami_dev/WS/ESS", {qs: "clientId=1232222"});
+                $this.proxy = conn.createHubProxy("PostingHub");
+                conn.start({jsonp: true});
+                $this.getMsg();
+            },
+            sendMsg(postId, comment) {
+                var $this = this;
+                $this.proxy.invoke("Send", postId, comment).done((msg) => {
+                });
+            },
+            getMsg() {
+                var $this = this;
+                $this.proxy.on("broadcastMessage", (postId, comment) => {
+                    var pComp = $this.$refs.pComponent;
+                    for (var l = 0; l < pComp.length; l++) {
+                        if (pComp[l]._props.parentPost.PostID == postId) {
+                            pComp[l].getBCMsg(postId);
+                            break;
+                        }
+                    }
+                });
+            },
 
             loadBroadcast() {
                 this.isParent = Cookies.get('userTypeSession');
@@ -796,47 +885,10 @@
                 try {
 
                     this.commentPostID = postId;
-                    const commentResponse = await DataSource.shared.saveComment(this.commentPostID, comment);
+                    const commentResponse = DataSource.shared.saveComment(this.commentPostID, comment);
 
+                    this.sendMsg(this.commentPostID, comment);
 
-                    if (commentResponse) {
-                        switch (commentResponse.code) {
-                            case "1":
-                                // reset all input filed to blank
-                                this.commentPostID = null;
-                                this.commentPostContent = "";
-
-                            //    const newComment = await DataSource.shared.getComment(commentPostID);
-
-                                this.list.find(item => {
-
-
-                                    if (item.PostID === commentPostID) {
-                                        item.commentItems = newComment.Table;
-                                        return item;
-                                    }
-
-                                });
-
-                               // this.$forceUpdate();
-
-
-                                // this.results = `Post Submitted`;
-                                // this.success = 'Post Submitted, activity will be active in a while';
-                                break;
-                            case "88":
-                                this.results = `Please Login to submit post`;
-                                this.systemmsgError = true;
-                                break;
-                            case "99":
-                                this.results = `Please fill in content`;
-                                this.systemmsgError = true;
-                                break;
-                            // default:
-                            //     alert("Please try again later");
-                            //     this.results = JSON.stringify(response);
-                        }
-                    }
                 } catch (e) {
                     console.log(e);
                     this.error = e;
@@ -856,11 +908,12 @@
                                 this.commentPostContent = "";
                                 this.readonly = true;
 
-                               // const newComment = await DataSource.shared.getComment(PoCmID);
+                                // const newComment = await DataSource.shared.getComment(PoCmID);
                                 this.list.find(item => {
 
                                     if (item.PostID === PoCmID) {
                                         item.commentItems = newComment.Table;
+                                        this.sendMsg(this.commentPostID, PoCmContent);
                                         return item;
                                     }
 
@@ -886,7 +939,10 @@
 
             }
             ,
-            async commentDelete(PoCmID, PoCmContent, postId) {
+            async commentDelete() {
+                let PoCmID = this.deleteCmId;
+                let PoCmContent = this.deleteCmContent;
+                let postId = this.deleteCmPostId;
                 this.error = "";
                 try {
                     this.actionMode = "Delete";
@@ -898,17 +954,18 @@
                                 this.commentPostID = null;
                                 this.commentPostContent = "";
 
-                           //     const newComment = await DataSource.shared.getComment(PoCmID);
+                                //     const newComment = await DataSource.shared.getComment(PoCmID);
 
                                 this.list.find(item => {
 
                                     if (item.PostID === postId) {
                                         item.commentItems = item.commentItems.filter(comment => comment.PoCmID !== PoCmID);
+                                        this.sendMsg(postId, PoCmContent);
                                         return item;
                                     }
 
                                 });
-                              //  this.$forceUpdate();
+                                //  this.$forceUpdate();
                                 break;
                             case "88":
                                 this.results = `Please Login to submit post`;
@@ -973,6 +1030,34 @@
                 this.selectedFile = null;
             }
             ,
+            async LoadParentInfo() {
+                try {
+                    if (Cookies.get('userIDSession') !== null || Cookies.get('userIDSession') !== undefined) {
+
+                        const response = await DataSource.shared.getParent(Cookies.get('userIDSession'));
+                        if (response) {
+                            if (response.code === "2") {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'No record found'
+                                });
+                            } else if (response.code === "99") {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Please try again later'
+                                });
+                            } else {
+                                this.parentInfo = response.Parent[0];
+                                this.studentsInfo = response.Students;
+                                console.log(this.parentInfo, "parentInfo");
+                                console.log(this.studentsInfo, "studentsInfo");
+                            }
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            }
         }
         ,
         validations: {
@@ -989,13 +1074,11 @@
         },
     };
 </script>
-
 <style scoped>
     .overflow-x-scroll {
         overflow-x: hidden;
     }
 </style>
-
 <style>
     .vue-tags-input {
         max-width: 100% !important;

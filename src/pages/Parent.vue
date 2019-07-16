@@ -10,12 +10,20 @@
             <label style="display:none !important;">{{lblParentID}}</label>
 
             <b-tabs class="parentPageBTabs">
+                <!--<span class="alert-badge badge1"-->
+                      <!--v-if="$v.inputFatherDateofBirth.$error || $v.inputFatherFirstName.$error || $v.inputFatherLastName.$error">-->
+                    <!--!-->
+                <!--</span>-->
+                <!--<span class="alert-badge badge2"-->
+                      <!--v-if="$v.inputMotherDateofBirth.$error || $v.inputMotherFirstName.$error || $v.inputMotherLastName.$error">-->
+                    <!--!-->
+                <!--</span>-->
                 <span class="alert-badge badge1"
-                      v-if="$v.inputFatherDateofBirth.$error || $v.inputFatherFirstName.$error || $v.inputFatherLastName.$error">
+                      v-if="$v.inputFatherFirstName.$error || $v.inputFatherLastName.$error">
                     !
                 </span>
                 <span class="alert-badge badge2"
-                      v-if="$v.inputMotherDateofBirth.$error || $v.inputMotherFirstName.$error || $v.inputMotherLastName.$error">
+                      v-if="$v.inputMotherFirstName.$error || $v.inputMotherLastName.$error">
                     !
                 </span>
 
@@ -51,17 +59,17 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <label>* Date of Birth</label>
-                                    <div class="date">
-                                        <el-date-picker v-model="inputFatherDateofBirth" format="dd/MM/yyyy"
-                                                        value-format="dd/MM/yyyy" type="date" placeholder="Pick a date"
-                                                        :class="{ 'requiredFields': $v.inputFatherDateofBirth.$error }"></el-date-picker>
-                                    </div>
-                                    <div class="requiredFieldsMsg" v-if="$v.inputFatherDateofBirth.$error">Date of Birth
-                                        Require
-                                    </div>
-                                </div>
+                                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
+                                    <!--<label>* Date of Birth</label>-->
+                                    <!--<div class="date">-->
+                                        <!--<el-date-picker v-model="inputFatherDateofBirth" format="dd/MM/yyyy"-->
+                                                        <!--value-format="dd/MM/yyyy" type="date" placeholder="Pick a date"-->
+                                                        <!--:class="{ 'requiredFields': $v.inputFatherDateofBirth.$error }"></el-date-picker>-->
+                                    <!--</div>-->
+                                    <!--<div class="requiredFieldsMsg" v-if="$v.inputFatherDateofBirth.$error">Date of Birth-->
+                                        <!--Require-->
+                                    <!--</div>-->
+                                <!--</div>-->
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Employment Status</label>
@@ -356,17 +364,17 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <label>* Date of Birth</label>
-                                    <div class="date">
-                                        <el-date-picker v-model="inputMotherDateofBirth" format="dd/MM/yyyy"
-                                                        value-format="dd/MM/yyyy" type="date" placeholder="Pick a date"
-                                                        :class="{ 'requiredFields': $v.inputMotherDateofBirth.$error }"></el-date-picker>
-                                    </div>
-                                    <div class="requiredFieldsMsg" v-if="$v.inputMotherDateofBirth.$error">Date of Birth
-                                        Require
-                                    </div>
-                                </div>
+                                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
+                                    <!--<label>* Date of Birth</label>-->
+                                    <!--<div class="date">-->
+                                        <!--<el-date-picker v-model="inputMotherDateofBirth" format="dd/MM/yyyy"-->
+                                                        <!--value-format="dd/MM/yyyy" type="date" placeholder="Pick a date"-->
+                                                        <!--:class="{ 'requiredFields': $v.inputMotherDateofBirth.$error }"></el-date-picker>-->
+                                    <!--</div>-->
+                                    <!--<div class="requiredFieldsMsg" v-if="$v.inputMotherDateofBirth.$error">Date of Birth-->
+                                        <!--Require-->
+                                    <!--</div>-->
+                                <!--</div>-->
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Employment Status</label>
@@ -651,14 +659,14 @@
                                     <input type="text" class="form-control" ref="inputGuardianLastName">
                                 </div>
 
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <label>Date of Birth</label>
-                                    <div class="date">
-                                        <el-date-picker v-model="inputGuardianDateofBirth" format="dd/MM/yyyy"
-                                                        value-format="dd/MM/yyyy" type="date"
-                                                        placeholder="Pick a date"></el-date-picker>
-                                    </div>
-                                </div>
+                                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
+                                    <!--<label>Date of Birth</label>-->
+                                    <!--<div class="date">-->
+                                        <!--<el-date-picker v-model="inputGuardianDateofBirth" format="dd/MM/yyyy"-->
+                                                        <!--value-format="dd/MM/yyyy" type="date"-->
+                                                        <!--placeholder="Pick a date"></el-date-picker>-->
+                                    <!--</div>-->
+                                <!--</div>-->
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Employment Status</label>
@@ -1054,11 +1062,11 @@
                 inputFatherLastName: '',
                 inputMotherFirstName: '',
                 inputMotherLastName: '',
-                inputFatherDateofBirth: '',
+                // inputFatherDateofBirth: '',
                 inputFatherIdentificationNoExpiryDate: '',
-                inputMotherDateofBirth: '',
+                // inputMotherDateofBirth: '',
                 inputMotherIdentificationNoExpiryDate: '',
-                inputGuardianDateofBirth: '',
+                // inputGuardianDateofBirth: '',
                 ddlFatherReligion: '',
                 ddlMotherReligion: '',
                 ddlGuardianReligion: '',
@@ -1115,10 +1123,10 @@
         validations: {
             inputFatherFirstName: {required},
             inputFatherLastName: {required},
-            inputFatherDateofBirth: {required},
+            // inputFatherDateofBirth: {required},
             inputMotherFirstName: {required},
             inputMotherLastName: {required},
-            inputMotherDateofBirth: {required},
+            // inputMotherDateofBirth: {required},
 
             ddlFatherEmployeeName: {requiredIf: requiredIf('reqFatherEmployeeName')},
             ddlMotherEmployeeName: {requiredIf: requiredIf('reqMotherEmployeeName')},
@@ -1230,10 +1238,10 @@
                         }
                         ;
                         this.inputFatherLastName = m.PAR_Father_LastName;
-                        if (m.PAR_Father_DOB_convert !== '01/01/1901') {
-                            this.inputFatherDateofBirth = m.PAR_Father_DOB_convert;
-                        }
-                        ;
+                        // if (m.PAR_Father_DOB_convert !== '01/01/1901') {
+                        //     this.inputFatherDateofBirth = m.PAR_Father_DOB_convert;
+                        // }
+                        // ;
                         this.ddlFatherEmploymentStatus = m.PAR_Fat_Emp_Status;
                         if (m.PAR_Father_Occupation !== undefined) {
                             this.$refs.inputFatherOccupation.value = m.PAR_Father_Occupation;
@@ -1374,10 +1382,10 @@
                         }
                         ;
                         this.inputMotherLastName = m.PAR_Mother_LastName;
-                        if (m.PAR_Mother_DOB_convert !== '01/01/1901') {
-                            this.inputMotherDateofBirth = m.PAR_Mother_DOB_convert;
-                        }
-                        ;
+                        // if (m.PAR_Mother_DOB_convert !== '01/01/1901') {
+                        //     this.inputMotherDateofBirth = m.PAR_Mother_DOB_convert;
+                        // }
+                        // ;
                         this.ddlMotherEmploymentStatus = m.PAR_Mot_Emp_Status;
                         if (m.PAR_Mother_Occupation !== undefined) {
                             this.$refs.inputMotherOccupation.value = m.PAR_Mother_Occupation;
@@ -1520,10 +1528,10 @@
                             this.$refs.inputGuardianLastName.value = m.PAR_Guardian_LastName;
                         }
                         ;
-                        if (m.PAR_Guardian_DOB_convert !== '01/01/1901') {
-                            this.inputGuardianDateofBirth = m.PAR_Guardian_DOB_convert;
-                        }
-                        ;
+                        // if (m.PAR_Guardian_DOB_convert !== '01/01/1901') {
+                        //     this.inputGuardianDateofBirth = m.PAR_Guardian_DOB_convert;
+                        // }
+                        // ;
                         this.ddlGuardianEmploymentStatus = m.PAR_Gar_Emp_Status;
                         if (m.PAR_Guardian_Occupation !== undefined) {
                             this.$refs.inputGuardianOccupation.value = m.PAR_Guardian_Occupation;
@@ -1693,9 +1701,9 @@
                         let jsonString = '"PAR_Father_FirstName":"' + this.$refs.inputFatherFirstName.value + '"';
                         jsonString = jsonString + ',"PAR_Father_MiddleName":"' + this.$refs.inputFatherMiddleName.value + '"';
                         jsonString = jsonString + ',"PAR_Father_LastName":"' + this.$refs.inputFatherLastName.value + '"';
-                        if (this.inputFatherDateofBirth !== undefined && this.inputFatherDateofBirth !== null) {
-                            jsonString = jsonString + ',"PAR_Father_DOB":"' + this.inputFatherDateofBirth + '"';
-                        };
+                        // if (this.inputFatherDateofBirth !== undefined && this.inputFatherDateofBirth !== null) {
+                        //     jsonString = jsonString + ',"PAR_Father_DOB":"' + this.inputFatherDateofBirth + '"';
+                        // };
                         jsonString = jsonString + ',"PAR_Fat_Emp_Status":"' + this.ddlFatherEmploymentStatus + '"';
                         jsonString = jsonString + ',"PAR_Father_Occupation":"' + this.$refs.inputFatherOccupation.value + '"';
                         jsonString = jsonString + ',"PAR_Father_Designation":"' + this.$refs.inputFatherDesignation.value + '"';
@@ -1758,9 +1766,9 @@
                         jsonString = jsonString + ',"PAR_Mother_FirstName":"' + this.$refs.inputMotherFirstName.value + '"';
                         jsonString = jsonString + ',"PAR_Mother_MiddleName":"' + this.$refs.inputMotherMiddleName.value + '"';
                         jsonString = jsonString + ',"PAR_Mother_LastName":"' + this.$refs.inputMotherLastName.value + '"';
-                        if (this.inputMotherDateofBirth !== undefined && this.inputMotherDateofBirth !== null) {
-                            jsonString = jsonString + ',"PAR_Mother_DOB":"' + this.inputMotherDateofBirth + '"';
-                        };
+                        // if (this.inputMotherDateofBirth !== undefined && this.inputMotherDateofBirth !== null) {
+                        //     jsonString = jsonString + ',"PAR_Mother_DOB":"' + this.inputMotherDateofBirth + '"';
+                        // };
                         jsonString = jsonString + ',"PAR_Mot_Emp_Status":"' + this.ddlMotherEmploymentStatus + '"';
                         jsonString = jsonString + ',"PAR_Mother_Occupation":"' + this.$refs.inputMotherOccupation.value + '"';
                         jsonString = jsonString + ',"PAR_Mother_Designation":"' + this.$refs.inputMotherDesignation.value + '"';
@@ -1795,9 +1803,9 @@
                         jsonString = jsonString + ',"PAR_Guardian_FirstName":"' + this.$refs.inputGuardianFirstName.value + '"';
                         jsonString = jsonString + ',"PAR_Guardian_MiddleName":"' + this.$refs.inputGuardianMiddleName.value + '"';
                         jsonString = jsonString + ',"PAR_Guardian_LastName":"' + this.$refs.inputGuardianLastName.value + '"';
-                        if (this.inputGuardianDateofBirth !== undefined && this.inputGuardianDateofBirth !== null) {
-                            jsonString = jsonString + ',"PAR_Guardian_DOB":"' + this.inputGuardianDateofBirth + '"';
-                        };
+                        // if (this.inputGuardianDateofBirth !== undefined && this.inputGuardianDateofBirth !== null) {
+                        //     jsonString = jsonString + ',"PAR_Guardian_DOB":"' + this.inputGuardianDateofBirth + '"';
+                        // };
                         jsonString = jsonString + ',"PAR_Gar_Emp_Status":"' + this.ddlGuardianEmploymentStatus + '"';
                         jsonString = jsonString + ',"PAR_Guardian_Occupation":"' + this.$refs.inputGuardianOccupation.value + '"';
                         jsonString = jsonString + ',"PAR_Guardian_Designation":"' + this.$refs.inputGuardianDesignation.value + '"';

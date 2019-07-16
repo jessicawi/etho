@@ -24,6 +24,7 @@ import Cookies from "js-cookie";
 import Vuex from "vuex";
 import VueTour from 'vue-tour';
 import VueClipboard from 'vue-clipboard2';
+import XLSX from 'xlsx';
 
 Vue.component('file-upload', VueUploadComponent);
 
@@ -44,6 +45,7 @@ Vue.use(Cookies);
 Vue.use(Vuex);
 Vue.use(VueTour);
 Vue.use(VueClipboard);
+Vue.use(XLSX);
 Vue.component('vue-bootstrap-typeahead', VueBootstrapTypeahead);
 new Vue({
     router,

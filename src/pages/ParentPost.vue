@@ -31,10 +31,11 @@
                                 <li>22 DEC Christmas Party</li>
                                 <li>24 DEC Half Day Closure</li>
                                 <li>25 DEC Full Day Closure</li>
-                                <li>30 DEC Celebration of learning</li>
-                                <li>31 DEC Full Day Closure</li>
-                                <li>01 JAN Full Day Closure</li>
-                                <li>07 JAN Start of Term 1</li>
+                                <!--<li>30 DEC Celebration of learning</li>-->
+                                <!--<li>31 DEC Full Day Closure</li>-->
+                                <!--<li>01 JAN Full Day Closure</li>-->
+                                <!--<li>07 JAN Start of Term 1</li>-->
+                                <!--<li>07 JAN Start of Term 1</li>-->
                             </ul>
                         </div>
                     </div>

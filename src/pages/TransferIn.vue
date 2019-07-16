@@ -41,7 +41,7 @@
             <!--</div>-->
             <div class="row transfer_card mt-3">
                 <div class="transfer_card-item" v-for="item in filteredList">
-                    <span class="top-colorBar">{{item.STUSCH_EffectiveDate_convert}}</span>
+                    <span class="top-colorBar">{{item.SchoolNameToDisplay}}</span>
                     <small>{{item.Index_No}}</small>
                     <hr/>
                     <h4>{{item.Full_Name}}</h4>

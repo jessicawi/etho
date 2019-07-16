@@ -4,12 +4,11 @@
             {{result}}
         </div>
         <div class="feed-box" v-bind:class="[post.PostID]" v-if="!isHome">
-
             <div class="author">
                 <div class="profile">
                     <!--<img slot="img" class="card-img-top d-block img-fluid w-100"-->
-                         <!--:src="getProfileSource(post.ProfileImage)"-->
-                         <!--:alt="post.PostPorDtlTitle"/>-->
+                    <!--:src="getProfileSource(post.ProfileImage)"-->
+                    <!--:alt="post.PostPorDtlTitle"/>-->
                     <img src="../assets/boy.png" v-if="post.ProfileImage === ''">
                     <img :src="`data:image/jpg;base64, ${post.ProfileImage}`"
                          v-if="post.ProfileImage"/>
@@ -38,7 +37,6 @@
                 <!--<b-dropdown-item @click="removePost(post)">Delete Post</b-dropdown-item>-->
                 <!--</b-dropdown>-->
             </div>
-
             <div class="content">
                 <p>
                     <!--<strong class="feed-subtitle"> ADD A NOTE</strong>-->
@@ -47,9 +45,10 @@
             </div>
             <div class="image-wrapper" v-if="!isNull(post.postFiles)">
                 <ul v-if="!isMobile()">
-                    <li class="postFile__item" v-for="(obj_Images, index) in post.postFiles" :key="obj_Images.id"
+                    <li style="height:380px;" class="postFile__item" v-for="(obj_Images, index) in post.postFiles"
+                        :key="obj_Images.id"
                         :class="{'isFile':isImageByExt(obj_Images)===false}" v-if="index < 5">
-                        <img slot="img" class="card-img-top d-block img-fluid w-100"
+                        <img slot="img" class="nonM card-img-top d-block img-fluid w-100"
                              :src="getMediumSource(obj_Images)"
                              v-if="isImageByExt(obj_Images)"
                              :alt="post.PostPorDtlTitle"/>
@@ -60,14 +59,12 @@
                             </a>
                             <!--<span class="filepath" @click="getFile(obj_Images)">{{obj_Images.PostItemID}}{{obj_Images.PostItemFileExt}}</span>-->
                         </div>
-
                         <button v-if="index === 4 " class="postFile-remainingNumber" @click="showImageModal">
                             + {{remainingImage}}
                         </button>
                         <!--<img :src="getLowSource(obj_Images)"-->
                         <!--:class="{'post-disabled':postFile.PostItemStatus !=='Active'}"-->
                         <!--/>-->
-
                         <!--<img :src="postFile.PostItemPath"-->
                         <!--:class="{'post-disabled':postFile.PostItemStatus !=='Active'}"-->
                         <!--v-else-if="!checkIfImage(postFile.PostItemPath)"/>-->
@@ -90,10 +87,64 @@
                     </div>
                 </b-carousel>
             </div>
+            <div class="comment_wrapper transition-box" v-if="!hideComment">
+                <span class="float-right ml-2 post-icon-btn" ><i
+                        class="material-icons commentCount">
+                    chat_bubble_outline
+                </i>
+                    {{commentCount}}
+                </span>
+                <form class="form-style">
+                    <input type="text" class="form-control d-none" id="commentPostID" v-model="commentPostID">
+                    <vs-input label-placeholder="Write a comment" v-model="commentPostContent"
+                              class="addComment" v-on:keyup.enter="submitComment(post.PostID)"/>
+                    <div class="btn btn-primary" @click="submitComment(post.PostID)"><i
+                            class="fa fa-paper-plane"
+                            aria-hidden="true"></i></div>
+                </form>
+                <div class="commentWrap" v-if="post.commentItems"
+                     :class="{'is-collapsed' : post.collapsed }">
+                    <div class="comment__item" v-for="commentItem of post.commentItems"
+                         :key="commentItem.PoCmID">
+                        <div class="commentItem__header">
+                            <div class="comment__name">{{commentItem.CONname}}</div>
+                            <div class="comment__date">{{commentItem.PoCmCreatedDate}}</div>
+                        </div>
+                        <div class="commentPostContent_show" v-if="checkidcomment !== commentItem.PoCmID">
+                            {{commentItem.PoCmContent}}
+                        </div>
+                        <textarea v-if="readonly === false && checkidcomment === commentItem.PoCmID" type="text"
+                                  class="comment__content" id="commentPostContent"
+                                  v-model="commentItem.PoCmContent" v-bind:readonly="readonly"
+                                  :class="{'editable' : readonly === false && checkidcomment === commentItem.PoCmID }"></textarea>
+                        <el-button class="save" type="text" slot="reference"
+                                   @click="saveClick(commentItem.PoCmID, commentItem.PoCmContent)"
+                                   :class="{'d-none' : readonly === true || checkidcomment !== commentItem.PoCmID}">
+                            Save
+                        </el-button>
+                        <el-button class="edit" type="text" slot="reference" @click="editClick(commentItem.PoCmID)"
+                                   v-if="showEdit">
+                            Edit
+                        </el-button>
+                        .
+                        <el-button class="delete" type="text" slot="reference"
+                                   @click="emitShowDeleteModal(commentItem.PoCmID, commentItem.PoCmContent, post.PostID, post)">
+                            Delete
+                        </el-button>
+                        .
+                        <AlertComponent :showModal="deleteModalShow" @cancelClick="closeDeleteModal"
+                                        @okClick="deleteComment"/>
+                    </div>
+                    <button v-on:click=" post.collapsed = !post.collapsed "
+                            :class="{'d-none' : !post.collapsed }"
+                            v-if="post.commentItems&&post.commentItems.length !== 2">
+                        More Comment
+                    </button>
+                </div>
+            </div>
             <div class="postFile" v-if="!isNull(post.postFiles)">
                 <div class="postFile__item" v-for="postFile in post.postFiles" :key="postFile.ID">
                     <!--<img :src="postFile.PostItemPath" :class="{'post-disabled':postFile.PostItemStatus !=='Active'}"/>-->
-
                     <a v-if="!postFile.PostItemFileLow && !checkIfImage(postFile.PostItemPath)"
                        v-bind:href="[postFile.PostItemPath]"
                        :class="{'post-disabled':postFile.PostItemStatus !=='Active'}">
@@ -104,15 +155,14 @@
                 </div>
             </div>
             <hr/>
-            <div class="feed-iconBox" v-if="approverPostNotShow">
-                <el-button @click="showCommentTransition(post.PostID)" class="float-left ml-2 post-icon-btn"><i
-                        class="material-icons">
-                    chat_bubble_outline
-                </i>
-                    {{commentCount}}
-                </el-button>
-
-                <el-popover
+            <!--<div class="feed-iconBox" v-if="approverPostNotShow">-->
+                <!--<el-button @click="showCommentTransition(post.PostID)" class="float-left ml-2 post-icon-btn"><i-->
+                        <!--class="material-icons">-->
+                    <!--chat_bubble_outline-->
+                <!--</i>-->
+                    <!--{{commentCount}}-->
+                <!--</el-button>-->
+                <!-- el-popover
                         placement="top-start"
                         width="250"
                         trigger="click"
@@ -188,9 +238,8 @@
                         <i class="material-icons">favorite_border</i>
                         <i class="material-icons show-if-check">favorite</i>
                     </el-button>
-                </el-popover>
-            </div>
-
+                </el-popover -->
+            <!--</div>-->
             <!--<div slot="footer">-->
             <!--<vs-row vs-justify="flex-end">-->
             <!--<vs-button color="primary" type="gradient" >View</vs-button>-->
@@ -198,7 +247,6 @@
             <!--</vs-row>-->
             <!--</div>-->
         </div>
-
         <ul class="feed-box" v-bind:class="[post.PostID]" v-if="isHome">
             <li>
                 <div class="image-wrapper">
@@ -214,153 +262,147 @@
                     </ul>
                 </div>
                 <span>
-                        <strong>{{post.CONname}}</strong>
-                        <small class="date"><i class="fa fa-clock-o"
-                                               aria-hidden="true"></i> {{post.PostCreatedDate}}</small>
-                        {{post.PostContent}}
-                    </span>
+                    <strong>{{post.CONname}}</strong>
+                    <small class="date">
+                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                        {{post.PostCreatedDate}}
+                    </small>
+                    {{post.PostContent}}
+                </span>
             </li>
         </ul>
-        <el-collapse-transition>
-            <div v-if="show3 === post.PostID ">
-                <div class="comment_wrapper transition-box" v-if="!hideComment">
-                    <form class="form-style">
-                        <input type="text" class="form-control d-none" id="commentPostID" v-model="commentPostID">
-                        <vs-input label-placeholder="Write a comment" v-model="commentPostContent"
-                                  class="addComment"/>
-                        <div class="btn btn-primary" @click="submitComment(post.PostID)"><i
-                                class="fa fa-paper-plane"
-                                aria-hidden="true"></i></div>
-                    </form>
+        <!--<el-collapse-transition>-->
+        <!--<div>-->
+        <!--<div class="comment_wrapper transition-box" v-if="!hideComment">-->
+        <!--<form class="form-style">-->
+        <!--<input type="text" class="form-control d-none" id="commentPostID" v-model="commentPostID">-->
+        <!--<vs-input label-placeholder="Write a comment" v-model="commentPostContent"-->
+        <!--class="addComment"/>-->
+        <!--<div class="btn btn-primary" @click="submitComment(post.PostID)"><i-->
+        <!--class="fa fa-paper-plane"-->
+        <!--aria-hidden="true"></i></div>-->
+        <!--</form>-->
+        <!--<div class="commentWrap" v-if="post.commentItems"-->
+        <!--:class="{'is-collapsed' : post.collapsed }">-->
+        <!--<div class="comment__item" v-for="commentItem of post.commentItems"-->
+        <!--:key="commentItem.PoCmID">-->
+        <!--<div class="commentItem__header">-->
+        <!--<div class="comment__name">{{commentItem.CONname}}</div>-->
+        <!--<div class="comment__date">{{commentItem.PoCmCreatedDate}}</div>-->
+        <!--</div>-->
+        <!--<div class="commentPostContent_show" v-if="checkidcomment !== commentItem.PoCmID">-->
+        <!--{{commentItem.PoCmContent}}-->
+        <!--</div>-->
+        <!--<textarea v-if="readonly === false && checkidcomment === commentItem.PoCmID" type="text"-->
+        <!--class="comment__content" id="commentPostContent"-->
+        <!--v-model="commentItem.PoCmContent" v-bind:readonly="readonly"-->
+        <!--:class="{'editable' : readonly === false && checkidcomment === commentItem.PoCmID }"></textarea>-->
+        <!--&lt;!&ndash;{{checkidcomment}} ==== {{commentItem.PoCmID}} === {{readonly}}<br/>&ndash;&gt;-->
+        <!--&lt;!&ndash;<span class="edit" @click="editClick(commentItem.PoCmID)" v-if="showEdit">&ndash;&gt;-->
+        <!--&lt;!&ndash;Edit .&ndash;&gt;-->
+        <!--&lt;!&ndash;</span>&ndash;&gt;-->
+        <!--<el-button class="save" type="text" slot="reference"-->
+        <!--@click="saveClick(commentItem.PoCmID, commentItem.PoCmContent)"-->
+        <!--:class="{'d-none' : readonly === true || checkidcomment !== commentItem.PoCmID}">-->
+        <!--Save-->
+        <!--</el-button>-->
+        <!--<el-button class="edit" type="text" slot="reference" @click="editClick(commentItem.PoCmID)"-->
+        <!--v-if="showEdit">-->
+        <!--Edit-->
+        <!--</el-button>-->
+        <!--.-->
+        <!--&lt;!&ndash;<span class="save" @click="saveClick(commentItem.PoCmID, commentItem.PoCmContent)"&ndash;&gt;-->
+        <!--&lt;!&ndash;:class="{'d-none' : readonly === true || checkidcomment !== commentItem.PoCmID}">Save . </span>&ndash;&gt;-->
+        <!--&lt;!&ndash;<span class="delete"&ndash;&gt;-->
+        <!--&lt;!&ndash;@click="deleteComment(commentItem.PoCmID, commentItem.PoCmContent, post.PostID)">Delete</span>&ndash;&gt;-->
+        <!--&lt;!&ndash;<span class="delete"&ndash;&gt;-->
+        <!--&lt;!&ndash;@click="showDeleteModal(commentItem.PoCmID, commentItem.PoCmContent, post.PostID)">&ndash;&gt;-->
+        <!--&lt;!&ndash;Delete .&ndash;&gt;-->
+        <!--&lt;!&ndash;&ndash;&gt;-->
+        <!--&lt;!&ndash;</span>&ndash;&gt;-->
+        <!--<el-button class="delete" type="text" slot="reference"-->
+        <!--@click="showDeleteModal(commentItem.PoCmID, commentItem.PoCmContent, post.PostID)">-->
+        <!--Delete-->
+        <!--</el-button>-->
+        <!--.-->
+        <!--&lt;!&ndash; span class="like">-->
+        <!--<el-popover-->
+        <!--placement="right"-->
+        <!--width="250"-->
+        <!--trigger="click"-->
+        <!--popper-class="like-popover">-->
+        <!--<table class="table reaction-table">-->
+        <!--<tr>-->
+        <!--<td :class="{checked: getCommentReactionCount('LIKE', commentItem) > 0}"><label><input-->
+        <!--type="checkbox"-->
+        <!--:checked="getUserSelectedCommentReaction('LIKE', commentItem)"-->
+        <!--@change="toggleCommentReaction($event, commentItem)"-->
+        <!--value="LIKE">-->
+        <!--<el-tooltip placement="top">-->
+        <!--<div slot="content">{{getCommentReactionCount('LIKE', commentItem)}}</div>-->
+        <!--<img src="../assets/like.gif" width="30px"/>-->
+        <!--</el-tooltip>-->
+        <!--</label></td>-->
+        <!--<td :class="{checked: getCommentReactionCount('LOVE', commentItem) > 0}"><label><input-->
+        <!--type="checkbox"-->
+        <!--:checked="getUserSelectedCommentReaction('LOVE', commentItem)"-->
+        <!--@change="toggleCommentReaction($event, commentItem)"-->
+        <!--value="LOVE">-->
+        <!--<el-tooltip placement="top">-->
+        <!--<div slot="content">{{getCommentReactionCount('LOVE', commentItem)}}</div>-->
+        <!--<img src="../assets/love.gif" width="30px"/>-->
+        <!--</el-tooltip>-->
+        <!--</label></td>-->
+        <!--<td :class="{checked: getCommentReactionCount('WOW', commentItem) > 0}"><label><input-->
+        <!--type="checkbox"-->
+        <!--:checked="getUserSelectedCommentReaction('WOW', commentItem)"-->
+        <!--@change="toggleCommentReaction($event, commentItem)"-->
+        <!--value="WOW">-->
+        <!--<el-tooltip placement="top">-->
+        <!--<div slot="content">{{getCommentReactionCount('WOW', commentItem)}}</div>-->
+        <!--<img src="../assets/oo.gif" width="30px"/>-->
+        <!--</el-tooltip>-->
+        <!--</label></td>-->
+        <!--<td :class="{checked: getCommentReactionCount('HAHA', commentItem) > 0}"><label><input-->
+        <!--type="checkbox"-->
+        <!--:checked="getUserSelectedCommentReaction('HAHA', commentItem)"-->
+        <!--@change="toggleCommentReaction($event, commentItem)"-->
+        <!--value="HAHA">-->
+        <!--<el-tooltip placement="top">-->
+        <!--<div slot="content">{{getCommentReactionCount('HAHA', commentItem)}}</div>-->
+        <!--<img src="../assets/funny.gif" width="30px"/>-->
+        <!--</el-tooltip>-->
+        <!--</label></td>-->
+        <!--<td :class="{checked: getCommentReactionCount('SAD', commentItem) > 0}"><label><input-->
+        <!--type="checkbox"-->
+        <!--:checked="getUserSelectedCommentReaction('SAD', commentItem)"-->
+        <!--@change="toggleCommentReaction($event, commentItem)"-->
+        <!--value="SAD">-->
+        <!--<el-tooltip placement="top">-->
+        <!--<div slot="content">{{getCommentReactionCount('SAD', commentItem)}}</div>-->
+        <!--<img src="../assets/sad.gif" width="30px"/>-->
+        <!--</el-tooltip>-->
+        <!--</label></td>-->
+        <!--</tr>-->
+        <!--</table>-->
+        <!--<el-button type="text" slot="reference">-->
+        <!--Like-->
+        <!--</el-button>-->
+        <!--</el-popover>-->
+        <!--</span &ndash;&gt;-->
+        <!--<AlertComponent :showModal="deleteModalShow" @cancelClick="closeDeleteModal"-->
+        <!--@okClick="deleteComment"/>-->
+        <!--</div>-->
+        <!--<button v-on:click=" post.collapsed = !post.collapsed "-->
+        <!--:class="{'d-none' : !post.collapsed }"-->
+        <!--v-if="post.commentItems&&post.commentItems.length !== 2">-->
+        <!--More Comment-->
+        <!--</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</el-collapse-transition>-->
 
-                    <div class="commentWrap" v-if="post.commentItems"
-                         :class="{'is-collapsed' : post.collapsed }">
-                        <div class="comment__item" v-for="commentItem of post.commentItems"
-                             :key="commentItem.PoCmID">
-                            <div class="commentItem__header">
-                                <div class="comment__name">{{commentItem.CONname}}</div>
-                                <div class="comment__date">{{commentItem.PoCmCreatedDate}}</div>
-                            </div>
-
-                            <div class="commentPostContent_show" v-if="checkidcomment !== commentItem.PoCmID">
-                                {{commentItem.PoCmContent}}
-                            </div>
-                            <textarea v-if="readonly === false && checkidcomment === commentItem.PoCmID" type="text"
-                                      class="comment__content" id="commentPostContent"
-                                      v-model="commentItem.PoCmContent" v-bind:readonly="readonly"
-                                      :class="{'editable' : readonly === false && checkidcomment === commentItem.PoCmID }"></textarea>
-                            <!--{{checkidcomment}} ==== {{commentItem.PoCmID}} === {{readonly}}<br/>-->
-
-                            <!--<span class="edit" @click="editClick(commentItem.PoCmID)" v-if="showEdit">-->
-                            <!--Edit .-->
-                            <!--</span>-->
-                            <el-button class="save" type="text" slot="reference"
-                                       @click="saveClick(commentItem.PoCmID, commentItem.PoCmContent)"
-                                       :class="{'d-none' : readonly === true || checkidcomment !== commentItem.PoCmID}">
-                                Save
-                            </el-button>
-                            <el-button class="edit" type="text" slot="reference" @click="editClick(commentItem.PoCmID)"
-                                       v-if="showEdit">
-                                Edit
-                            </el-button>
-                            .
-
-                            <!--<span class="save" @click="saveClick(commentItem.PoCmID, commentItem.PoCmContent)"-->
-                            <!--:class="{'d-none' : readonly === true || checkidcomment !== commentItem.PoCmID}">Save . </span>-->
-                            <!--<span class="delete"-->
-                            <!--@click="deleteComment(commentItem.PoCmID, commentItem.PoCmContent, post.PostID)">Delete</span>-->
-                            <!--<span class="delete"-->
-                            <!--@click="showDeleteModal(commentItem.PoCmID, commentItem.PoCmContent, post.PostID)">-->
-                            <!--Delete .-->
-                            <!---->
-                            <!--</span>-->
-                            <el-button class="delete" type="text" slot="reference"
-                                       @click="showDeleteModal(commentItem.PoCmID, commentItem.PoCmContent, post.PostID)">
-                                Delete
-                            </el-button>
-                            .
-                            <span class="like">
-                        <el-popover
-                                placement="right"
-                                width="250"
-                                trigger="click"
-                                popper-class="like-popover">
-                            <table class="table reaction-table">
-                                <tr>
-                                    <td :class="{checked: getCommentReactionCount('LIKE', commentItem) > 0}"><label><input
-                                            type="checkbox"
-                                            :checked="getUserSelectedCommentReaction('LIKE', commentItem)"
-                                            @change="toggleCommentReaction($event, commentItem)"
-                                            value="LIKE">
-                                    <el-tooltip placement="top">
-                                        <div slot="content">{{getCommentReactionCount('LIKE', commentItem)}}</div>
-                                        <img src="../assets/like.gif" width="30px"/>
-                                    </el-tooltip>
-                                        </label></td>
-                                    <td :class="{checked: getCommentReactionCount('LOVE', commentItem) > 0}"><label><input
-                                            type="checkbox"
-                                            :checked="getUserSelectedCommentReaction('LOVE', commentItem)"
-                                            @change="toggleCommentReaction($event, commentItem)"
-                                            value="LOVE">
-                                    <el-tooltip placement="top">
-                                        <div slot="content">{{getCommentReactionCount('LOVE', commentItem)}}</div>
-                                        <img src="../assets/love.gif" width="30px"/>
-                                    </el-tooltip>
-                                    </label></td>
-                                    <td :class="{checked: getCommentReactionCount('WOW', commentItem) > 0}"><label><input
-                                            type="checkbox"
-                                            :checked="getUserSelectedCommentReaction('WOW', commentItem)"
-                                            @change="toggleCommentReaction($event, commentItem)"
-                                            value="WOW">
-
-                                    <el-tooltip placement="top">
-                                        <div slot="content">{{getCommentReactionCount('WOW', commentItem)}}</div>
-                                        <img src="../assets/oo.gif" width="30px"/>
-                                    </el-tooltip>
-                                        </label></td>
-                                    <td :class="{checked: getCommentReactionCount('HAHA', commentItem) > 0}"><label><input
-                                            type="checkbox"
-                                            :checked="getUserSelectedCommentReaction('HAHA', commentItem)"
-                                            @change="toggleCommentReaction($event, commentItem)"
-                                            value="HAHA">
-
-                                    <el-tooltip placement="top">
-                                        <div slot="content">{{getCommentReactionCount('HAHA', commentItem)}}</div>
-                                        <img src="../assets/funny.gif" width="30px"/>
-                                    </el-tooltip>
-                                        </label></td>
-                                    <td :class="{checked: getCommentReactionCount('SAD', commentItem) > 0}"><label><input
-                                            type="checkbox"
-                                            :checked="getUserSelectedCommentReaction('SAD', commentItem)"
-                                            @change="toggleCommentReaction($event, commentItem)"
-                                            value="SAD">
-
-                                    <el-tooltip placement="top">
-                                        <div slot="content">{{getCommentReactionCount('SAD', commentItem)}}</div>
-                                        <img src="../assets/sad.gif" width="30px"/>
-                                    </el-tooltip>
-                                        </label></td>
-                                </tr>
-                            </table>
-                            <el-button type="text" slot="reference">
-                                Like
-                            </el-button>
-                        </el-popover>
-                    </span>
-                            <AlertComponent :showModal="deleteModalShow" @cancelClick="closeDeleteModal"
-                                            @okClick="deleteComment"/>
-                        </div>
-                        <button v-on:click=" post.collapsed = !post.collapsed "
-                                :class="{'d-none' : !post.collapsed }" v-if="post.commentItems&&post.commentItems.length !== 2">
-                            More Comment
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </el-collapse-transition>
-        <b-modal class="alert-modal" title="ARE YOU SURE?" ref="modal_DeletePost" @ok="deletePost(post)">
-            Once you delete a post, you can't undo it.
-        </b-modal>
         <b-modal id="modal_EditComponent" ref="modal_EditComponent" size="lg" hide-footer title="Edit Post"
                  @hidden="hideEditModal">
             <component @result="displayResult" :is="obj_SelectedComponent" :post="post"></component>
@@ -384,15 +426,18 @@
         </b-modal>
     </div>
 </template>
-
 <script>
     import isImage from "is-image";
+
+    import * as jQuery from "./signalR/jquery-1.6.4";
+    import * as signalR from "./signalR/jquery.signalR-2.4.1";
+
     import DataSource from "../data/datasource";
     import AlertComponent from "./alertComponent";
     import portfolio from "../components/Post_Portfolio_Component";
-    import updates from "../components/Post_Updates_Component.vue";
+    import updates from "../components/Post_Updates_Component";
     import Cookies from "js-cookie";
-    import $ from "jquery";
+
 
     export default {
         name: 'postComponent',
@@ -449,11 +494,16 @@
         },
         props: ["parentPost", "commentitemSubmit", "hideComment", "isHome", "hideSubmenu", "loadPost", "approverPost"],
         methods: {
-            showImageModal(){
-                this.$refs['imageModal'].show()
+            getBCMsg(postId) {
+                this.getComment();
+                this.showCommentTransition(postId);
+                console.log("i got it!! id:" + postId);
             },
-            hideImageModal(){
-                this.$refs['imageModal'].hide()
+            showImageModal() {
+                this.$refs['imageModal'].show();
+            },
+            hideImageModal() {
+                this.$refs['imageModal'].hide();
             },
             checkIfImage(file) {
                 return isImage(file);
@@ -642,9 +692,9 @@
 
                         this.remainingImage = this.post.countImageFile - 4;
                     });
-                setInterval(() => {
-                    this.getComment();
-                    }, 3000);
+                // setInterval(() => {
+                this.getComment();
+                //     }, 3000);
             },
 
             initCommentInterval() {
@@ -673,21 +723,34 @@
             },
             getComment() {
 
-                    DataSource.shared.getComment(this.post.PostID).then((comments) => {
-                        this.$set(this.post, "commentItems", comments.Table);
+                DataSource.shared.getComment(this.post.PostID).then((comments) => {
+                    if (comments.Table && comments.Table.length > 0){
+                        comments.Table.sort((a, b) => {
+                            if (Date.parse(a.PoCmCreatedDate) > Date.parse(b.PoCmCreatedDate)) {
+                                return -1;
+                            } else if (Date.parse(a.PoCmCreatedDate) < Date.parse(b.PoCmCreatedDate)) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        });
+                    }
 
-                        if (!this.isNull(this.post.commentItems)) {
-                            /*for (let i = 0; i < this.post.commentItems.length; i++) {
-                                DataSource.shared.getPostReaction(comments.Table[i].PoCmID).then((commentReactions) => {
-                                    this.$set(this.post.commentItems[i], "commentReactions", commentReactions.Table);
-                                });
-                            }*/
+                    this.$set(this.post, "commentItems", comments.Table);
 
-                            this.commentCount = this.post.commentItems.length;
-                        } else {
-                            this.commentCount = "0";
-                        }
-                    });
+                    if (!this.isNull(this.post.commentItems)) {
+                        /*for (let i = 0; i < this.post.commentItems.length; i++) {
+                            DataSource.shared.getPostReaction(comments.Table[i].PoCmID).then((commentReactions) => {
+                                this.$set(this.post.commentItems[i], "commentReactions", commentReactions.Table);
+                            });
+                        }*/
+
+                        this.commentCount = this.post.commentItems.length;
+                    } else {
+                        this.commentCount = "0";
+                    }
+                });
+
 
             },
 
@@ -719,7 +782,7 @@
                 let SourceisImage = this.isImageByExt(file);
                 if (SourceisImage === true) {
                     return `data:image/jpg;base64, ${file.PostItemFileMedium}`;
-                } else{
+                } else {
                     return `data:application/pdf;base64, ${file.PostItemFile}`;
                 }
             },
@@ -728,7 +791,9 @@
             },
             submitComment(commentPostID) {
                 this.$emit('commentitemSubmit', commentPostID, this.commentPostContent);
+                //        this.sendMsg(commentPostID,this.commentPostContent);
                 this.commentPostContent = "";
+
             },
             saveClick(PoCmID, PoCmContent) {
                 this.readonly = true;
@@ -736,11 +801,11 @@
                 this.checkidcomment = null;
                 this.$emit("commentEdit", PoCmID, PoCmContent);
             },
-            showDeleteModal(deleteCmId, deleteCmContent, deleteCmPostId) {
-                this.deleteModalShow = true;
+            emitShowDeleteModal(deleteCmId, deleteCmContent, deleteCmPostId, post) {
                 this.deleteCmId = deleteCmId;
                 this.deleteCmContent = deleteCmContent;
                 this.deleteCmPostId = deleteCmPostId;
+                this.$emit('showDeleteModal', this.deleteCmId,this.deleteCmContent,this.deleteCmPostId, post);
             },
             closeDeleteModal() {
                 this.deleteModalShow = false;
@@ -876,8 +941,6 @@
     };
 </script>
 <style scoped>
-
-
     /*.reaction-table td:hover {*/
     /*background-color: #f5f5f5;*/
     /*}*/

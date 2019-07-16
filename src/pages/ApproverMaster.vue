@@ -6,27 +6,33 @@
                     <h3 class="text-left"> APPROVER MASTER</h3>
                 </div>
             </div>
-            <el-tabs v-model="tabForm" @tab-click="handleClick">
+            <el-tabs v-model="tabForm">
+                <!--<el-tabs v-model="tabForm" @tab-click="handleClick">-->
                 <el-tab-pane label="Approver Master" name="approver_master">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div v-if="approverListInt.length>0" class="datatable_group">
+                        <div class="datatable_group">
                             <div class="toolbar">
                                 <el-button-group class="float-right mb-3">
-
                                     <el-tooltip class="item" effect="dark" content="Add Approver Master"
                                                 placement="top-start">
                                         <el-button type="primary" icon="el-icon-plus"
                                                    @click="showApproverMaster"></el-button>
                                     </el-tooltip>
-
                                     <el-tooltip class="item" effect="dark" content="Delete" placement="top-start">
-                                        <el-button type="primary" icon="el-icon-delete" :disabled="selectedRow.length<1"
+                                        <el-button type="primary" icon="el-icon-delete"
+                                                   :disabled="selectedRow&&selectedRow.length<1"
                                                    @click="deleteSelectedApproverMaster()"></el-button>
                                     </el-tooltip>
                                 </el-button-group>
                             </div>
+                            <div class="empty-list_image"
+                                 v-if="approverListInt&&approverListInt.length<1">
+                                <strong>No Data Found...</strong>
+                                <img src="../assets/notfound.png"/>
+                            </div>
                             <data-tables :data="approverListInt" :action-col="approverListDeleteButton"
-                                         @selection-change="handleSelectionChange">
+                                         @selection-change="handleSelectionChange"
+                                         v-if="approverListInt&&approverListInt.length>0">
                                 <el-table-column type="selection" width="55">
                                 </el-table-column>
                                 <el-table-column v-for="approverListInfo in approverList" :prop="approverListInfo.prop"
@@ -36,31 +42,34 @@
                             </data-tables>
                         </div>
                     </div>
-
-
                 </el-tab-pane>
                 <el-tab-pane label="Specific User To Approve" name="SpecificUser_approver">
                     <div class="row">
                         <div class="col-lg-12">
-                            <div v-if="approverSpecificUserInt.length>0" class="datatable_group">
+                            <div
+                                 class="datatable_group">
                                 <div class="toolbar">
                                     <el-button-group class="float-right mb-3">
-
                                         <el-tooltip class="item" effect="dark" content="Add Approver Master"
                                                     placement="top-start">
                                             <el-button type="primary" icon="el-icon-plus"
                                                        @click="showSpecificApproverMaster"></el-button>
                                         </el-tooltip>
-
                                         <el-tooltip class="item" effect="dark" content="Delete" placement="top-start">
-                                            <el-button type="primary" icon="el-icon-delete" :disabled="selectedRow.length<1"
+                                            <el-button type="primary" icon="el-icon-delete"
+                                                       :disabled="selectedRow&&selectedRow.length<1"
                                                        @click="deleteSelectedApproverMaster()"></el-button>
                                         </el-tooltip>
                                     </el-button-group>
                                 </div>
+                                <div class="empty-list_image"
+                                     v-if="approverSpecificUserInt&&approverSpecificUserInt.length<1">
+                                    <strong>No Data Found...</strong>
+                                    <img src="../assets/notfound.png"/>
+                                </div>
                                 <data-tables :data="approverSpecificUserInt"
                                              :action-col="approverSpecificUserListDeleteButton"
-                                             @selection-change="handleSelectionChange">
+                                             @selection-change="handleSelectionChange" v-if="approverSpecificUserInt&&approverSpecificUserInt.length>0">
                                     <el-table-column type="selection" width="55">
                                     </el-table-column>
                                     <el-table-column v-for="approverSpecificUserListInfo in approverSpecificUserList"
@@ -72,8 +81,6 @@
                                 </data-tables>
                             </div>
                         </div>
-
-
                     </div>
                 </el-tab-pane>
             </el-tabs>
@@ -83,8 +90,6 @@
             <!--Specific User To Approve-->
             <!--</b-btn>-->
             <!--</div>-->
-
-
             <!--</div>-->
         </div>
         <b-modal id="addApproverMaster" title="Add Approver Master" hide-footer v-model="showAddApproverMaster">
@@ -92,7 +97,6 @@
                 <label>Approver Type</label>
                 <el-select
                         v-model="ddlApproverType"
-                        :loading="loading"
                         class="w-100">
                     <el-option
                             v-for="item in approverTypeList"
@@ -102,19 +106,17 @@
                     </el-option>
                 </el-select>
                 <!--<select v-model="ddlApproverType" class="form-control pro-edt-select form-control-primary">-->
-                    <!--<option v-for="item in approverTypeList" v-bind:value="item">-->
-                        <!--{{ item }}-->
-                    <!--</option>-->
+                <!--<option v-for="item in approverTypeList" v-bind:value="item">-->
+                <!--{{ item }}-->
+                <!--</option>-->
                 <!--</select>-->
             </div>
-
             <div class="col-lg-12 mb-3">
                 <label>Approver Level</label>
                 <el-select
                         v-model="ddlApproverLevel"
                         filterable
                         reserve-keyword
-                        :loading="loading"
                         class="w-100">
                     <el-option
                             v-for="item in approverLevelList"
@@ -124,19 +126,17 @@
                     </el-option>
                 </el-select>
                 <!--<select v-model="ddlApproverLevel" class="form-control pro-edt-select form-control-primary">-->
-                    <!--<option v-for="item in approverLevelList" v-bind:value="item">-->
-                        <!--{{ item }}-->
-                    <!--</option>-->
+                <!--<option v-for="item in approverLevelList" v-bind:value="item">-->
+                <!--{{ item }}-->
+                <!--</option>-->
                 <!--</select>-->
             </div>
-
             <div class="col-lg-12 mb-3">
                 <label>Approver</label>
                 <el-select
                         v-model="ddlStaffList"
                         filterable
                         reserve-keyword
-                        :loading="loading"
                         class="w-100">
                     <el-option
                             v-for="item in staffList"
@@ -151,7 +151,6 @@
                 <!--</option>-->
                 <!--</select>-->
             </div>
-
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <button v-on:click="saveApproverMaster()" class="btn btn-primary waves-effect waves-light m-r-10">
                     Save
@@ -163,7 +162,6 @@
                 <label>Approver Type</label>
                 <el-select
                         v-model="ddlApproverTypeSpecificUser"
-                        :loading="loading"
                         class="w-100">
                     <el-option
                             v-for="item in approverTypeList"
@@ -173,21 +171,18 @@
                     </el-option>
                 </el-select>
                 <!--<select v-model="ddlApproverTypeSpecificUser"-->
-                        <!--class="form-control pro-edt-select form-control-primary">-->
-                    <!--<option v-for="item in approverTypeList" v-bind:value="item">-->
-                        <!--{{ item }}-->
-                    <!--</option>-->
+                <!--class="form-control pro-edt-select form-control-primary">-->
+                <!--<option v-for="item in approverTypeList" v-bind:value="item">-->
+                <!--{{ item }}-->
+                <!--</option>-->
                 <!--</select>-->
             </div>
-
             <div class="col-lg-12 mb-3">
                 <label>Specific Needed Approve User</label>
-
                 <el-select
                         v-model="ddlStaffListSpecificUser"
                         filterable
                         reserve-keyword
-                        :loading="loading"
                         class="w-100">
                     <el-option
                             v-for="item in staffListSpecificUser"
@@ -197,13 +192,12 @@
                     </el-option>
                 </el-select>
                 <!--<select v-model="ddlStaffListSpecificUser"-->
-                        <!--class="form-control pro-edt-select form-control-primary">-->
-                    <!--<option v-for="item in staffListSpecificUser" v-bind:value="item.CONid">-->
-                        <!--{{ item.CONname }}-->
-                    <!--</option>-->
+                <!--class="form-control pro-edt-select form-control-primary">-->
+                <!--<option v-for="item in staffListSpecificUser" v-bind:value="item.CONid">-->
+                <!--{{ item.CONname }}-->
+                <!--</option>-->
                 <!--</select>-->
             </div>
-
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <button v-on:click="saveApproveSpecificUser()"
                         class="btn btn-primary waves-effect waves-light m-r-10">
@@ -224,7 +218,6 @@
         <!--</data-tables>-->
         <!--</div>-->
         <!--</div>-->
-
         <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
         <!--<label>Approver Type</label>-->
         <!--<select v-model="ddlApproverTypeSpecificUser" class="form-control pro-edt-select form-control-primary">-->
@@ -233,7 +226,6 @@
         <!--</option>-->
         <!--</select>-->
         <!--</div>-->
-
         <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
         <!--<label>Specific Needed Approve User</label>-->
         <!--<select v-model="ddlStaffListSpecificUser" class="form-control pro-edt-select form-control-primary">-->
@@ -242,7 +234,6 @@
         <!--</option>-->
         <!--</select>-->
         <!--</div>-->
-
         <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
         <!--<button v-on:click="saveApproveSpecificUser()" class="btn btn-primary waves-effect waves-light m-r-10">-->
         <!--Save-->
@@ -252,7 +243,6 @@
         <!--</b-modal>-->
     </div>
 </template>
-
 <script>
     import DataSource from "../data/datasource";
 
@@ -329,6 +319,7 @@
                         label: 'Delete'
                     }]
                 },
+                showEmpty: false,
             };
         },
         async created() {
@@ -340,7 +331,7 @@
             this.getApproverMasterSpecificUser();
         },
         methods: {
-            showSpecificApproverMaster(){
+            showSpecificApproverMaster() {
                 this.showAddSpecific = true;
             },
             showApproverMaster() {
@@ -348,7 +339,6 @@
             },
             handleSelectionChange(val) {
                 this.selectedRow = val;
-                console.log(this.selectedRow);
             },
             async getStaffList() {
                 this.$vs.loading();
@@ -405,10 +395,11 @@
                     if (response) {
                         switch (response.code) {
                             case "2":
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'no record found'
-                                });
+                                // this.$notify.error({
+                                //     title: 'Error',
+                                //     message: 'no record found'
+                                // });
+                                    this.showEmpty = true;
                                 break;
                             case "88":
                                 this.$router.push('/');
@@ -422,6 +413,12 @@
                         }
 
                         this.approverListInt = response.Table;
+                        if (this.approverListInt === undefined){
+                            this.approverListInt= [];
+                        }
+                        if (this.approverListInt && this.approverListInt.length > 0){
+                            this.showEmpty = false;
+                        }
                     }
                 } catch (e) {
                     this.results = e;
@@ -471,7 +468,6 @@
                 this.$vs.loading();
                 try {
                     const approverMasterID = JSON.stringify(this.selectedRow.map(m => m.ApproverMasterID));
-                    console.log(approverMasterID);
                     const response = await DataSource.shared.updateApproverMaster(approverMasterID, "VOID");
                     if (response) {
                         switch (response.code) {
@@ -485,10 +481,11 @@
                                 // window.location.replace('/ApproverMaster');
                                 break;
                             case "2":
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Higher Approver Level Is Existing, Not Able To Empty Lower Approver Level'
-                                });
+                                // this.$notify.error({
+                                //     title: 'Error',
+                                //     message: 'Higher Approver Level Is Existing, Not Able To Empty Lower Approver Level'
+                                // });
+                                    this.showEmpty = true;
                                 break;
                             case "88":
                                 this.$router.push('/');
@@ -536,6 +533,7 @@
                                         title: 'Duplicated',
                                         message: 'Approver duplicated'
                                     });
+                                    this.getApproverMaster();
                                     break;
                                 case "3":
                                     this.$notify.error({
@@ -581,6 +579,10 @@
                         }
 
                         this.approverSpecificUserInt = response.Table;
+
+                        if(this.approverSpecificUserInt === undefined){
+                            this.approverSpecificUserInt = [];
+                        }
                     }
                 } catch (e) {
                     this.results = e;
@@ -671,7 +673,5 @@
         },
     };
 </script>
-
 <style scoped>
-
 </style>

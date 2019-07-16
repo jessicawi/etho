@@ -593,7 +593,8 @@
                         portfolioDesc: '',
                         portfolioID: tempobj_Portfolio.PortfolioID,
                         studentID: '',
-                        mode: 'EDIT'
+                        mode: 'EDIT',
+                        status: tempobj_Portfolio.PortfolioStatus
                     }
                 });
             },

@@ -81,7 +81,7 @@
             <div class=" align-self-center">
                 <!--<label>Student Graduation</label>-->
 
-                <div class="row">
+                <div class="">
                     <div class=" promotion-student" id="studentListArea" v-bind:class="{divBorderClass:studentListAreaBorder}">
                         <div class="empty-list_image" v-if="emptyImage===true">
                             <img src="../assets/promotion.jpg"/>
@@ -128,9 +128,14 @@
                         <!--v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0"-->
                         <!--@click="showGraduationModal"><i class="fa fa-thumbs-up">Graduation</i></button>-->
 
-                <el-button type="primary" id="btn_GraduationSelected"
+                <el-button type="primary" id="btn_GraduationSelected" style="z-index: 2;"
                            v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0"
                            @click="showGraduationModal" class="d-flex floating-action-button">
+                    <i class="fa fa-graduation-cap" aria-hidden="true"></i> GRADUATION
+                </el-button>
+                <el-button v-if="btnGraduationVueSample" type="primary" id="btn_GraduationSelected"
+                           style="z-index: 1;"
+                           class="d-flex floating-action-button">
                     <i class="fa fa-graduation-cap" aria-hidden="true"></i> GRADUATION
                 </el-button>
             </div>
@@ -157,6 +162,52 @@
             </div>
         </b-modal>
 
+        <v-tour name="StudentGraduationPageVueTourName" :steps="studentGraduationPageVueTour" :options="studentGraduationPageVueTourOptions" :callbacks="studentGraduationPageVueTourCallBacks">
+            <template slot-scope="tour">
+                <transition name="fade">
+                    <v-step
+                            v-if="tour.currentStep === index"
+                            v-for="(step, index) of tour.steps"
+                            :key="index"
+                            :step="step"
+                            :previous-step="tour.previousStep"
+                            :next-step="tour.nextStep"
+                            :stop="tour.stop"
+                            :is-first="tour.isFirst"
+                            :is-last="tour.isLast"
+                            :labels="tour.labels"
+                    >
+                        <template v-if="tour.currentStep === 0">
+                            <div slot="actions">
+                                <button class="v-step__button" @click="tourStop()">Finish</button>
+                                <button class="v-step__button" @click="tour.nextStep">Next</button>
+                            </div>
+                        </template>
+                        <template v-if="tour.currentStep !== 0 && tour.currentStep !== 3">
+                            <div slot="actions">
+                                <button class="v-step__button" @click="tourStop()">Skip tour</button>
+                                <button class="v-step__button" @click="tour.previousStep">Previous</button>
+                                <button class="v-step__button" @click="tour.nextStep">Next</button>
+                            </div>
+                        </template>
+                        <template v-if="tour.currentStep === 3">
+                            <div slot="actions">
+                                <button class="v-step__button" @click="tourStop()">Finish</button>
+                                <button class="v-step__button" @click="tour.previousStep">Previous</button>
+                            </div>
+                        </template>
+                    </v-step>
+                </transition>
+            </template>
+        </v-tour>
+
+        <div style="display:none;">
+            <el-button type="primary" class="btn btn-primary waves-effect waves-light m-r-10 float-left"
+                       @click="studentGraduationPageVueTourStart()">
+                Guided Tour
+            </el-button>
+        </div>
+
     </div>
 </template>
 
@@ -164,6 +215,11 @@
     "use strict";
     import $ from 'jquery';
     import DataSource from "../data/datasource";
+
+    import VueTour from 'vue-tour';
+    import Vue from 'vue';
+    require('vue-tour/dist/vue-tour.css');
+    Vue.use(VueTour);
 
     export default {
         name: "StudentGraduation",
@@ -189,6 +245,55 @@
                         //e.g return date< Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000));
                     }
                 },
+                emptyImage: true,
+                studentListAreaBorder: false,
+                btnGraduationVueSample: false,
+
+                //vue tour
+                studentGraduationPageVueTourOptions: {
+                    useKeyboardNavigation: false,
+                    labels: {
+                        buttonSkip: 'Skip tour',
+                        buttonPrevious: 'Previous',
+                        buttonNext: 'Next',
+                        buttonStop: 'Finish'
+                    }
+                },
+                studentGraduationPageVueTourCallBacks: {
+                    onPreviousStep: this.studentGraduationPageVueTourCallBacksPreviousSteps,
+                    onNextStep: this.studentGraduationPageVueTourCallBacksNextSteps
+                },
+                studentGraduationPageVueTour: [
+                    {
+                        target: '#ddl_AcademicYear',
+                        content: `<div>Step 1 / 4 <br> Select Academic Year</div>`,
+                        params: {
+                            placement: 'bottom',
+                        }
+                    },
+                    {
+                        target: '#ddl_Class',
+                        content: `<div>Step 2 / 4 <br> Select Academic Class</div>`,
+                        params: {
+                            placement: 'bottom',
+                        }
+                    },
+                    {
+                        target: '#studentListArea',
+                        content: `<div>Step 3 / 4 <br> Select Student at this area</div>`,
+                        params: {
+                            placement: 'bottom',
+                        }
+                    },
+                    {
+                        target: '#btn_GraduationSelected',
+                        content: `<div>Step 4 / 4 <br> Graduation <br> Select Graduation Date and click Graduation button</div>`,
+                        params: {
+                            placement: 'bottom',
+                        }
+                    },
+                ],
+                //vue tour
             }
         },
         methods: {
@@ -232,6 +337,11 @@
                 DataSource.shared.getStudentGraduationListByClassLevel(this.obj_SelectedClass.PK_Course_ID, this.obj_SelectedClass.PK_Class_ID).then((result) => {
                     this.arrobj_Students = result.Table;
                     this.hideLoading();
+                    if (result.code === '2' || result.code === '88'  || result.code === '99') {
+                        this.emptyImage = true;
+                    } else {
+                        this.emptyImage = false;
+                    }
                 });
                 this.tempCurrentClass = this.obj_SelectedClass;
                 this.obj_SelectedClass = this.obj_SelectedClass.CLS_ClassName + this.obj_SelectedClass.CLS_Batch;
@@ -358,6 +468,36 @@
             }
             ,
             /*#endregion*/
+
+            studentGraduationPageVueTourStart() {
+                this.$tours['StudentGraduationPageVueTourName'].start();
+            },
+            studentGraduationPageVueTourCallBacksPreviousSteps (currentStep) {
+                let finalSteps = currentStep - 1;
+
+                this.tourCallBackStepsFunc(finalSteps);
+            },
+            studentGraduationPageVueTourCallBacksNextSteps (currentStep) {
+                let finalSteps = currentStep + 1;
+
+                this.tourCallBackStepsFunc(finalSteps);
+            },
+            tourCallBackStepsFunc (finalSteps) {
+                this.studentListAreaBorder = false;
+                this.btnGraduationVueSample = false;
+
+                if (finalSteps === 2) {
+                    this.studentListAreaBorder = true;
+                } else if (finalSteps === 3) {
+                    this.btnGraduationVueSample = true;
+                }
+            },
+            tourStop () {
+                this.studentListAreaBorder = false;
+                this.btnGraduationVueSample = false;
+
+                this.$tours['StudentGraduationPageVueTourName'].stop();
+            },
         },
         mounted() {
             const self = this;
@@ -378,6 +518,12 @@
 
             $("input[type='checkbox']").change(() => {
             });
+
+            window.addEventListener('load', () => {
+                if (this.$route.query.tour === 'YES') {
+                    this.studentGraduationPageVueTourStart();
+                }
+            })
         },
         watch:{
             obj_SelectedClass: function(){
@@ -440,6 +586,10 @@
         bottom: 30px;
         right: 30px;
         white-space: normal;
+    }
+
+    .divBorderClass {
+        border-style: solid;
     }
 </style>
 

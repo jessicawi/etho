@@ -309,7 +309,7 @@
                 <!--</tr>-->
                 <!--</tbody>-->
                 <!--</table>-->
-                <div class="row mt-3" v-if="noActivity === false">
+                <div class="row mt-3 dr-button-group" v-if="noActivity === false">
                     <div class="col-md-6">
                         <el-button type="danger" @click="btnDelete" class="float-left">Delete</el-button>
                     </div>

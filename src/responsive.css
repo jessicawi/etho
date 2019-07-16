@@ -11,6 +11,7 @@ mobile
     .el-button-group {
         width: 100%;
     }
+
     .login .backstretch img {
         height: 100%;
         min-width: 100%;
@@ -31,6 +32,7 @@ mobile
     .login .social-item {
         padding: 0px 10px;
     }
+
     .daily-header {
         display: block;
     }
@@ -65,13 +67,33 @@ mobile
     .daily-desc_wrap .date {
         margin-top: 20px;
     }
+
     .el-button {
         width: 100%;
         margin: 5px 0;
     }
+
+
+    .comment_wrapper .el-button--text {
+        display: inline-block;
+        width: auto;
+    }
+
+    .modal-quicklink.el-button-group button {
+        width: auto;
+    }
+
+    .modal-quicklink.el-button-group {
+        margin: auto;
+        display: table;
+        width: auto;
+    }
 }
 
 @media (max-width: 769px) {
+    /*
+    login
+     */
     .login-img {
         display: none;
     }
@@ -145,21 +167,29 @@ mobile
         color: #6c757d;
         text-align: center;
     }
+
     .login .backstretch, .parent-register .backstretch, .resetPassword .backstretch, .resetEmail .backstretch {
         display: none;
     }
 
-    .parent-register .vs-con-input input, .login-box .vs-con-input input {
+    .parent-register .vs-con-input input, .login-box .vs-con-input input, .reset-content input {
         padding: 7px 15px;
         border-radius: 20px;
         border-color: #dadcde !important;
         border: 0px !important;
+        background: white;
+        box-shadow: none !important;
+        transition: none;
     }
 
     .parent-register .vs-input--placeholder, .login-box .vs-input--placeholder {
         padding: 7px 15px;
         border-radius: 20px;
     }
+
+    /*
+    menu
+     */
     .info-menu {
         position: fixed;
         bottom: 0px;
@@ -172,7 +202,7 @@ mobile
 
     #main-content {
         overflow: hidden;
-        padding: 0px 0px 50px !important;
+        padding: 0px 0px 100px !important;
     }
 
     li.info-menu__item a {
@@ -200,6 +230,7 @@ mobile
 
     .menu-wrap {
         max-width: 25%;
+        display: none;
     }
 
     .menu-wrap-active .parent-menu, .parent-menu.menu-active, .parent-menu:hover {
@@ -224,6 +255,53 @@ mobile
 
     .menu-box {
         margin: 0px;
+        padding: 0px;
+    }
+
+    .mobilemenu-box-wrap {
+        background: #413f56;
+    }
+
+    .mobilemenu-box-wrap .el-menu-vertical-demo {
+        background: transparent;
+        border: 0px;
+        color: white;
+    }
+
+    .mobilemenu-box-wrap .el-submenu__title i {
+        color: white;
+        top: 0px;
+        margin-right: 10px;
+    }
+
+    .mobilemenu-box-wrap .el-submenu__title i.el-submenu__icon-arrow {
+        top: 30px;
+    }
+
+    .mobilemenu-box-wrap li.el-submenu {
+        position: relative;
+    }
+
+    .mobilemenu-box-wrap .el-submenu__title * {
+        color: white;
+    }
+
+    .mobilemenu-box-wrap .el-submenu__title {
+        color: white;
+    }
+
+    .mobilemenu-box-wrap .el-submenu .el-menu {
+        background: transparent;
+        border-bottom: 1px solid #ffffff0f;
+    }
+
+    .mobilemenu-box-wrap .el-submenu__title:focus, .menu-box-wrap .el-submenu__title:hover {
+        background: #00000014;
+    }
+
+    .mobilemenu-box-wrap .el-menu-item * {
+        color: #848294;
+        font-weight: normal;
     }
 
     .input-group.search {
@@ -237,6 +315,126 @@ mobile
         border-radius: 0px;
     }
 
+    .el-popper.el-dropdown-menu {
+        width: 100%;
+        left: 0 !important;
+        border-radius: 0px !important;
+    }
+
+    /*
+    layout
+     */
+    .Content {
+        padding: 0px !important;
+    }
+
+    .admin-wrap.container {
+        margin-top: 20px;
+    }
+
+    .btn-primary {
+        width: 100%;
+        margin: 0 auto 10px;
+    }
+
+    .searchingArea {
+        padding: 0 15px;
+    }
+
+    .datatable-form__header .searchbtn {
+        width: 100%;
+    }
+
+    /*
+    attendance
+     */
+    #main-content .attendance-search .el-select {
+        width: 100%;
+        margin: auto !important;
+        float: none !important;
+    }
+
+    .responsive-table {
+        overflow-x: scroll;
+        margin-bottom: 20px;
+    }
+    .attTable td input {
+        min-width: 200px;
+    }
+    /*
+    attendance report
+     */
+    #attendancereport .header.mb-5 {
+        margin-bottom: 0px !important;
+    }
+
+    #attendancereport .header {
+        margin-top: 20px;
+    }
+
+    .atr-header-wrap .el-range-editor.el-input__inner {
+        width: 100%;
+    }
+
+    .el-date-range-picker .el-picker-panel__body {
+        min-width: 0px !important;
+    }
+
+    .el-date-range-picker.el-picker-panel {
+        left: 0px !important;
+        width: 100%;
+    }
+
+    .el-date-range-picker__content {
+        padding: 20px 6px !important;
+    }
+
+    .atr-list-header:before {
+        content: "";
+        background: black;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0.5;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .atr-list-header {
+        position: relative;
+        display: block !important;
+        overflow: hidden;
+    }
+
+    .atr-list-header label {
+        position: relative;
+    }
+
+    .atr-list-header .btnExport {
+        position: relative;
+    }
+
+    .atr-list-header label i {
+        background: #4856ad;
+        color: white;
+    }
+
+    #attendancereport .admin-wrap {
+        padding: 20px;
+    }
+
+    #attendancereport .admin-wrap .sc-table {
+        margin-top: 0px;
+    }
+
+    #attendancereport .admin-wrap .pb-5 {
+        padding: 0px !important;
+    }
+
+    /*
+    table
+     */
     .sc-table {
         padding: 0px !important;
         margin-top: 20px;
@@ -285,7 +483,28 @@ mobile
     .notification__item {
         margin-bottom: 20px;
     }
+    span.el-pagination__total, .el-pagination span:not([class*=suffix]) {
 
+        margin: 0px;
+    }
+
+    .el-pagination {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 10px 0px;
+    }
+    .sc-table .el-button {
+        min-width: 100px;
+    }
+    .sc-table .action-list {
+        min-width: 100px;
+    }
+    .attTable td label {
+        min-width: 200px !important;
+    }
+    /*
+    form
+     */
     .datatable-form__header {
         flex-direction: column;
         margin-top: 0px;
@@ -294,20 +513,388 @@ mobile
     .datatable-form__input {
         width: 100%;
         margin-bottom: 10px;
+        padding: 0px;
     }
+
     .routine-select {
         max-width: none;
+        margin-top: 10px;
     }
 
     .el-button {
         margin: 5px 0;
     }
+
+    .vs-con-input-label {
+        width: 100%;
+        margin: 0px 0px 10px !important
+    }
+
+    .el-select.ddlSearchStatua {
+        width: 100%;
+    }
+
+    #student-list .datatable-form__header .searchbtn {
+        width: 100%;
+    }
+
+    .datatable-form__submit {
+        width: 100%;
+    }
+
+    /*
+    busmaster
+     */
+    div#busmaster {
+        padding-top: 20px;
+    }
+
+    .busMaster-heading.row .el-button {
+        width: 30px;
+        height: 30px;
+        padding: 0px;
+        float:left;
+    }
+
+    .busMaster-item_title {
+        padding-bottom: 7px;
+    }
+
+    .busMaster-item_close {
+        margin-bottom: 10px;
+    }
+    /*
+    busattendance
+     */
+    .container.admin-wrap .header.mb-5 {
+        margin-bottom: 20px !important;
+    }
+
+    /*
+    class management
+     */
+    .search-datatable .el-input-group__prepend span {
+        display: none;
+    }
+
+    .search-datatable .el-input-group__prepend {
+        width: 40px;
+        height: 40px;
+        padding: 0px;
+    }
+
+    .search-datatable {
+        margin-bottom: 20px;
+    }
+
+    div#ClassListModal___BV_modal_body_ {
+        padding: 1rem 0px;
+    }
+
+    .modal .el-button-group button {
+        width: 100%;
+    }
+
+    .modal .btn-secondary {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /*
+    daily routine
+     */
+    .daily-empty img {
+        max-width: 100%;
+    }
+    .daily-activity form.el-form {
+        display: block;
+    }
+
+    .daily-activity .el-form-item {
+        margin-bottom: 0px;
+    }
+
+    .daily-activity {
+        margin-bottom: 16px;
+    }
+
+    .daily-remark {
+        display: block;
+        margin: 0px;
+    }
+
+    .daily-remark label {
+        margin: 0px;
+    }
+
+    .daily-remark input {
+        margin: 0px;
+    }
+
+    .daily-activity .el-form-item .el-select {
+        margin: 0px;
+    }
+
+    .daily-activity .el-date-editor:last-child {
+        margin: 0px;
+    }
+
+    .daily-remark button {
+        margin: 20px 0px 10px;
+        width: 100%;
+    }
+
+    .dr-button-group button {
+        margin-bottom: 10px;
+    }
+
+    .dailyRoutine-student {
+        display: block;
+    }
+
+    .dailyRoutine-student .div_Student {
+        width: 100%;
+        max-width: none;
+        margin: 10px 0px;
+    }
+
+    /*
+    daily routine mass update
+     */
+
+    .daily-checkall {
+        display: block;
+    }
+
+    .daily-checkall .con-vs-checkbox {
+        padding: 10px 0px;
+        display: flex;
+    }
+
+    #btn_PromoteSelected {
+        bottom: 69px;
+    }
+
+    /*
+    eca master
+     */
+
+    div#ecamaster {
+        margin-top: 20px;
+    }
+
+    .icon-round-button button {
+        width: 30px;
+        height: 30px;
+        padding: 0px !important;
+    }
+
+    /*
+    login
+     */
+    .login-wrap .form-control {
+        padding: 0px;
+    }
+    .login-wrap .form-control input, .reset-content input.form-control , .resetlink-wrap .form-control input{
+        border: 0px solid #464646;
+        /*padding: 0 20px;*/
+        border-radius: 20px;
+        /*margin-top: 30px !important;*/
+        background: white;
+    }
+    .reset-content {
+        padding: 0 30px;
+    }
+
+    .login-box .vs-input-primary .vs-input--input:focus {
+        background: transparent;
+    }
+
+    /*
+    parent
+     */
+    .datatable-edit__header {
+        margin-top: 0px;
+    }
+
+    /*
+    promotion
+     */
+    .promotionAcademicYear-select-wrap {
+        display: block;
+    }
+
+    .promotion-academicYear-select {
+        width: 100%;
+        margin: 0px;
+    }
+
+    .promotion-student {
+        display: block;
+    }
+
+    .promotion-student .div_Student {
+        width: 100%;
+        display: block;
+        max-width: none;
+        margin: 10px 0px;
+    }
+
+    /*
+    student
+     */
+    .buttonArea .btn-primary {
+        margin: 10px 0px 0px !important;
+    }
+
+    .student-search-count {
+        float: left;
+        margin: 10px 0px;
+        width: 100%;
+        text-align: center !important;
+    }
+
+    div#student-list .actionDiv button {
+        margin: 0px !important;
+    }
+
+    .el-popover {
+        max-width: 97%;
+    }
+
+    .profile_wrap {
+        flex-wrap: wrap;
+    }
+
+    .imgStudentProfile {
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    .student-status {
+        top: 0px;
+        left: auto;
+        right: 0px;
+        float: right;
+        width: 100%;
+        margin: 10px 0px 0px;
+        height: auto;
+    }
+
+    .student-status span {
+        width: 50%;
+    }
+
+    .profile_wrap span {
+        position: relative;
+        top: -10px;
+    }
+    .student-action-link {
+        display: block;
+        padding: 0px !important;
+        margin: 0px;
+    }
+
+    .student-action-link .el-button-group {
+        display: block;
+    }
+
+    .changeStatusArea {
+        width: 100%;
+        display: block;
+    }
+
+    .student-action-link .el-button-group button {
+        padding: 0px 8px;
+        background: transparent !important;
+        border-radius: 0px !IMPORTANT;
+    }
+
+    /*
+    student edit class
+     */
+    div#student-edit-class button {
+        float: none !important;
+        margin: 10px auto 0;
+    }
+
+    /*
+    student graduation
+     */
+
+    .el-button.floating-action-button {
+        bottom: 64px;
+    }
+
+    /*
+    transfer in
+     */
+
+    div#transferin .search-wrap {
+        padding: 0 15px;
+    }
+
+    div#transferin {
+        padding-top: 20px;
+    }
+
+    .transfer_card {
+        display: block;
+    }
+
+    .transfer_card-item {
+        width: calc(100% - 20px);
+    }
+
+    .transfer_card-item button {
+        width: 40px;
+        height: 40px;
+    }
+    /*
+    feed
+     */
+    div#modal_ShowMoreBroadcast___BV_modal_body_ button {
+        margin: 0px auto;
+        display: table;
+        float: none;
+        width: auto;
+    }
+
+    div#modal_ShowMoreBroadcast___BV_modal_body_ {display: table;}
+
+    .broadcast-list-wrap {
+        width: 100%;
+    }
+
+    .broadcast-item {
+        width: 100%;
+    }
+
+    .notification button {
+        width: 100%;
+        text-align: left !important;
+        margin-bottom: 20px;
+    }
+
+    .feed-header .addPost {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .comment_wrapper .btn {
+        margin: 0px;
+    }
+
+    .addComment {
+        margin: 0px !important;
+    }
+
 }
 
 @media (max-width: 450px) {
     .admin-wrap.container {
-        margin: 0 20px 20px;
-        width: calc(100% - 40px );
+        margin: 20px;
+        width: calc(100% - 40px);
         padding: 20px;
     }
 
@@ -319,6 +906,7 @@ mobile
     .pagination-bar span.el-pagination__jump {
         margin: 0 10px;
     }
+
     .notfound .notfound-404 {
         position: relative;
         height: 168px;

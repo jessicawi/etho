@@ -2,19 +2,30 @@
     <div id="classmanagement">
         <div class="container admin-wrap">
             <div class="row header mb-2">
-                <div class="col-lg-5 ">
+                <div class="col-lg-4 ">
                     <h3 class="text-left mb-3">Class Management</h3>
                 </div>
-                <div class="col-lg-7 actionDiv">
+                <div class="col-lg-8 actionDiv">
                     <el-button-group>
-                        <el-button type="primary" v-b-modal.newClassModal variant="primary" id="btnAddNewClass"><i class="material-icons">
+                        <el-button type="primary" v-b-modal.newClassModal variant="primary" id="btnAddNewClass"><i
+                                class="material-icons">
                             playlist_add
                         </i> New Class
                         </el-button>
-                        <el-button type="primary" variant="primary" v-on:click="directToPromotion()" id="btnMassPromotion">Mass Promotion <i
+                        <el-button type="primary" variant="primary" v-on:click="directToPromotion()"
+                                   id="btnMassPromotion">Mass Promotion <i
                                 class="material-icons">
                             view_module
                         </i></el-button>
+                        <el-button type="primary" variant="primary" v-on:click="directToTransferIn()">Transfer In <i
+                                class="material-icons">
+                            transfer_within_a_station
+                        </i></el-button>
+                        <el-button type="primary" variant="primary" v-on:click="directToStudentGraduation()">Graduation
+                            <i
+                                    class="material-icons">
+                                school
+                            </i></el-button>
                     </el-button-group>
                     <!--<b-btn v-b-modal.newClassModal variant="primary">-->
                     <!--Mass Promotion-->
@@ -24,55 +35,54 @@
                     <!--</b-btn>-->
                 </div>
             </div>
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <el-row style="margin-bottom: 10px">
-                        <el-col :span="11">
-                            <el-input v-model="ClassFilters[0].value" class="search-datatable" placeholder="Search" id="inputSearchClassName">
-                                <template slot="prepend"><i class="material-icons">
-                                    search
-                                </i> Search Class Name
-                                </template>
-                            </el-input>
-                        </el-col>
-                        <el-col :span="11" :offset="2">
-                            <!--<el-select v-model="ClassFilters[1].value" placeholder="select type"-->
-                            <!--multiple="multiple" class="float-right">-->
-                            <!--<el-option-->
-                            <!--v-for="item in classListFilteritem"-->
-                            <!--:key="item"-->
-                            <!--:label="item"-->
-                            <!--:value="item">-->
-                            <!--</el-option>-->
-                            <!--</el-select>-->
-                            <el-popover
-                                    placement="bottom-end"
-                                    width="400"
-                                    trigger="click">
-                                <el-checkbox-group v-model="ClassFilters[1].value" class="custom-checkbox">
-                                    <el-checkbox-button v-for="item in classListFilteritem" :label="item"
-                                                        :key="item">{{item}}
-                                    </el-checkbox-button>
-                                </el-checkbox-group>
-                                <el-button slot="reference" type="primary" round
-                                           class="float-right large-btn classManage-filter" id="btnFilterByLevel"><i
-                                        class="material-icons">
-                                    tune
-                                </i> Filter
-                                </el-button>
-                            </el-popover>
-                        </el-col>
-                    </el-row>
-                    <data-tables :data="parentClassListInt" :action-col="parentClassListAction"
-                                 class="classManage-Table" :filters="ClassFilters">
-                        <el-table-column v-for="parentClassListIntInfo in parentClassList"
-                                         :prop="parentClassListIntInfo.prop"
-                                         :label="parentClassListIntInfo.label" :key="parentClassListIntInfo.prop"
-                                         sortable="custom"
-                                         id="parentClassList">
-                        </el-table-column>
-                    </data-tables>
+            <div class="">
+                <div style="margin-bottom: 10px" class="row">
+                    <div class="col-lg-6">
+                        <el-input v-model="ClassFilters[0].value" class="search-datatable" placeholder="Search"
+                                  id="inputSearchClassName">
+                            <template slot="prepend"><i class="material-icons">
+                                search
+                            </i> <span>Search Class Name</span>
+                            </template>
+                        </el-input>
+                    </div>
+                    <div class="col-lg-4 offset-lg-2">
+                        <!--<el-select v-model="ClassFilters[1].value" placeholder="select type"-->
+                        <!--multiple="multiple" class="float-right">-->
+                        <!--<el-option-->
+                        <!--v-for="item in classListFilteritem"-->
+                        <!--:key="item"-->
+                        <!--:label="item"-->
+                        <!--:value="item">-->
+                        <!--</el-option>-->
+                        <!--</el-select>-->
+                        <el-popover
+                                placement="bottom-end"
+                                width="400"
+                                trigger="click">
+                            <el-checkbox-group v-model="ClassFilters[1].value" class="custom-checkbox">
+                                <el-checkbox-button v-for="item in classListFilteritem" :label="item"
+                                                    :key="item">{{item}}
+                                </el-checkbox-button>
+                            </el-checkbox-group>
+                            <el-button slot="reference" type="primary" round
+                                       class="float-right large-btn classManage-filter" id="btnFilterByLevel"><i
+                                    class="material-icons">
+                                tune
+                            </i> Filter
+                            </el-button>
+                        </el-popover>
+                    </div>
                 </div>
+                <data-tables :data="parentClassListInt" :action-col="parentClassListAction"
+                             class="classManage-Table" :filters="ClassFilters">
+                    <el-table-column v-for="parentClassListIntInfo in parentClassList"
+                                     :prop="parentClassListIntInfo.prop"
+                                     :label="parentClassListIntInfo.label" :key="parentClassListIntInfo.prop"
+                                     sortable="custom"
+                                     id="parentClassList">
+                    </el-table-column>
+                </data-tables>
             </div>
             <!--<div class="row">-->
             <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
@@ -234,7 +244,9 @@
         <b-modal id="editClassModal" size="lg" title="Edit Class" ok-only ok-variant="secondary"
                  ref="editClassShowModal" hide-footer v-model="editClassShowModal">
             <div class="row ml-2 mr-2">
-                <div style="display: none;">{{ editSemesterID }} - {{ editCourseID }} - {{ editClassName }} - {{ editClassClassTeacher }}</div>
+                <div style="display: none;">{{ editSemesterID }} - {{ editCourseID }} - {{ editClassName }} - {{
+                    editClassClassTeacher }}
+                </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Level</label>
                     <input type="text" class="form-control" v-model="inputeditLevel" readonly="readonly" disabled>
@@ -402,7 +414,8 @@
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
                     <div class="">
                         <el-button-group class=" ">
-                            <el-button type="primary" v-on:click="editClass()" variant="primary"><i class="material-icons">
+                            <el-button type="primary" v-on:click="editClass()" variant="primary"><i
+                                    class="material-icons">
                                 edit
                             </i> Edit Class
                             </el-button>
@@ -413,15 +426,14 @@
                             </el-button>
                         </el-button-group>
                         <!--<div class="delete_programme_btn">-->
-                            <!--<small>Remove Programme</small>-->
-                            <!--<el-button type="info" round v-on:click="" variant="primary"><i-->
-                                    <!--class="material-icons">-->
-                                <!--delete-->
-                            <!--</i>-->
-                            <!--</el-button>-->
+                        <!--<small>Remove Programme</small>-->
+                        <!--<el-button type="info" round v-on:click="" variant="primary"><i-->
+                        <!--class="material-icons">-->
+                        <!--delete-->
+                        <!--</i>-->
+                        <!--</el-button>-->
                         <!--</div>-->
                     </div>
-
                     <div class="totalNumberOfStudentAssignedToClass" v-if="totalNumberOfStudentAssignedToClass">
                         <label>
                             Total Student Assigned: {{ totalNumberOfStudentAssignedToClass }}
@@ -514,7 +526,8 @@
                 </div>
             </div>
         </b-modal>
-        <v-tour name="classManagementPageVueTourName" :steps="classManagementPageVueTour" :options="classManagementPageVueTourOptions" :callbacks="classManagementPageVueTourCallBacks">
+        <v-tour name="classManagementPageVueTourName" :steps="classManagementPageVueTour"
+                :options="classManagementPageVueTourOptions" :callbacks="classManagementPageVueTourCallBacks">
             <template slot-scope="tour">
                 <transition name="fade">
                     <v-step
@@ -575,10 +588,14 @@
         },
         async mounted() {
             window.addEventListener('load', () => {
+                if (this.$route.query.clsName !== undefined) {
+                    this.ClassFilters[0].value = this.$route.query.clsName;
+                }
+
                 if (this.$route.query.tour === 'YES') {
                     this.classManagementPageVueTourStart();
                 }
-            })
+            });
         },
         data() {
             return {
@@ -646,9 +663,9 @@
                 }, {
                     prop: "CRS_Course_Name",
                     label: "Level"
-                // }, {
-                //     prop: "PK_Class_ID",
-                //     label: "class id"
+                    // }, {
+                    //     prop: "PK_Class_ID",
+                    //     label: "class id"
                 }],
                 classListAction: {
                     label: 'Delete',
@@ -1062,6 +1079,12 @@
             directToPromotion() {
                 window.location.replace('/Promotion');
             },
+            directToTransferIn() {
+                window.location.replace('/TransferIn');
+            },
+            directToStudentGraduation() {
+                window.location.replace('/StudentGraduation');
+            },
             assignStudentToClass(row) {
                 return [{
                     name: 'Assign',
@@ -1272,24 +1295,24 @@
             classManagementPageVueTourStart() {
                 this.$tours['classManagementPageVueTourName'].start();
             },
-            classManagementPageVueTourCallBacksPreviousSteps (currentStep) {
+            classManagementPageVueTourCallBacksPreviousSteps(currentStep) {
                 let finalSteps = currentStep - 1;
 
                 this.tourCallBackStepsFunc(finalSteps);
             },
-            classManagementPageVueTourCallBacksNextSteps (currentStep) {
+            classManagementPageVueTourCallBacksNextSteps(currentStep) {
                 let finalSteps = currentStep + 1;
 
                 this.tourCallBackStepsFunc(finalSteps);
             },
-            tourCallBackStepsFunc (finalSteps) {
+            tourCallBackStepsFunc(finalSteps) {
                 // if (finalSteps === 2) {
                 //     this.studentListAreaBorder = true;
                 // } else if (finalSteps === 3) {
                 //     this.btnPromoteVueSample = true;
                 // }
             },
-            tourStop () {
+            tourStop() {
                 this.$tours['classManagementPageVueTourName'].stop();
             },
         },

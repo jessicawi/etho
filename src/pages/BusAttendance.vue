@@ -6,7 +6,7 @@
                     <h3 class="text-left mb-3">BUS ATTENDANCE</h3>
                 </div>
                 <div class="col-lg-7">
-                    <div class="row attendance-search">
+                    <div class=" attendance-search">
                         <el-select v-model="ddlBus" placeholder="Select Bus" class="pro-edt-select"
                                    @change="Load()">
                             <el-option
@@ -20,11 +20,11 @@
                 </div>
             </div>
             <div class="pb-5">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="">
                     <div class="empty-list_image" v-if="attendanceList.length < 1">
                         <img src="../assets/attendance.jpg"/>
                     </div>
-                    <div class="" v-if="attendanceList.length > 0">
+                    <div class="responsive-table" v-if="attendanceList.length > 0">
                         <table class="attTable">
                             <tr>
                                 <th>Attendance</th>
@@ -80,7 +80,7 @@
                             </tr>
                         </table>
                     </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" v-if="attendanceList.length > 0">
+                    <div class="" v-if="attendanceList.length > 0">
                         <button type="button" class="btn btn-primary float-right" v-on:click="Save()">Save</button>
                     </div>
                 </div>

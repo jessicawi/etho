@@ -125,15 +125,22 @@
                                     <strong>No Record Yet...</strong>
                                     <img src="../assets/notfound.png"/>
                                 </div>
-                                <span class="d-block text-left" v-if="emptyImage!==true">Student</span>
-                                <bar-chart
-                                        v-if="isLoaded"
-                                        :chartdata="chartdata3"
-                                        :options="options"/>
+
+                                <b-card no-body v-if="isLoaded" class="studentSummary">
+                                    <b-tabs v-model="tabIndex" card>
+                                        <b-tab :title="obj.title" active v-for="obj of studentMovements" >
+                                            <span class="d-block text-left" v-if="emptyImage!==true">Student</span>
+                                            <bar-chart
+                                                    v-if="isLoaded"
+                                                    :chartdata="obj.data"
+                                                    :options="options"/>
+                                            <span class="text-right" v-if="emptyImage!==true">Month</span>
+                                        </b-tab>
+                                    </b-tabs>
+                                </b-card>
                                 <!--<double-bar-chart-->
                                 <!--:chartdata2="chartdata3"-->
                                 <!--v-if="isLoaded"/>-->
-                                <span class="text-right" v-if="emptyImage!==true">Month</span>
                             </div>
                         </div>
                     </div>
@@ -142,14 +149,16 @@
             <div class="row mb-3">
                 <div class="col-lg-12 " v-loading="loading">
                     <div class="chartBox">
-                        <div class="dashboard-title"><h4 class="text-left">Student Attendance ({{ currentDateWithAlphabet }})</h4></div>
-                        <div class="" v-if="attendanceTodayNumberInt.length < 1" >
+                        <div class="dashboard-title"><h4 class="text-left">Student Attendance ({{
+                            currentDateWithAlphabet }})</h4></div>
+                        <div class="" v-if="attendanceTodayNumberInt && attendanceTodayNumberInt.length < 1">
                             <div style="padding:100px 0 0 0;">
                                 Please Wait...
                             </div>
                         </div>
-                        <div class="" v-if="attendanceTodayNumberInt.length > 0" >
-                            <data-tables :data="attendanceTodayNumberInt" :filters="attendanceTodayNumberFilter" :page-size="5" :pagination-props="{ pageSizes: [5, 10, 20] }">
+                        <div class="" v-if="attendanceTodayNumberInt && attendanceTodayNumberInt.length > 0">
+                            <data-tables :data="attendanceTodayNumberInt" :filters="attendanceTodayNumberFilter"
+                                         :page-size="5" :pagination-props="{ pageSizes: [5, 10, 20] }">
                                 <el-row slot="tool" style="margin: 10px 0">
                                     <el-col :span="5">
                                         <label>Search Class:</label>
@@ -159,9 +168,10 @@
                                         </el-input>
                                     </el-col>
                                 </el-row>
-
-                                <el-table-column v-for="attendanceTodayNumberInfo in attendanceTodayNumber" :prop="attendanceTodayNumberInfo.prop"
-                                                 :label="attendanceTodayNumberInfo.label" :key="attendanceTodayNumberInfo.prop"
+                                <el-table-column v-for="attendanceTodayNumberInfo in attendanceTodayNumber"
+                                                 :prop="attendanceTodayNumberInfo.prop"
+                                                 :label="attendanceTodayNumberInfo.label"
+                                                 :key="attendanceTodayNumberInfo.prop"
                                                  sortable="custom">
                                 </el-table-column>
                             </data-tables>
@@ -234,6 +244,7 @@
         name: 'homePage',
         data() {
             return {
+                tabIndex: 0,
                 token: null,
                 userType: null,
                 list: [],
@@ -252,7 +263,7 @@
                 loading: false,
                 emptyImage: false,
                 noresponse: false,
-
+                studentMovements: [],
                 chartdata: {
                     labels: [],
                     datasets: [
@@ -478,29 +489,29 @@
                 // graph
 
                 //feed
-                if (this.isParent === "Parent") {
-                    let Parentresponse = await DataSource.shared.getParentPost();
-                    if (Parentresponse.Table) {
-                        for (let item of Parentresponse.Table) {
-                            const fileRes = await DataSource.shared.getPostFile(item.PostID);
-                            if (fileRes.Table) {
-                                item.postFiles = fileRes.Table;
-                            }
-                        }
-                        this.post = Parentresponse.Table;
-                    }
-                } else {
-                    let Staffresponse = await DataSource.shared.getStaffPostHome();
-                    if (Staffresponse.Table) {
-                        for (let item of Staffresponse.Table) {
-                            const fileRes = await DataSource.shared.getPostFile(item.PostID);
-                            if (fileRes.Table) {
-                                item.postFiles = fileRes.Table;
-                            }
-                        }
-                        this.post = Staffresponse.Table;
-                    }
-                }
+                // if (this.isParent === "Parent") {
+                //     let Parentresponse = await DataSource.shared.getParentPost();
+                //     if (Parentresponse.Table) {
+                //         for (let item of Parentresponse.Table) {
+                //             const fileRes = await DataSource.shared.getPostFile(item.PostID);
+                //             if (fileRes.Table) {
+                //                 item.postFiles = fileRes.Table;
+                //             }
+                //         }
+                //         this.post = Parentresponse.Table;
+                //     }
+                // } else {
+                //     let Staffresponse = await DataSource.shared.getStaffPostHome();
+                //     if (Staffresponse.Table) {
+                //         for (let item of Staffresponse.Table) {
+                //             const fileRes = await DataSource.shared.getPostFile(item.PostID);
+                //             if (fileRes.Table) {
+                //                 item.postFiles = fileRes.Table;
+                //             }
+                //         }
+                //         this.post = Staffresponse.Table;
+                //     }
+                // }
 
                 //this.showCompareData();
                 const forecastResponse = await DataSource.shared.getStudentForecastByBranchMonthly();
@@ -573,68 +584,87 @@
                             break;
                     }
 
+
+
                 }
 
                 //show new enroll graph
-                const newEnrollResponse = await DataSource.shared.getStudentMovementDetailNewEnroll();
+                const yearResponse = await DataSource.shared.getStudentsMovementCurrentYearSummary();
+                this.studentMovements = this.processChartData(yearResponse);
 
-                if (newEnrollResponse) {
-                    let enrollData = newEnrollResponse.Table;
-
-                    let yearGroup = [];
-                    for (const d of enrollData) {
-                        if (!yearGroup.includes(d.Year)) {
-                            yearGroup.push(d.Year);
-                        }
-                    }
-
-                    yearGroup.forEach((d, i) => {
-                        const data = enrollData.filter(a => {
-                            return a.Year === d;
-                        });
-                        const firstDataMonth = Number(data[0].Month);
-
-                        let monthToPush = [];
-                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach((d, index) => {
-                            const startFromOne = index + 1;
-                            if (firstDataMonth > startFromOne) {
-                                monthToPush.push({
-                                    Month: String(d),
-                                    Value: "0",
-                                    Year: data[0].Year
-                                });
-                            }
-                        });
-
-
-                        //const finalData = [...monthToPush, ...data];
-
-                        if (this.chartdata3 && this.chartdata3.datasets && this.chartdata3.datasets[i]) {
-                            this.chartdata3.datasets[i].data = enrollData.map((b, i) => {
-                                if (b.Year === d) {
-                                    return b.Enroll;
-                                }
-                            });
-                            this.chartdata3.labels = enrollData.map(c => c.Month);
-                            this.chartdata3.datasets[i].label = yearGroup[i];
-                        }
-
-                    });
-
-                    switch (newEnrollResponse.code) {
-                        case "2":
-                            this.emptyImage = true;
-                            break;
-                        case "99":
-                            this.emptyImage = true;
-                            this.loading = false;
-                            break;
-                    }
-
-                    this.loading = false;
-                    this.isLoaded = true;
-
+                switch (yearResponse.code) {
+                    case "2":
+                        this.emptyImage = true;
+                        break;
+                    case "99":
+                        this.emptyImage = true;
+                        this.loading = false;
+                        break;
                 }
+
+                this.loading = false;
+                this.isLoaded = true;
+
+                // if (yearResponse) {
+                //     let enrollData = yearSummary.IN;
+                //
+                //     let yearGroup = [];
+                //     for (const d of enrollData) {
+                //         if (!yearGroup.includes(d.Year)) {
+                //             yearGroup.push(d.Year);
+                //         }
+                //     }
+                //
+                //     yearGroup.forEach((d, i) => {
+                //         const data = enrollData.filter(a => {
+                //             return a.Year === d;
+                //         });
+                //         const firstDataMonth = Number(data[0].Month);
+                //
+                //         let monthToPush = [];
+                //         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach((d, index) => {
+                //             const startFromOne = index + 1;
+                //             if (firstDataMonth > startFromOne) {
+                //                 monthToPush.push({
+                //                     Month: String(d),
+                //                     Value: "0",
+                //                     Year: data[0].Year
+                //                 });
+                //             }
+                //         });
+                //
+                //
+                //         //const finalData = [...monthToPush, ...data];
+                //
+                //         if (this.chartdata3 && this.chartdata3.datasets && this.chartdata3.datasets[i]) {
+                //             this.chartdata3.datasets[i].data = enrollData.map((b, i) => {
+                //                 if (b.Year === d) {
+                //                     return b.Value;
+                //                 }
+                //             });
+                //             this.chartdata3.labels = enrollData.map(c => c.Month);
+                //             this.chartdata3.datasets[i].label = yearGroup[i];
+                //             console.log("final chardata", this.chartdata3);
+                //         }
+                //
+                //     });
+                //
+                //     switch (yearResponse.code) {
+                //         case "2":
+                //             this.emptyImage = true;
+                //             break;
+                //         case "99":
+                //             this.emptyImage = true;
+                //             this.loading = false;
+                //             break;
+                //     }
+                //
+                //     this.loading = false;
+                //     this.isLoaded = true;
+                //
+                // }
+
+
                 // const newEnrollResponse = {
                 //     "Table1": [
                 //         {"Year": "2019", "Enroll": "1", "Month": "5"},
@@ -708,9 +738,86 @@
                     } else if (response.code === '22') {
                         console.log('Attendance list: No Record');
                     } else {
-                        this.attendanceTodayNumberInt = response.Table ;
+                        this.attendanceTodayNumberInt = response.Table;
                     }
                 }
+            },
+            processChartData(yearResponse) {
+                const yearSummary = {};
+                const types = yearResponse.Table.map(d => d.Type);
+                types.forEach(d => yearSummary[d] = yearResponse.Table.filter(e => e.Type === d));
+
+                let typesData = [];
+
+                // loop object
+                for (const ys in yearSummary) {
+
+                    // get object value
+                    const enrollData = yearSummary[ys];
+
+                    // get array of year(unique)
+                    let yearGroup = [];
+                    for (const d of enrollData) {
+                        if (!yearGroup.includes(d.Year)) {
+                            yearGroup.push(d.Year);
+                        }
+                    }
+
+                    let otherColor = false;
+                    let datasets = [];
+                    // loop year array
+                    yearGroup.forEach((d, i) => {
+                        otherColor = !otherColor;
+                        // get year data
+                        const data = enrollData.filter(a => {
+                            return a.Year === d;
+                        });
+                        const firstDataMonth = Number(data[0].Month);
+
+                        let monthToPush = [];
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach((d, index) => {
+                            const startFromOne = index + 1;
+                            if (firstDataMonth > startFromOne) {
+                                monthToPush.push({
+                                    Month: String(d),
+                                    Value: "0",
+                                    Year: data[0].Year
+                                });
+                            }
+                        });
+
+                        const dataToInsert = {
+                            backgroundColor: otherColor ? "rgba(255, 193, 7, 0.6)" : "rgba(0, 123, 255, 0.6)",
+                            // backgroundColor: (i % 2) === 1 ? "rgba(255, 193, 7, 0.6)" : "rgba(0, 123, 255, 0.6)",
+                            data: [],
+                            fill: false,
+                            label: yearGroup[i],    // year
+                            type: "bar",
+                        };
+                        datasets.push(dataToInsert);
+                    });
+
+                    // populate dataset data
+                    for (const dataset of datasets) {
+                        dataset.data = enrollData.map((b, i) => {
+                            if (b.Year === dataset.label) {
+                                return b.Value;
+                            }
+                        });
+                    }
+
+                    const final = {
+                        title: ys,
+                        data: {
+                            datasets: datasets,
+                            labels: enrollData.map(c => c.Month)
+                        }
+                    };
+                    typesData.push(final);
+                }
+
+                return typesData;
+
             }
         },
         computed: {

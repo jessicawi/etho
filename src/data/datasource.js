@@ -2447,6 +2447,16 @@ export default class DataSource {
         }
     }
 
+    async getStudentsMovementCurrentYearSummary() {
+        try {
+            const data={}
+            const response = await this.callWebService("/controller/Students.asmx/getStudentsMovementCurrentYearSummary", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     async getBusMasterList() {
         try {
             const data={}

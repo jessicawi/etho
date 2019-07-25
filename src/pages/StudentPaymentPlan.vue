@@ -175,7 +175,7 @@
                 </div-->
             </div>
         </div>
-        <b-modal id="viewTransactionModal" size="lg" title="Transactions History" ok-only ok-variant="secondary"
+        <b-modal id="viewTransactionModal" size="xl" title="Transactions History" ok-only ok-variant="secondary"
                  ok-title="Cancel" ref="viewTransactionShowModal">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -186,37 +186,44 @@
                                     <a href="#" style="color:blue" @click="getTransactionDocumentPdf(scope.row)">{{scope.row.DocumentNo}}</a>
                                 </template>
                             </el-table-column>
-                            <el-table-column v-for="item in studentReceiptGenerationByTransactionHistoryList"
+                            <el-table-column v-for="item in studentReceiptGenerationByTransactionHistoryList" min-width="50px"
                                              :prop="item.prop"
                                              :label="item.label" :key="item.prop"
                                              sortable="custom">
                             </el-table-column>
+                            <el-table-column label="Payment Reminder" min-width="80px">
+                                <template slot-scope="scope">
+                                    <div class="paymentList-button-group" v-if="scope.row.DocumentType=='Invoice'">
+                                        <el-button-group v-if="PaymentListInt.length>0">
+                                            <el-button v-on:click="showPaymentReminder('1st',scope.row.DocumentNo)" :disabled="btnDisabled" type="primary"
+                                                       size="small">
+                                                <i class="tiny material-icons" style="color:red">
+                                                    add_alert
+                                                </i> 1
+                                            </el-button>
+
+                                            <el-button v-on:click="showPaymentReminder('2nd',scope.row.DocumentNo)" :disabled="btnDisabled" type="primary"
+                                                       size="small">
+                                                    <i class="tiny material-icons" style="color:red">
+                                                        add_alert
+                                                    </i> 2
+                                            </el-button>
+
+                                            <el-button v-on:click="showPaymentReminder('3rd',scope.row.DocumentNo)" :disabled="btnDisabled" type="primary"
+                                                                           size="small">
+                                            <i class="tiny material-icons" style="color:red">
+                                                add_alert
+                                            </i> 3
+
+                                        </el-button>
+                                        </el-button-group>
+                                    </div>
+                                </template>
+                            </el-table-column>
                         </data-tables>
                     </div>
                 </div>
-                        <div class="paymentList-button-group">
-                            <span>Payment Reminder</span>
-                            <el-button-group v-if="PaymentListInt.length>0">
-                                <el-button v-on:click="showPaymentReminder('1st')" :disabled="btnDisabled" type="primary"
-                                           size="small">
-                                    <i class="material-icons">
-                                        attach_money
-                                    </i> 1st Reminder
-                                </el-button>
-                                <el-button v-on:click="showPaymentReminder('2nd')" :disabled="btnDisabled" type="primary"
-                                           size="small">
-                                    <i class="material-icons">
-                                        attach_money
-                                    </i> 2nd Reminder
-                                </el-button>
-                                <el-button v-on:click="showPaymentReminder('3rd')" :disabled="btnDisabled" type="primary"
-                                           size="small">
-                                    <i class="material-icons">
-                                        attach_money
-                                    </i> 3nd Reminder
-                                </el-button>
-                            </el-button-group>
-                        </div>
+
             </div>
         </b-modal>
         <b-modal id="newApplyPaymentPlanModal" size="lg" title="Apply Payment Plan" ok-only ok-variant="secondary"
@@ -996,20 +1003,20 @@
 
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <label>Title</label>
-                            <input type="text" class="form-control" v-model="inputEmailTitle">
+                            <input type="text" class="form-control" v-model="inputEmailSubject">
                         </div>
 
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <label>Description</label>
-                            <textarea class="form-control" v-model="inputEmailDesc" placeholder="Enter something..."></textarea>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <button v-on:click="sendEmailReminderClick()"
-                                    class="btn btn-primary waves-effect waves-light float-right">Send
-                            </button>
+                            <textarea rows="12" class="form-control" v-model="inputEmailMessage" placeholder="Enter something..."></textarea>
                         </div>
                     </div>
+
+            <div>
+                <button v-on:click="sendEmailReminderClick()"
+                        class="btn btn-primary waves-effect waves-light float-right">Send
+                </button>
+            </div>
 
         </b-modal>
     </div>
@@ -1073,10 +1080,11 @@
                 //
 
                 //Email
+                invoiceNoForEmailReminder:'',
                 emailReminderList:[],
-                inputEmailTo:'',
-                inputEmailTitle:'',
-                inputEmailDesc:'',
+                inputEmailTo:'teckkuen.ann@etonhouse.com.sg',
+                inputEmailSubject:'',
+                inputEmailMessage:'',
                 //Email End
 
                 //temp
@@ -1176,13 +1184,13 @@
                 studentReceiptGenerationByTransactionHistoryListInt: [],
                 studentReceiptGenerationByTransactionHistoryList: [{
                     prop: "DocumentStatus",
-                    label: "Document Status"
+                    label: "Docs Status"
                 }, {
                     prop: "DocumentType",
-                    label: "Document Type"
+                    label: "Docs Type"
                 }, {
                     prop: "DocumentDate",
-                    label: "Document Date"
+                    label: "Docs Date"
                 }, {
                     prop: "TotalIncGst",
                     label: "Total(IncludedGst)"
@@ -3618,23 +3626,25 @@
                 }
             },
 
-            showPaymentReminder(ReminderValue){
-                this.getReminderEmail(ReminderValue);
+            showPaymentReminder(reminderValue, invoiceValue){
+                this.getReminderEmail(reminderValue,invoiceValue);
                 this.$refs.showPaymentReminderModal.show();
             },
 
-            getReminderEmail(ReminderValue){
+            async getReminderEmail(reminderValue,invoiceValue){
                 try{
-                    this.lblPaymentReminder = ReminderValue;
+                    this.lblPaymentReminder = reminderValue;
                     let noOfReminder = '';
-                    if(ReminderValue=='1st')
+                    if(reminderValue=='1st')
                     { noOfReminder = 1; }
-                    else if(ReminderValue=='2nd')
+                    else if(reminderValue=='2nd')
                     { noOfReminder = 2; }
-                    else if(ReminderValue=='3rd')
+                    else if(reminderValue=='3rd')
                     { noOfReminder = 3;}
-
-                    const resp = DataSource.shared.getReminderEmail(noOfReminder,'SG-003-IN18-1203',this.studentCourseID,this.studentID);
+                    //pass invoice number value for email "sendEmailReminderClick"
+                    this.invoiceNoForEmailReminder= invoiceValue;
+                    //End:pass invoice number value for email "sendEmailReminderClick"
+                    const resp = await DataSource.shared.getReminderEmail(noOfReminder,invoiceValue,this.studentCourseID,this.studentID);
                     if (resp) {
                         switch (resp.code) {
                             case "2":
@@ -3653,17 +3663,12 @@
                             default:
 
                                 this.emailReminderList = resp.Table;
-                                console.log(this.emailReminderList);
-                                // this.leftOverTemp.forEach(m => {
-                                //
-                                //     m.newPayAmount = m.totalValue;
-                                //
-                                //     this.leftOverTempResp.push(m);
-                                //
-                                // });
-                                //
-                                // this.studentReceiptLeftOverPaymentListInt = this.leftOverTempResp;
-                                // this.leftOverTempResp = [];
+
+                                this.emailReminderList.forEach(m=>{
+                                    // this.inputEmailTo=m.toEmail;
+                                    this.inputEmailSubject=m.emailSubject;
+                                    this.inputEmailMessage=m.emailMessage;
+                                })
                         }
                     }
                 }
@@ -3672,8 +3677,37 @@
                 }
             },
 
-            sendEmailReminderClick(){
-                console.log('Send Email');
+            async sendEmailReminderClick(){
+                try{
+                    const resp = await DataSource.shared.sendReminderEmail(this.inputEmailTo,this.inputEmailSubject,JSON.stringify(this.inputEmailMessage),this.invoiceNoForEmailReminder);
+                    switch (resp.code) {
+                        case "2":
+                            console.log('Cannot Send Email, Please check with IT');
+                            break;
+                        case "88":
+                            this.$router.push('/');
+                            break;
+                        case "99":
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Error'
+                            });
+                            break;
+
+                        default:
+                            this.$notify({
+                                title: 'Success',
+                                message: 'Successfully Sent!',
+                                type: 'success'
+                            });
+                            break;
+
+                    }
+
+                }
+                catch (e) {
+                    this.results = e;
+                }
             },
 
             splitReceiptList(value) {

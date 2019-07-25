@@ -1908,7 +1908,14 @@ a.home-addStudent {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+.studentSummary .card-header-tabs {
+    display: table;
+}
 
+.studentSummary .nav-tabs .nav-item {
+    display: inline-block;
+    float: right;
+}
 /*
 19---StaffPost---
  */

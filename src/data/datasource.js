@@ -867,12 +867,37 @@ export default class DataSource {
         return response;
     }
 
+    async getStaffPostFeedPage(int_NumberOfPost, str_LastPostID, postType, notEqualPostType) {
+        const data = {
+            UserID_Session: Cookies.get('userIDSession'),
+            numberOfPost: int_NumberOfPost,
+            lastPostID: str_LastPostID,
+            postType: postType,
+            notEqualPostType: notEqualPostType,
+        };
+
+        const response = await this.callWebService("/controller/Posting.asmx/getPostStaff", data, "POST");
+        return response;
+    }
+
     async getParentPost(int_NumberOfPost, str_LastPostID, postType) {
         const data = {
             UserID_Session: Cookies.get('userIDSession'),
             numberOfPost: int_NumberOfPost,
             lastPostID: str_LastPostID,
             postType: postType,
+        };
+        const response = await this.callWebService("/controller/Posting.asmx/getPostParent", data, "POST");
+        return response;
+    }
+
+    async getParentPostFeedPage(int_NumberOfPost, str_LastPostID, postType, notEqualPostType) {
+        const data = {
+            UserID_Session: Cookies.get('userIDSession'),
+            numberOfPost: int_NumberOfPost,
+            lastPostID: str_LastPostID,
+            postType: postType,
+            notEqualPostType: notEqualPostType,
         };
         const response = await this.callWebService("/controller/Posting.asmx/getPostParent", data, "POST");
         return response;
@@ -3118,6 +3143,92 @@ export default class DataSource {
                 portfolioID: portfolioID,
             };
             const response = await this.callWebService("/controller/Portfolio.asmx/generatePortfolioPDF", data, "POST");
+            return response;
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getTransferPendingScheduleList(){
+        try{
+            const data={
+
+            };
+            const response = await this.callWebService("/controller/Operations.asmx/getTransferPendingScheduleList", data, "POST");
+            return response;
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updateTransferPendingScheduleList(studentSchoolID, status){
+        try{
+            const data={
+                studentSchoolID: studentSchoolID,
+                status: status
+            };
+            const response = await this.callWebService("/controller/Operations.asmx/updateTransferPendingScheduleList", data, "POST");
+            return response;
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getWithdrawGraduatePendingScheduleList(changeType){
+        try{
+            const data={
+                changeType: changeType
+            };
+            const response = await this.callWebService("/controller/Operations.asmx/getWithdrawGraduatePendingScheduleList", data, "POST");
+            return response;
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updateWithdrawGraduatePendingScheduleList(studentGraduationDatesID, status){
+        try{
+            const data={
+                studentGraduationDatesID: studentGraduationDatesID,
+                status: status
+            };
+            const response = await this.callWebService("/controller/Operations.asmx/updateWithdrawGraduatePendingScheduleList", data, "POST");
+            return response;
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getReminderEmail(noOfReminder,invoiceNo,studentCourseID,studentID){
+        try{
+            const data={
+                noOfReminder: noOfReminder,
+                invoiceNo: invoiceNo,
+                studentCourseID:studentCourseID,
+                studentID:studentID
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/getReminderEmail", data, "POST");
+            return response;
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    async sendReminderEmail(emailTo,emailSubject,emailMessage,invoiceNo){
+        try{
+            const data={
+                emailTo: emailTo,
+                emailSubject: emailSubject,
+                emailMessage:emailMessage,
+                invoiceNo:invoiceNo
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/sendReminderEmail", data, "POST");
             return response;
         }
         catch (e) {

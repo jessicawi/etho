@@ -16,7 +16,7 @@
                 <div class="feed-heading">
                     <span>{{post.CONname}}</span>
                     <small class="date"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                        {{post.PostCreatedDate}}
+                        {{post.PostCreatedDate_convert}}
                     </small>
                 </div>
                 <el-popover
@@ -59,8 +59,9 @@
                             </a>
                             <!--<span class="filepath" @click="getFile(obj_Images)">{{obj_Images.PostItemID}}{{obj_Images.PostItemFileExt}}</span>-->
                         </div>
-                        <button v-if="index === 4 " class="postFile-remainingNumber" @click="showImageModal">
-                            + {{remainingImage}}
+                        <button v-if="index === 4 || index === Object.keys(post.postFiles).length-1 && index !== 0 " class="postFile-remainingNumber" @click="showImageModal">
+                            <span v-if="index !== Object.keys(post.postFiles).length-1 ">+ {{remainingImage}}</span>
+                            <span v-if="index === Object.keys(post.postFiles).length-1 ">+</span>
                         </button>
                         <!--<img :src="getLowSource(obj_Images)"-->
                         <!--:class="{'post-disabled':postFile.PostItemStatus !=='Active'}"-->
@@ -108,7 +109,7 @@
                          :key="commentItem.PoCmID">
                         <div class="commentItem__header">
                             <div class="comment__name">{{commentItem.CONname}}</div>
-                            <div class="comment__date">{{commentItem.PoCmCreatedDate}}</div>
+                            <div class="comment__date">{{commentItem.PoCmCreatedDate_convert}}</div>
                         </div>
                         <div class="commentPostContent_show" v-if="checkidcomment !== commentItem.PoCmID">
                             {{commentItem.PoCmContent}}
@@ -494,6 +495,9 @@
         },
         props: ["parentPost", "commentitemSubmit", "hideComment", "isHome", "hideSubmenu", "loadPost", "approverPost"],
         methods: {
+            sleep(milliseconds) {
+                return new Promise(resolve => setTimeout(resolve, milliseconds));
+            },
             getBCMsg(postId) {
                 this.getComment();
                 this.showCommentTransition(postId);
@@ -674,14 +678,15 @@
             }
             ,
             /*#endregion*/
-            initPost() {
+            async initPost() {
+
                 /*this.resetPost();*/
                 // let tempobj = !this.isNull(this.post.PostID) ? this.post : this.parentPost;
                 this.post = this.parentPost;
-                let promise_GetPostFile = DataSource.shared.getPostFile(this.post.PostID);
-                let promise_GetPostReaction = DataSource.shared.getPostReaction(this.post.PostID);
+                let promise_GetPostFile = await DataSource.shared.getPostFile(this.post.PostID);
+                let promise_GetPostReaction = await DataSource.shared.getPostReaction(this.post.PostID);
 
-                Promise.all([promise_GetPostFile, promise_GetPostReaction])
+                await Promise.all([promise_GetPostFile, promise_GetPostReaction])
                     .then((result) => {
                         this.$set(this.post, "postFiles", result[0].Table);
                         this.$set(this.post, "collapsed", true);
@@ -692,8 +697,13 @@
 
                         this.remainingImage = this.post.countImageFile - 4;
                     });
+
+                await this.sleep(200);
+
+                this.$emit('loadingclose','false');
                 // setInterval(() => {
-                this.getComment();
+                await this.getComment();
+
                 //     }, 3000);
             },
 
@@ -721,9 +731,9 @@
                 /*for(let comment of this.post.commentItems){
                 }*/
             },
-            getComment() {
+            async getComment() {
 
-                DataSource.shared.getComment(this.post.PostID).then((comments) => {
+                await DataSource.shared.getComment(this.post.PostID).then((comments) => {
                     if (comments.Table && comments.Table.length > 0){
                         comments.Table.sort((a, b) => {
                             if (Date.parse(a.PoCmCreatedDate) > Date.parse(b.PoCmCreatedDate)) {
@@ -750,6 +760,7 @@
                         this.commentCount = "0";
                     }
                 });
+
 
 
             },

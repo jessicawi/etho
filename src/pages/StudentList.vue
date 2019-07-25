@@ -26,7 +26,7 @@
             </div>
 
             <div class="datatable-form__input form-group">
-                <el-select placeholder="Select" v-model="statusSearch" class="ddlSearchStatua" @change="Search">
+                <el-select placeholder="Select" v-model="statusSearch" class="ddlSearchStatus" @change="Search">
                     <el-option
                         v-for="statusSearchListInfo in statusSearchList"
                         :key="statusSearchListInfo"
@@ -322,7 +322,7 @@
         display: block;
     }
 
-    .ddlSearchStatua .el-input__inner {
+    .ddlSearchStatus .el-input__inner {
         color: white;
         height: 37px;
         border: 1px solid;

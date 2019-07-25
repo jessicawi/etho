@@ -2,7 +2,9 @@
     <div class="row nabarx topbar">
         <div class="col-md-12 col-lg-5 text-left">
             <a href="/"> <img src="../assets/kagami-white.png"/></a>
-            <!--{{$route.name}}--> {{ currentSchoolName }}
+            <span v-if="conType !== 'Parent'">
+                <!--{{$route.name}}--> {{ currentSchoolName }}
+            </span>
         </div>
         <div class="col-md-12 col-lg-7 info-menu">
             <div class="input-group search" v-if="!isMobile() && conTypePL">
@@ -57,7 +59,7 @@
                      v-click-outside="resetGeneralSearchList" v-if="showNewSearchValue">
                     <div class="hover-content" :class="{ active: isSearchResultHovered===true }">
                         <div class="hover-content-parent" v-if="searchResultDetails.QueryType === 'Student'">
-                            Details for "{{searchResultDetails.Display}}"
+                            Details for "<span v-html="filterSearch(searchResultDetails.Display)"></span>"
                             <hr/>
                             <div class="hover-item">
                                 <strong>Parent</strong>
@@ -71,15 +73,17 @@
                             <div class="hover-item">
                                 <strong>Class</strong>
                                 <div>
-                                    <span>Name: {{searchResultDetails.CLS_ClassName}}</span>
-                                    <span>Level: {{searchResultDetails.CRS_Course_Name}}</span>
+                                    <span v-if="searchResultDetails.CLS_ClassName !== ''">Name: {{searchResultDetails.CLS_ClassName}}</span>
+                                    <span v-if="searchResultDetails.CLS_ClassName === ''">Name: No Active Class</span>
+                                    <span v-if="searchResultDetails.CRS_Course_Name !== ''">Level: {{searchResultDetails.CRS_Course_Name}}</span>
+                                    <span v-if="searchResultDetails.CRS_Course_Name === ''">Level: No Active Level</span>
                                 </div>
                                 <el-button type="primary" round size="mini" @click="newGeneralSearchChangeValue(searchResultDetails.Value,'EditClass')">Edit Class</el-button>
                             </div>
                         </div>
 
                         <div class="hover-content-parent" v-if="searchResultDetails.QueryType === 'Parent'">
-                            Details for "{{searchResultDetails.Display}}"
+                            Details for "<span v-html="filterSearch(searchResultDetails.Display)"></span>"
                             <hr/>
                             <div class="hover-item">
                                 <strong>Parent</strong>
@@ -87,15 +91,39 @@
                                     <span>Father Name: {{searchResultDetails.ParentFatherFullName}}</span>
                                     <span>Mother Name: {{searchResultDetails.ParentMotherFullName}}</span>
                                     <span>Number of Child: {{searchResultDetails.NumberOfChild}}</span>
-                                    <span>Father Phone Number: {{searchResultDetails.PAR_Father_Phone}}</span>
-                                    <span>Mother Phone Number: {{searchResultDetails.PAR_Mother_Phone}}</span>
+                                    <span v-if="searchResultDetails.PAR_Father_Phone !== ''">Father Phone Number: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_Father_Phone)"></span></span>
+                                    <span v-if="searchResultDetails.PAR_Father_Phone === ''">Father Phone Number: -</span>
+                                    <span v-if="searchResultDetails.PAR_Mother_Phone !== ''">Mother Phone Number: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_Mother_Phone)"></span></span>
+                                    <span v-if="searchResultDetails.PAR_Mother_Phone === ''">Mother Phone Number: -</span>
                                 </div>
                                 <el-button type="primary" round size="mini" @click="newGeneralSearchChangeValue(searchResultDetails.Value,'Parent')">Edit Parents Details</el-button>
+                            </div>
+                            <hr/>
+                            <div class="hover-item">
+                                <strong
+                                    v-if="searchResultDetails.PAR_Father_Email.includes(currentGeneralSearchValue) || searchResultDetails.PAR_Mother_Email.includes(currentGeneralSearchValue) || searchResultDetails.PAR_Guardian_Email.includes(currentGeneralSearchValue)">
+                                    Personal Email
+                                </strong>
+                                <div>
+                                    <span v-if="searchResultDetails.PAR_Father_Email.includes(currentGeneralSearchValue)">Father: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_Father_Email)"></span></span>
+                                    <span v-if="searchResultDetails.PAR_Mother_Email.includes(currentGeneralSearchValue)">Mother: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_Mother_Email)"></span></span>
+                                    <span v-if="searchResultDetails.PAR_Guardian_Email.includes(currentGeneralSearchValue)">Guardian: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_Guardian_Email)"></span></span>
+                                </div>
+                                <strong
+                                    v-if="searchResultDetails.PAR_FComp_Email.includes(currentGeneralSearchValue) || searchResultDetails.PAR_MComp_Email.includes(currentGeneralSearchValue) || searchResultDetails.PAR_GComp_Email.includes(currentGeneralSearchValue) || searchResultDetails.PAR_TPComp_Email.includes(currentGeneralSearchValue)">
+                                    Company Email
+                                </strong>
+                                <div>
+                                    <span v-if="searchResultDetails.PAR_FComp_Email.includes(currentGeneralSearchValue)">Father: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_FComp_Email)"></span></span>
+                                    <span v-if="searchResultDetails.PAR_MComp_Email.includes(currentGeneralSearchValue)">Mother: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_MComp_Email)"></span></span>
+                                    <span v-if="searchResultDetails.PAR_GComp_Email.includes(currentGeneralSearchValue)">Guardian: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_GComp_Email)"></span></span>
+                                    <span v-if="searchResultDetails.PAR_TPComp_Email.includes(currentGeneralSearchValue)">Third Party: <span style="display: inline !important" v-html="filterSearch(searchResultDetails.PAR_TPComp_Email)"></span></span>
+                                </div>
                             </div>
                         </div>
 
                         <div class="hover-content-parent" v-if="searchResultDetails.QueryType === 'Class'">
-                            Details for "{{searchResultDetails.Display}}"
+                            Details for "<span v-html="filterSearch(searchResultDetails.Display)"></span>"
                             <hr/>
                             <div class="hover-item">
                                 <strong>Class</strong>
@@ -112,7 +140,7 @@
                             <div class="newSearch-Child">
                                 <strong>{{generalSearchListItemGroup.GroupCat}}</strong>
                                 <div v-for="item in generalSearchListItemGroup.GroupVal">
-                                    <span @mouseover="handleOptionHover(item)" @click="setSearchValue(item)">{{item.Display}}</span>
+                                    <span @mouseover="handleOptionHover(item)" @click="setSearchValue(item)"><span style="display: inline !important;" v-html="filterSearch(item.Display)"></span></span>
                                 </div>
                             </div>
                         </div>
@@ -139,7 +167,7 @@
             <!--<span>Calendar</span>-->
             <!--</a>-->
             <!--</li>-->
-            <li class="info-menu__item">
+            <li class="info-menu__item" v-if="conType !== 'Parent'">
                 <!--<a class="a-icon" href="#" @click="showSchoolList()">-->
                 <!--<i class="fa fa-university" aria-hidden="true"></i>-->
                 <!--<span>School List</span>-->
@@ -183,7 +211,7 @@
                 <!--</vs-dropdown-menu>-->
                 <!--</vs-dropdown>-->
             </li>
-            <li class="info-menu__item">
+            <li class="info-menu__item" v-if="conTypePL">
                 <!--<vs-dropdown class="CSTEST">-->
                 <!--<a class="a-icon" href="#">-->
                 <!--<i class="fa fa-life-ring" aria-hidden="true"></i>-->
@@ -195,7 +223,7 @@
                 <!--</vs-dropdown-item>-->
                 <!--</vs-dropdown-menu>-->
                 <!--</vs-dropdown>-->
-                <el-dropdown trigger="click" v-if="conTypePL">
+                <el-dropdown trigger="click" >
                     <a class="el-dropdown-link">
                         <i class="fa fa-life-ring" aria-hidden="true"></i>
                         <span>Guided Tour</span>
@@ -290,8 +318,10 @@
                 isToken: Cookies.get('authToken'),
 
                 conTypePL: false,
+                conType: '',
                 isSearchResultHovered: false,
                 searchResultDetails: "",
+                currentGeneralSearchValue: '',
 
                 showNewSearchValue: false,
                 searchIsActive: false,
@@ -334,6 +364,7 @@
         async created() {
             await this.BindSchoolList();
             await this.guidedTourAccess();
+            await this.staffOrParentAccess();
         },
         methods: {
             setSearchActive() {
@@ -442,6 +473,9 @@
                     this.conTypePL = false
                 );
             },
+            staffOrParentAccess () {
+                this.conType = Cookies.get('userTypeSession');
+            },
             async generalSearch(valueInput) {
                 try {
                     const response = await DataSource.shared.getValueFromGeneralSearch(valueInput);
@@ -475,7 +509,14 @@
                                         ParentFatherFullName: m.ParentFatherFullName,
                                         ParentMotherFullName: m.ParentMotherFullName,
                                         PAR_Father_Phone: m.PAR_Father_Phone,
-                                        PAR_Mother_Phone: m.PAR_Mother_Phone
+                                        PAR_Mother_Phone: m.PAR_Mother_Phone,
+                                        PAR_Father_Email: m.PAR_Father_Email,
+                                        PAR_Mother_Email: m.PAR_Mother_Email,
+                                        PAR_Guardian_Email: m.PAR_Guardian_Email,
+                                        PAR_FComp_Email: m.PAR_FComp_Email,
+                                        PAR_MComp_Email: m.PAR_MComp_Email,
+                                        PAR_GComp_Email: m.PAR_GComp_Email,
+                                        PAR_TPComp_Email: m.PAR_TPComp_Email,
                                     };
 
                                     generalSearchListDtl_Stu.push(generalSearchListDtlTemp);
@@ -493,7 +534,14 @@
                                         ParentFatherFullName: m.ParentFatherFullName,
                                         ParentMotherFullName: m.ParentMotherFullName,
                                         PAR_Father_Phone: m.PAR_Father_Phone,
-                                        PAR_Mother_Phone: m.PAR_Mother_Phone
+                                        PAR_Mother_Phone: m.PAR_Mother_Phone,
+                                        PAR_Father_Email: m.PAR_Father_Email,
+                                        PAR_Mother_Email: m.PAR_Mother_Email,
+                                        PAR_Guardian_Email: m.PAR_Guardian_Email,
+                                        PAR_FComp_Email: m.PAR_FComp_Email,
+                                        PAR_MComp_Email: m.PAR_MComp_Email,
+                                        PAR_GComp_Email: m.PAR_GComp_Email,
+                                        PAR_TPComp_Email: m.PAR_TPComp_Email,
                                     };
 
                                     generalSearchListDtl_Par.push(generalSearchListDtlTemp);
@@ -511,7 +559,14 @@
                                         ParentFatherFullName: m.ParentFatherFullName,
                                         ParentMotherFullName: m.ParentMotherFullName,
                                         PAR_Father_Phone: m.PAR_Father_Phone,
-                                        PAR_Mother_Phone: m.PAR_Mother_Phone
+                                        PAR_Mother_Phone: m.PAR_Mother_Phone,
+                                        PAR_Father_Email: m.PAR_Father_Email,
+                                        PAR_Mother_Email: m.PAR_Mother_Email,
+                                        PAR_Guardian_Email: m.PAR_Guardian_Email,
+                                        PAR_FComp_Email: m.PAR_FComp_Email,
+                                        PAR_MComp_Email: m.PAR_MComp_Email,
+                                        PAR_GComp_Email: m.PAR_GComp_Email,
+                                        PAR_TPComp_Email: m.PAR_TPComp_Email,
                                     };
 
                                     generalSearchListDtl_Cls.push(generalSearchListDtlTemp);
@@ -558,6 +613,7 @@
             },
             generalSearchChange(query) {
                 if (query !== '') {
+                    this.currentGeneralSearchValue = query;
                     this.generalSearch(query);
                 } else {
                     this.generalSearchList = [];
@@ -610,7 +666,15 @@
                 this.showNewSearchValue = false;
                 this.isSearchResultHovered = false;
             },
-
+            filterSearch(value) {
+                let finalValue;
+                let toReplace = new RegExp(this.currentGeneralSearchValue, "gim");
+                finalValue = value.replace(toReplace, function (x){
+                    x = '<span style="display:inline !important; font-weight: bold; background-color: yellow; padding: 0px !important">' + x + '</span>';
+                    return x;
+                });
+                return (finalValue);
+            },
         }
         // mounted() {
         //     const isLogin = Cookies.get('authToken');

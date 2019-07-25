@@ -44,6 +44,7 @@
                         <el-option-group
                                 v-for="tempcourseList_item of courseList"
                                 :key="tempcourseList_item.id"
+                                :value="tempcourseList_item.PK_Course_ID"
                                 :label="tempcourseList_item.Str_SortBy">
                             <el-option
                                     v-for="tempobj_Class of tempcourseList_item.ArrObj_Items"
@@ -73,6 +74,11 @@
                     <button class="btn btn-success searchbtn" id="btnSearch" v-on:click="Search()">Search</button>
                 </div>
             </div>
+
+            <div class="datatable-form__submit text-center">
+                <button class="btn btn-success testbtn" id="btnTest" v-on:click="test()">testcheckitem</button>
+            </div>
+
             <div class="admin-wrap">
                 <div class="pb-5">
                     <div class="empty-list_image"
@@ -82,7 +88,10 @@
                     </div>
 
                     <div v-if="UnbilledBatchPaymentListInt.length>0" class="datatable_group">
-                        <data-tables :data="UnbilledBatchPaymentListInt">
+                        <data-tables :data="UnbilledBatchPaymentListInt" @selection-change="changeSelection"
+                                     :row-key="getRowKeys" width="55" stripe tooltip-effect='light' border>
+                            <el-table-column type="selection" width="55" :reserve-selection="true" prop="id">
+                            </el-table-column>
                             <el-table-column v-for="item in UnbilledBatchPaymentList"
                                              :prop="item.prop"
                                              :label="item.label"
@@ -104,14 +113,39 @@
 
         data(){
             return{
+                spdSelection:[],
                 arrobj_Classes:null,
                 obj_SelectedClass:null,
+
+                getRowKeys(rows){
+                    console.log(rows.PK_SPD_ID);
+                    return row.PK_SPD_ID;
+                },
+                selectedData:[],
 
                 academicYearListSelected:null,
                 academicYearList:[],
                 academicYearListResponse:'',
                 UnbilledBatchPaymentListInt:[],
-                UnbilledBatchPaymentList:[],
+                UnbilledBatchPaymentList:[{
+                    prop: "StudentName",
+                    label: "Student Name"
+                }, {
+                    prop: "Index_No",
+                    label: "Student Number"
+                }, {
+                    prop: "SPPD_PayerName",
+                    label: "Billing Items"
+                }, {
+                    prop: "SPPD_GstValue",
+                    label: "GST"
+                },{
+                    prop: "SPPD_PaymentAmount",
+                    label: "Total"
+                },{
+                    prop: "SPPD_TotalValue",
+                    label: "Total(IncludedGst)"
+                }],
                 schoolsListSelected:'',
 
                 courseListResponse:'',
@@ -137,6 +171,26 @@
         methods:{
             testDate(){
                 console.log('TESTDATE');
+            },
+
+            test(){
+                console.log(this.spdSelection);
+            },
+
+            async changeSelection(val) {
+                this.spdSelection = val;
+
+                //get rows key data
+                this.selectedData =[];
+                if(val){
+                    val.forEach(m=>{
+                        if(m){
+                            this.selectedData.push(m.PK_SPD_ID);
+                        }
+                    })
+                    //end get rows key data
+                    console.log(this.selectedData);
+                }
             },
 
             async BindSchool(){
@@ -170,7 +224,6 @@
 
             async BindAcademicYear(){
                 try{
-                    console.log(this.schoolsList,'this.schoolsList',this.schoolsListSelected);
                     this.academicYearList=[];
                     if(this.schoolsListSelected.length>0){
                         const response = await DataSource.shared.getAcademicYearBySchoolID(this.schoolsListSelected);
@@ -190,8 +243,6 @@
 
                 this.courseList = null;
 
-                console.log(this.academicYearListSelected);
-
                 await DataSource.shared.getClassByAcademicYear(this.academicYearListSelected).then((result) => {
                     if (result.code == 2 || result.code == 99) {
                         this.courseListSelected = null;
@@ -199,7 +250,7 @@
                     }
 
                     this.courseList = this.groupBy(result.Table, "CRS_Course_Name");
-                    console.log(this.courseList);
+
                 });
             },
 
@@ -207,37 +258,18 @@
                 try {
                     this.startupText = "No Data Found...";
 
-                    if (this.inputFromDate === '' || this.schoolsListSelected === '' || this.academicYearListSelected === ''
-                    ||this.courseListSelected === '') {
+                    if (!this.schoolsListSelected)
+                    {
                         this.$notify({
                             title: 'Require',
-                            message: 'Please select "From Date", "To Date", "School", "course" and "class"'
+                            message: '"School"'
                         });
-                    } else {
-                        let schoolsList = [];
-                        let schoolsListTemp = {
-                            schoolsList: this.schoolsListSelected
-                        };
-                        schoolsList.push(schoolsListTemp);
-
-                        let coursesList = [];
-                        let courseListTemp = {
-                            fromDate: this.inputFromDate[0],
-                            toDate: this.inputFromDate[1],
-                            schoolsListSelected: this.schoolsListSelected,
-                            schoolsList: schoolsList,
-                        };
-                        coursesList.push(courseListTemp);
-
-                        console.log(this.schoolsListSelected,
-                            this.courseListSelected.PK_Course_ID,this.courseListSelected.PK_Class_ID,
-                            this.inputFromDate[0],this.inputFromDate[1]);
-
-                        const response = await DataSource.shared.getUnbilledBatchPaymentList(this.schoolsListSelected,
-                            this.courseListSelected.PK_Course_ID,this.courseListSelected.PK_Class_ID,
-                            this.inputFromDate[0],this.inputFromDate[1]);
-
-                        this.schoolListInt = [];
+                    }
+                    else
+                        {
+                            const response = await DataSource.shared.getUnbilledBatchPaymentList(this.schoolsListSelected,
+                                '','',
+                                this.inputFromDate[0],this.inputFromDate[1]);
 
                         if (response) {
                             if (response.code === '88') {
@@ -252,11 +284,12 @@
                                     title: 'No Record',
                                     message: 'No Record Found'
                                 });
-                            } else {
+                            } else
+                                {
                                     this.UnbilledBatchPaymentListInt = response.Table;
 
-                                this.currentSchoolsName = this.$refs.schoolsListSelected.selected.label;
-                            }
+                                    this.currentSchoolsName = this.$refs.schoolsListSelected.selected.label;
+                                }
                         }
 
                     }

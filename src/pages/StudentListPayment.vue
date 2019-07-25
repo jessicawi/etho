@@ -16,7 +16,6 @@
             <div class="datatable-form__input form-group">
                 <vs-input label-placeholder="Parent Name" v-model="stud_parname" v-on:keyup.enter="Search"/>
             </div>
-
             <div class="datatable-form__input form-group">
                 <el-select placeholder="Select" v-model="statusSearch" class="ddlSearchStatus" @change="Search">
                     <el-option
@@ -28,7 +27,6 @@
                     </el-option>
                 </el-select>
             </div>
-
             <div class="datatable-form__submit text-center">
                 <button class="btn btn-success searchbtn" id="btnSearch" v-on:click="Search">Search</button>
             </div>

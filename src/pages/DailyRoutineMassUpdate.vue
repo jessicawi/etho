@@ -3,8 +3,17 @@
         <div class="container daily-header__wrap" style="background: transparent;">
             <div class="daily-header">
                 <div class="title">
-                    <h4>DAILY ROUTINE MASS UPDATE</h4>
-                    <div v-if="StudentHeader === null" class="mb-3">Please select a student ...</div>
+                    <div class="daily-title_item">
+                        <h4>DAILY ROUTINE <br/>UPDATE BY CLASS</h4>
+                        <div v-if="StudentHeader === null" class="mb-3">Please select a student ...</div>
+                    </div>
+                    <div class="daily-title_item">
+                        <router-link :to="{name: 'Daily Routine'}">
+                            <el-button type="primary" class="d-flex" round>
+                                Update By Student
+                            </el-button>
+                        </router-link>
+                    </div>
                 </div>
                 <div class="routine-select">
                     <el-select v-model="ClassSelected" filterable placeholder="Select Class" id="ddl_Students"
@@ -34,13 +43,43 @@
                     <span v-if="!isNull(student.Last_Name)">{{" " + student.Last_Name}}</span>
                     <span v-if="!isNull(student.Index_No)" class="d-block">{{" " + student.Index_No}}</span>
                     <div class="dr-view_activity">
-                            <el-button type="primary" id="btn-view_activity"
-                                       @click="Load(student.Student_ID)" slot="reference">
-                                VIEW ACTIVITY
-                            </el-button>
+                        <el-button type="primary" id="btn-view_activity"
+                                   @click="Load(student.Student_ID)" slot="reference">
+                            VIEW ACTIVITY
+                        </el-button>
                     </div>
                 </label>
-
+            </div>
+            <div v-if="selectedClassStudent&&selectedClassStudent.length>0" class="responsive-table">
+                <table class="attTable">
+                    <tr>
+                        <th>
+                            <vs-checkbox ref="isCheckAll" v-model="selectallStudent"
+                                         @change="(e)=>checkAllStudent(e)">
+                            </vs-checkbox>
+                        </th>
+                        <th>Student Name</th>
+                        <th>Rest</th>
+                        <th>Feed</th>
+                        <th>Poop</th>
+                        <th>Hygiene</th>
+                    </tr>
+                    <tr v-for="(item,i) in selectedClassStudent" ref="studentList_Update"
+                        :key="item.Student_ID">
+                        <td style="display:none;"><input type="text" class="form-control" :value="item.Index_No"
+                                                         ref="studentIndexNo"></td>
+                        <td>
+                            <vs-checkbox ref="chkitems" v-model="item.checked"
+                                         @change="showBundleAttendance(item)" :value="item.checked"></vs-checkbox>
+                        </td>
+                        <td style="display:none;">{{item.checked}}</td>
+                        <td><label class="lblStudentName">{{item.First_Name}}</label></td>
+                        <td class=""><label class="">{{item.rest}}</label></td>
+                        <td><label class="">{{item.feed}}</label></td>
+                        <td><label class="" v-if="item.poop!==null">{{item.poop}}</label></td>
+                        <td><label class="">{{item.hygiene}}</label></td>
+                    </tr>
+                </table>
             </div>
             <el-button type="primary" id="btn_PromoteSelected" style="z-index: 2;"
                        v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0"
@@ -164,74 +203,74 @@
             <img src="../assets/daily-baby.png"/>
         </div>
         <el-collapse-transition>
-        <div class="container mt-4" v-if="showViewActiivity === true">
-            <div class="daily-empty" v-if="noActivity === true && showViewActiivity === true">
-                <img src="../assets/empty-list.jpg"/>
-                <el-button type="primary" id="" @click="backToList" class="d-flex">
-                    BACK
-                </el-button>
-            </div>
-            <div>
-                <div class="daily-timeline" v-if="noActivity === false && showViewActiivity === true">
-                    <div class="daily-checkall">
-                        <h4>Today's Activity</h4>
-                        <vs-checkbox v-model="selectall" ref="isCheckAll" @click="checkAll()">Select All</vs-checkbox>
-                        <div class="daily-timeline__btn">
-                            <el-button type="primary" round @click="backToList" class="d-flex" v-if="showViewActiivity === true">
-                                <i class="material-icons">
-                                    keyboard_arrow_left
-                                </i>
-                                Back to Student List
-                            </el-button>
-                        </div>
-                    </div>
-                    <div class="daily-timeline__item" v-for="(item,i) in DailyRoutineList" v-bind:value="item.drID"
-                         :key="item.ID" ref="dailyRoutineList_Update" :class="item.MainReferenceType">
-                        <div class="daily-item_image">
-                            <img :src="getIcon(item.DrReferenceType)"/>
-                        </div>
-                        <div class="daily-item_desc">
-                            <div class="row daily-desc_wrap">
-                                <div class="col-md-9">
-                                    <label class="DrReferenceType">{{item.DrReferenceType}}</label>
-                                    <el-input
-                                            type="textarea"
-                                            autosize
-                                            placeholder="Remark"
-                                            v-model="item.DrRemark"
-                                            ref="refDrRemark">
-                                    </el-input>
-                                </div>
-                                <div class="col-md-3 date">
-                                    <label class="text-center daily-date-strong"><strong>{{item.DrCreatedOn_convert}}</strong></label>
-                                    <label class="text-center" v-if="item.MainReferenceType !== 'Poop'">
-                                        <strong v-if="item.MainReferenceType === 'Rest'">From:</strong>
-                                        <strong v-else>On:</strong>
-                                        {{item.DrStartTime_convert}}
-                                    </label>
-                                    <label class="text-center"
-                                           v-if="item.MainReferenceType === 'Rest'"><strong>To:</strong>
-                                        {{item.DrEndTime_convert}}</label>
-                                </div>
+            <div class="container mt-4" v-if="showViewActiivity === true">
+                <div class="daily-empty" v-if="noActivity === true && showViewActiivity === true">
+                    <img src="../assets/empty-list.jpg"/>
+                    <el-button type="primary" id="" @click="backToList" class="d-flex">
+                        BACK
+                    </el-button>
+                </div>
+                <div>
+                    <div class="daily-timeline" v-if="noActivity === false && showViewActiivity === true">
+                        <div class="daily-checkall">
+                            <h4>Today's Activity</h4>
+                            <vs-checkbox v-model="selectall" ref="isCheckAll" @click="checkAll()">Select All
+                            </vs-checkbox>
+                            <div class="daily-timeline__btn">
+                                <el-button type="primary" round @click="backToList" class="d-flex"
+                                           v-if="showViewActiivity === true">
+                                    <i class="material-icons">
+                                        keyboard_arrow_left
+                                    </i>
+                                    Back to Student List
+                                </el-button>
                             </div>
                         </div>
-                        <div class="daily-item_chkitem">
-                            <vs-checkbox ref="chkitems" v-model="item.checked"></vs-checkbox>
+                        <div class="daily-timeline__item" v-for="(item,i) in DailyRoutineList" v-bind:value="item.drID"
+                             :key="item.ID" ref="dailyRoutineList_Update" :class="item.MainReferenceType">
+                            <div class="daily-item_image">
+                                <img :src="getIcon(item.DrReferenceType)"/>
+                            </div>
+                            <div class="daily-item_desc">
+                                <div class="row daily-desc_wrap">
+                                    <div class="col-md-9">
+                                        <label class="DrReferenceType">{{item.DrReferenceType}}</label>
+                                        <el-input
+                                                type="textarea"
+                                                autosize
+                                                placeholder="Remark"
+                                                v-model="item.DrRemark"
+                                                ref="refDrRemark">
+                                        </el-input>
+                                    </div>
+                                    <div class="col-md-3 date">
+                                        <label class="text-center daily-date-strong"><strong>{{item.DrCreatedOn_convert}}</strong></label>
+                                        <label class="text-center" v-if="item.MainReferenceType !== 'Poop'">
+                                            <strong v-if="item.MainReferenceType === 'Rest'">From:</strong>
+                                            <strong v-else>On:</strong>
+                                            {{item.DrStartTime_convert}}
+                                        </label>
+                                        <label class="text-center"
+                                               v-if="item.MainReferenceType === 'Rest'"><strong>To:</strong>
+                                            {{item.DrEndTime_convert}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="daily-item_chkitem">
+                                <vs-checkbox ref="chkitems" v-model="item.checked"></vs-checkbox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3 dr-button-group" v-if="noActivity === false">
+                        <div class="col-md-6">
+                            <el-button type="danger" @click="btnDelete" class="float-left">Delete</el-button>
+                        </div>
+                        <div class="col-md-6">
+                            <el-button type="primary" @click="btnUpdate" class="float-right">Update</el-button>
                         </div>
                     </div>
                 </div>
-
-                <div class="row mt-3 dr-button-group" v-if="noActivity === false">
-                    <div class="col-md-6">
-                        <el-button type="danger" @click="btnDelete" class="float-left">Delete</el-button>
-                    </div>
-                    <div class="col-md-6">
-                        <el-button type="primary" @click="btnUpdate" class="float-right">Update</el-button>
-                    </div>
-                </div>
-
             </div>
-        </div>
         </el-collapse-transition>
     </div>
 </template>
@@ -316,9 +355,9 @@
                         $(this).click();
                 });
             },
-            backToList(){
-              this.showViewActiivity = false;
-              this.noActivity = false;
+            backToList() {
+                this.showViewActiivity = false;
+                this.noActivity = false;
             },
             showActivity() {
                 this.activityModal = true;
@@ -470,11 +509,68 @@
                         // obj.arrobj_Student = studentResponse.Table;
                         // await tempStudent.push(obj);
                         this.selectedClassStudent = studentResponse.Table;
+                        for (let obj in this.selectedClassStudent) {
+                            const response = await DataSource.shared.getDailyRoutineByStudentID(obj.Student_ID);
+                            if (response) {
+                                this.DailyRoutineList = (response.Table) ? response.Table : [];
+                                if(response.Table){
+                                    let feed = "-";
+                                    let rest = "-";
+                                    let poop = "-";
+                                    let hygiene = "-";
+                                    console.log(this.selectedClassStudent,"11")
+                                    let tempFeed = this.DailyRoutineList.filter(d => {
+                                        return d.MainReferenceType === "Feed";
+                                    });
+                                    let tempPoop = this.DailyRoutineList.filter(d => {
+                                        return d.MainReferenceType === "Poop";
+                                    });
+                                    let tempHygiene = this.DailyRoutineList.filter(d => {
+                                        return d.MainReferenceType === "Hygiene";
+                                    });
+                                    let tempRest = this.DailyRoutineList.filter(d => {
+                                        return d.MainReferenceType === "Rest";
+                                    });
+                                    console.log("22")
+                                    tempFeed.forEach(m => {
+                                        feed = m.DrReferenceType;
+                                    });
+                                    tempPoop.forEach(m => {
+                                        poop = m.DrReferenceType;
+                                    });
+                                    tempHygiene.forEach(m => {
+                                        hygiene = m.DrReferenceType;
+                                    });
+                                    tempRest.forEach(m => {
+                                        rest = m.DrReferenceType;
+                                    });
+                                    console.log("33")
+                                    obj = obj.map(m => {
+                                        m.feed = feed;
+                                        m.rest = rest;
+                                        m.hygiene = hygiene;
+                                        m.poop = poop;
+                                        return m;
+                                    });
+                                    console.log(this.selectedClassStudent);
+                                }else{
+                                    obj = obj.map(m => {
+                                        m.feed = "-";
+                                        m.rest = "-";
+                                        m.hygiene = "-";
+                                        m.poop = "-";
+                                        return m;
+                                    });
+                                }
+
+                            }
+                        }
                     }
                 } catch (e) {
                     console.log(e);
                 }
             },
+
             Load(Student_ID) {
                 console.log(Student_ID, "Student_ID");
                 try {

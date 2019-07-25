@@ -80,7 +80,8 @@
                             </th>
                             <th>Remarks</th>
                             <th>Parents Contact</th>
-                            <th>Bus No</th>
+                            <th>Pickup Mode</th>
+                            <th>ECA</th>
                         </tr>
                         <tr v-for="(item,i) in studentList" ref="studentList_Update"
                             :key="item.Student_ID + item.markingStatus">
@@ -92,7 +93,7 @@
                             </td>
                             <td style="display:none;">{{item.checked}}</td>
                             <!--<td><label>{{item.AttDtlStudentIndexNo}}</label></td>-->
-                            <td><label>{{item.Student_Name}}</label></td>
+                            <td><label class="lblStudentName">{{item.Student_Name}}</label></td>
                             <!--<td><input type="checkbox" :id="item.AttDtlID" :value="item.AttDtlID" :checked="item.AttDtlMark.includes('Yes')" ref="studentCheckList"></td>-->
                             <!--<td>-->
                             <!--<div class="form-group__wrapper row">-->
@@ -152,8 +153,9 @@
                                 <!--</el-option>-->
                                 <!--</el-select>-->
                             </td>
-                            <td v-if="item.Bus_No"><label>{{item.Bus_No}}</label></td>
-                            <td v-if="!item.Bus_No"><label>-</label></td>
+                            <td v-if="item.Bus_No"><label class="lblBusNo">{{item.Bus_No}}</label></td>
+                            <td v-if="!item.Bus_No"><label class="lblBusNo">-</label></td>
+                            <td><label class="lblEcaName">{{item.ecaName}}</label></td>
                         </tr>
                     </table>
                 </div>
@@ -568,5 +570,9 @@
 
     .tempImportButtonArea {
         margin: 10px 0 0 0;
+    }
+
+    .lblBusNo, .lblStudentName, .lblEcaName {
+        font-weight: normal !important;
     }
 </style>

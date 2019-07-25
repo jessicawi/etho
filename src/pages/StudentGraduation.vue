@@ -147,12 +147,12 @@
             <div>
                 <div class="row form-group__wrapper">
                     <div class="col-lg-12">
-                        <label>Graduation Date</label>
-                        <el-date-picker v-model="inputGraduationDate" format="dd/MM/yyyy"
-                                        value-format="dd/MM/yyyy" type="date"
-                                        placeholder="Pick a day" :picker-options="datePicker"></el-date-picker>
+                        <label>Are You Sure? Confirmed?</label>
+                        <!--<el-date-picker v-model="inputGraduationDate" format="dd/MM/yyyy"-->
+                                        <!--value-format="dd/MM/yyyy" type="date"-->
+                                        <!--placeholder="Pick a day" :picker-options="datePicker"></el-date-picker>-->
                         <button v-on:click="GraduationSave()"
-                                class="btn btn-primary waves-effect waves-light mt-3 btnFamilyIDSearch">Graduation
+                                class="btn btn-primary waves-effect waves-light mt-3 btnFamilyIDSearch">Yes
                         </button>
                     </div>
                 </div>
@@ -362,52 +362,82 @@
             async GraduationSave(){
                 try
                 {
-                    var graduationObj = {
+                    // var graduationObj = {
+                    //
+                    //     studentID: this.arrobj_SelectedStudents,
+                    //     GRD_Date:this.inputGraduationDate,
+                    //     GRD_Graduation_Date:this.inputGraduationDate,
+                    //
+                    // };
+                    //
+                    // if(this.inputGraduationDate === ''||this.inputGraduationDate === null||this.inputGraduationDate===undefined)
+                    // {
+                    //     this.$notify.error({
+                    //         title: 'Error',
+                    //         message: 'Please select datetime'
+                    //     });
+                    //     // alert('Please select datetime');
+                    // }
+                    // else{
+                    //     const response = await DataSource.shared.saveStudentGraduation(JSON.stringify(graduationObj));
+                    //
+                    //     if(response.code==='88'){
+                    //         this.$notify.error({
+                    //             title: 'Error',
+                    //             message: 'Graduation record founded! new graduation record insert, old record status set to Void'
+                    //         });
+                    //         this.unselectAll();
+                    //         // window.location.replace('/studentgraduation');
+                    //         console.log('88');
+                    //     }
+                    //     else if(response.code==="99"){
+                    //         console.log('99');
+                    //         this.$notify.error({
+                    //             title: 'Error',
+                    //             message: 'Please try again'
+                    //         });
+                    //     }
+                    //     else if(response.code==='1'){
+                    //         this.$notify({
+                    //             title: 'Success',
+                    //             message: 'Graduation updated!',
+                    //             type: 'success'
+                    //         });
+                    //         this.obj_SelectedClass = this.tempCurrentClass;
+                    //         this.loadStudents();
+                    //         this.hideGraduationModal();
+                    //         // window.location.replace('/studentgraduation');
+                    //     }
+                    // }
 
-                        studentID: this.arrobj_SelectedStudents,
-                        GRD_Date:this.inputGraduationDate,
-                        GRD_Graduation_Date:this.inputGraduationDate,
+                    const response = await DataSource.shared.saveStudentGraduation(JSON.stringify(this.arrobj_SelectedStudents));
 
-                    };
-
-                    if(this.inputGraduationDate === ''||this.inputGraduationDate === null||this.inputGraduationDate===undefined)
-                    {
+                    if(response.code==='88'){
                         this.$notify.error({
                             title: 'Error',
-                            message: 'Please select datetime'
+                            message: 'Graduation record founded! new graduation record insert, old record status set to Void'
                         });
-                        // alert('Please select datetime');
+                        this.unselectAll();
+                        // window.location.replace('/studentgraduation');
+                        console.log('88');
                     }
-                    else{
-                        const response = await DataSource.shared.saveStudentGraduation(JSON.stringify(graduationObj));
-
-                        if(response.code==='88'){
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'Graduation record founded! new graduation record insert, old record status set to Void'
-                            });
-                            this.unselectAll();
-                            // window.location.replace('/studentgraduation');
-                            console.log('88');
-                        }
-                        else if(response.code==="99"){
-                            console.log('99');
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'Please try again'
-                            });
-                        }
-                        else if(response.code==='1'){
-                            this.$notify({
-                                title: 'Success',
-                                message: 'Graduation updated!',
-                                type: 'success'
-                            });
-                            this.obj_SelectedClass = this.tempCurrentClass;
-                            this.loadStudents();
-                            this.hideGraduationModal();
-                            // window.location.replace('/studentgraduation');
-                        }
+                    else if(response.code==="99"){
+                        console.log('99');
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Please try again'
+                        });
+                    }
+                    else if(response.code==='1'){
+                        this.$notify({
+                            title: 'Success',
+                            message: 'Graduation updated!',
+                            type: 'success'
+                        });
+                        this.obj_SelectedClass = this.tempCurrentClass;
+                        this.loadStudents();
+                        this.hideGraduationModal();
+                        // window.location.replace('/studentgraduation');
                     }
                 }
                 catch (e) {

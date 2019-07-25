@@ -8,9 +8,9 @@
                         <div v-if="StudentHeader === null" class="mb-3">Please select a student ...</div>
                     </div>
                     <div class="daily-title_item">
-                        <router-link :to="{name: 'Daily Routine Mass Update'}">
+                        <router-link :to="{name: 'Daily Routine Update By Class'}">
                             <el-button type="primary" class="d-flex" round>
-                                Mass Update
+                                Update By Class
                             </el-button>
                         </router-link>
                     </div>

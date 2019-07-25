@@ -39,7 +39,7 @@
                                                  :disabled="item.markingStatusDisable === 'Yes'"></vs-checkbox>
                                 </td>
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
-                                    <label>{{ item.StudentFirstName }} {{ item.StudentLastName }} {{ item.StudentMiddleName }}</label>
+                                    <label class="lblStudentName">{{ item.StudentFirstName }} {{ item.StudentLastName }} {{ item.StudentMiddleName }}</label>
                                     <input type="text" class="form-control" ref="studentIndexNo" v-model="item.EcaDtlStudentIndexNo"
                                            style="display: none;">
                                 </td>
@@ -226,5 +226,9 @@
     .attendanceListDisableTickRow {
         background-color: #edf0f4;
         color: #c0c4cc;
+    }
+
+    .lblStudentName {
+        font-weight: normal !important;
     }
 </style>

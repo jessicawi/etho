@@ -336,10 +336,10 @@
                     label: "Class"
                 }, {
                     prop: "TotalAttanded",
-                    label: "Attended"
+                    label: "Present"
                 }, {
                     prop: "TotalUnAttanded",
-                    label: "Not Attend"
+                    label: "Not Present"
                 }, {
                     prop: "TotalNumberOfStudent",
                     label: "Total Students"

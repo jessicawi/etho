@@ -65,7 +65,7 @@
             <!--</div>-->
             <!--</vs-sidebar>-->
         </div>
-        <div class="mobilemenu-box-wrap" v-if="isMobile() && primaryMenuFiltered && primaryMenuFiltered.length>0">
+        <div class="mobilemenu-box-wrap" v-if="screen === true && primaryMenuFiltered && primaryMenuFiltered.length>0">
             <el-menu default-active="2" class="el-menu-vertical-demo ">
                 <el-submenu>
                     <template slot="title">
@@ -129,13 +129,21 @@
                 showMobileMenu: false,
                 mouseover: false,
                 scrollPosition: null,
+                isMobile: false,
+                screen:"",
             };
+        },
+        created() {
+            window.addEventListener('resize', this.checkMobile);
+            // this.handleResize();
         },
         destroy() {
             window.removeEventListener('scroll', this.updateScroll);
+            window.removeEventListener('resize', this.checkMobile);
         },
         async mounted() {
             window.addEventListener('scroll', this.updateScroll);
+            this.checkMobile();
             const response = await DataSource.shared.getUserMenu();
             if (response) {
                 this.primaryMenu = response.PrimaryTable && response.PrimaryTable.Table;
@@ -220,11 +228,12 @@
                     this.currentParentMenuId = menuId;
                 }
             },
-            isMobile() {
-                if (screen.width <= 769) {
-                    return true;
-                } else {
-                    return false;
+            checkMobile() {
+                let screenWidth = window.innerWidth;
+                if (screenWidth <= 769) {
+                    this.screen = true;
+                }else{
+                    this.screen = false;
                 }
             }
         }

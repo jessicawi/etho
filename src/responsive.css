@@ -88,6 +88,30 @@ mobile
         display: table;
         width: auto;
     }
+
+    /*payment*/
+    .payment-student-object {
+        width: calc(50% - 20px);
+        display: inline-block;
+        margin: 10px;
+    }
+
+    .payment-student-info {
+        display: block;
+    }
+
+    .paymentList-button-group {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .paymentList-button-group button {
+        margin: 0px;
+    }
+
+    .payment-icon {
+        margin: 3px 0px;
+    }
 }
 
 @media (max-width: 769px) {

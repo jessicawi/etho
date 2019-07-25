@@ -1,5 +1,5 @@
 <template>
-    <div class="aaaa">
+    <div class="">
         <div class="container-fluid row" v-if="result">
             {{result}}
         </div>
@@ -8,7 +8,7 @@
                 <strong>{{post.CONname}}</strong><br/>
                 <span>{{post.PostContent}}</span>
                 <div class="bottom clearfix">
-                    <small type="text" class="button">{{post.PostCreatedDate}}</small>
+                    <small type="text" class="button">{{post.PostCreatedDate_convert}}</small>
                 </div>
             </div>
             <!--<el-row>-->

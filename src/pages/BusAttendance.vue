@@ -31,6 +31,7 @@
                                 <th>Student Name</th>
                                 <th>Remarks</th>
                                 <th>Parents Mobile</th>
+                                <th>ECA</th>
                             </tr>
                             <tr v-for="(item,i) in attendanceList" ref="attendanceList_Update">
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
@@ -39,7 +40,7 @@
                                                  :disabled="item.markingStatusDisable === 'Yes'"></vs-checkbox>
                                 </td>
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
-                                    <label>{{ item.Full_Name }} {{ item.Middle_name }} {{ item.Last_name }}</label>
+                                    <label class="lblStudentName">{{ item.Full_Name }} {{ item.Middle_name }} {{ item.Last_name }}</label>
                                     <input type="text" class="form-control" ref="studentIndexNo" v-model="item.Index_No"
                                            style="display: none;">
                                 </td>
@@ -76,6 +77,9 @@
                                     <!--</option>-->
                                     <!--<option v-if="item.motherMobile === ''">Mother - Nil</option>-->
                                     <!--</select>-->
+                                </td>
+                                <td>
+                                    <label class="lblEcaName">{{ item.ecaName }}</label>
                                 </td>
                             </tr>
                         </table>
@@ -279,5 +283,9 @@
     .attendanceListDisableTickRow {
         background-color: #edf0f4;
         color: #c0c4cc;
+    }
+
+    .lblStudentName, .lblEcaName {
+        font-weight: normal !important;
     }
 </style>

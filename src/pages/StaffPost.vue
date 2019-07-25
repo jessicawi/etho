@@ -2,8 +2,20 @@
     <div id="staff-post" class="">
         <div class="profile-student" v-if="isParent === 'Parent' ">
             <div class="profile-student__wrapper">
+
+                <div class="profile-student-cover">
+                    <img src="../assets/parent-feed-bg.jpg"/>
+                </div>
                 <div class="container">
-                    <img src="../assets/boy.png">
+                    <!--<img src="../assets/boy.png">-->
+                    <div class="myaccount-image_wrap">
+                        <img v-bind:src="imgParentProfile" type="file"
+                             class="imgStaffProfile"/>
+
+                        <button v-on:click="showProfileModal" type="button"
+                                class=" text-center"><span>Edit Profile Photo</span>
+                        </button>
+                    </div>
                     <div class="profile-student-desc">
                         <span class="fatherName">
                             <strong>{{parentInfo.FatherFirstName}} {{parentInfo.FatherMiddleName}} {{parentInfo.FatherLastName}}</strong>
@@ -23,7 +35,7 @@
                 </div>
             </div>
         </div>
-        <div class="parent-feed-menu">
+        <div class="parent-feed-menu" v-if="isParent === 'Parent' ">
             <div class="container">
                 <el-menu class="el-menu-demo" mode="horizontal">
                     <el-menu-item index="1">Attendance Report</el-menu-item>
@@ -49,19 +61,21 @@
                             </div>
                             <div class="desc flex">
                                 <!--<ul>-->
-                                    <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> N2-->
-                                        <!--Inquirers-->
-                                        <!--Class-->
-                                    <!--</li>-->
-                                    <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> K2-->
-                                        <!--Explorers-->
-                                        <!--Class-->
-                                    <!--</li>-->
-                                    <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> PSA Group-->
-                                    <!--</li>-->
+                                <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> N2-->
+                                <!--Inquirers-->
+                                <!--Class-->
+                                <!--</li>-->
+                                <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> K2-->
+                                <!--Explorers-->
+                                <!--Class-->
+                                <!--</li>-->
+                                <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> PSA Group-->
+                                <!--</li>-->
                                 <!--</ul>-->
                                 <el-collapse v-model="studentsAccordion" accordion>
-                                    <el-collapse-item :title="student.StudentFirstName + ' ' + student.StudentMiddleName + ' ' + student.StudentLastName" :name="student.StudentFirstName" v-for="student in studentsInfo">
+                                    <el-collapse-item
+                                            :title="student.StudentFirstName + ' ' + student.StudentMiddleName + ' ' + student.StudentLastName"
+                                            :name="student.StudentFirstName" v-for="student in studentsInfo">
                                         <ul>
                                             <li>Level: {{student.StudentLevel}}</li>
                                             <li>Class: {{student.StudentClass}}</li>
@@ -109,14 +123,16 @@
                                     <div class="notification-item__footer">
                                         <div class="notification__footer-item">
                                             {{obj_BroadcastPost.CONname}}<br/>
-                                            {{obj_BroadcastPost.PostCreatedBy}}
+                                            {{obj_BroadcastPost.PostCreatedDate_convert}}
                                         </div>
                                     </div>
-                                    <!--<div class="notification-item__footer">-->
-                                    <!--<div class="notification__footer-item">-->
-                                    <!--<button class="btn text-center">Mark as read</button>-->
-                                    <!--</div>-->
-                                    <!--</div>-->
+                                    <div class="notification-item__footer">
+                                        <div class="notification__footer-item">
+                                            <button class="btn text-center"
+                                                    @click="showBroadcastReadMore(obj_BroadcastPost)">Read More
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -187,20 +203,20 @@
                     <div class="feed-header">
                         <h5 class="text-left" v-if="isParent !=='Parent'">Activity</h5>
                         <h5 class="text-left" v-else>Updates</h5>
-                        <div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
-                            <b-btn v-b-modal.modal1 @click="showBroadcast"><i class="fa fa-bullhorn"
-                                                                              aria-hidden="true"></i>
-                                <span>Broadcast</span></b-btn>
-                        </div>
-                        <div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
-                            <b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"
-                                                                            aria-hidden="true"></i> <span>Updates</span>
-                            </b-btn>
-                        </div>
-                        <div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
-                            <b-btn v-b-modal.modal1 @click="showPortfolio"><i class="fa fa-book" aria-hidden="true"></i>
-                                <span>Portfolio</span></b-btn>
-                        </div>
+                        <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
+                            <!--<b-btn v-b-modal.modal1 @click="showBroadcast"><i class="fa fa-bullhorn"-->
+                                                                              <!--aria-hidden="true"></i>-->
+                                <!--<span>Broadcast</span></b-btn>-->
+                        <!--</div>-->
+                        <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
+                            <!--<b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"-->
+                                                                            <!--aria-hidden="true"></i> <span>Updates</span>-->
+                            <!--</b-btn>-->
+                        <!--</div>-->
+                        <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
+                            <!--<b-btn v-b-modal.modal1 @click="showPortfolio"><i class="fa fa-book" aria-hidden="true"></i>-->
+                                <!--<span>Portfolio</span></b-btn>-->
+                        <!--</div>-->
                     </div>
                     <div class="success">{{success}}</div>
                     <div v-if="isLoading">Loading...</div>
@@ -226,8 +242,15 @@
             Once you delete a post, you can't undo it.
         </b-modal>
         <b-modal id="modal_ShowMoreBroadcast" ref="modal_ShowMoreBroadcast" size="lg" hide-footer title="Broadcast">
-            <button class="btn btn-primary" @click="showBroadcast"><i class="el-icon-bell"></i> Create Broadcast
+            <button class="btn btn-primary" @click="showBroadcast" v-if="isParent !== 'Parent'"><i
+                    class="el-icon-bell"></i> Create Broadcast
             </button>
+            <el-alert
+                    title="No Broadcast at the moment..."
+                    type="info"
+                    v-if="arrobj_BroadcastPost && arrobj_BroadcastPost.length<1"
+                    :closable="false">
+            </el-alert>
             <div class="broadcast-list-wrap">
                 <div class="broadcast-item" v-for="object of arrobj_BroadcastPost.slice(0, 9)" :key="object.id">
                     <BroadcastList :parent-post="object" :hideComment="true" :hideSubmenu="true"/>
@@ -250,6 +273,33 @@
                     @loadPosts="loadPosts"
             ></component>
         </b-modal>
+        <b-modal id="modal_uploadProfile" title="Update Profile Picture" ref="modal_uploadProfile" centered
+                 hide-footer hide-header>
+            <H5 class="mt-2 mb-4">PROFILE PHOTO</H5>
+            <div class="myaccount-image_wrap">
+                <div class="myaccount-image_overlay" @click="uploadParentProfileImg()"><i class="material-icons">
+                    add_circle_outline
+                </i> BROWSE
+                </div>
+                <img v-bind:src="imgParentProfile" type="file"
+                     class="imgStaffProfile"/>
+            </div>
+            <el-button type="primary" v-on:click="SaveParentProfile" round class="mt-4 mb-2">
+                <span>Save Profile Photo</span></el-button>
+            <input type="file" ref="file" accept="image/*" style="display:none" @change="previewImgParentProfile">
+        </b-modal>
+        <b-modal id="modal_broadcastReadMore" ref="modal_broadcastReadMore" centered hide-footer hide-header>
+            <div v-loading="loading">
+
+                <PostComponent
+                        :parent-post="tempBroadcastModalPostID"
+                        @loadPosts="loadPosts"
+                        ref="pComponent"
+                        :hideComment="true"
+                        @loadingclose="loadingclose"
+                />
+            </div>
+        </b-modal>
         <button @click="loadPosts" v-if="bool_ShowRefresh" class="btn btn-secondary"
                 style="position: fixed; right: 20px; bottom: 20px"><i class="fa fa-refresh" aria-hidden="true"></i>
         </button>
@@ -268,6 +318,7 @@
     import portfolio from "../components/Post_Portfolio_Component";
     import updates from "../components/Post_Updates_Component.vue";
     import broadcast from "../components/Post_Broadcast_Component.vue";
+    import ProfileImg from "../assets/boy.png";
 
     import Cookies from "js-cookie";
 
@@ -336,7 +387,11 @@
 
                 parentInfo: [],
                 studentsInfo: [],
-                studentsAccordion:""
+                studentsAccordion: "",
+
+                imgParentProfile: "",
+                tempBroadcastModalPostID: [],
+                loading: true,
             };
         },
         filters: {
@@ -357,6 +412,7 @@
         created() {
             if (Cookies.get('userTypeSession') === 'Parent') {
                 this.LoadParentInfo();
+                this.LoadProfileImg();
             }
         },
         mounted() {
@@ -371,7 +427,7 @@
                     if (self.getScrollPercent() >= 50) {
                         this.isParent = Cookies.get('userTypeSession');
                         let obj_LastPost = !this.isNull(this.list) ? this.list[this.list.length - 1] : "";
-                        let promise_GetPosts = this.isParent === "Parent" ? DataSource.shared.getParentPost(this.int_NumberOfPost, obj_LastPost.PostID) : DataSource.shared.getStaffPost(this.int_NumberOfPost, obj_LastPost.PostID);
+                        let promise_GetPosts = this.isParent === "Parent" ? DataSource.shared.getParentPostFeedPage(this.int_NumberOfPost, obj_LastPost.PostID, '', 'Portfolio') : DataSource.shared.getStaffPostFeedPage(this.int_NumberOfPost, obj_LastPost.PostID, '', 'Portfolio');
 
 
                         promise_GetPosts.then((response) => {
@@ -431,11 +487,103 @@
             /*#endregion*/
         },
         methods: {
+            loadingclose() {
+                this.loading = false;
+            },
             initIntervalCheckNew() {
                 /* if (!this.bool_ShowRefresh)
                      this.intervalCheckNew = setInterval(() => {
                          this.CheckNew();
                      }, 300000);*/
+            },
+            showProfileModal() {
+                this.$refs.modal_uploadProfile.show();
+            },
+            async LoadProfileImg() {
+                try {
+                    const staffProPic = await DataSource.shared.getStaffProfileImage();
+                    console.log("11");
+                    if (staffProPic) {
+                        console.log("22");
+                        if (staffProPic.code === '2') {
+                            console.log("3");
+                            this.imgParentProfile = ProfileImg;
+                        } else if (staffProPic.code !== '2' && staffProPic.code !== '88' && staffProPic.code !== '99') {
+                            console.log("44");
+                            let image64String = this.ConvertBase64StringToImage(staffProPic.Table[0]);
+                            image64String !== '' ? this.imgParentProfile = image64String : '';
+                            console.log(this.imgParentProfile, "imgParentProfile");
+                        }
+
+                    }
+                } catch (e) {
+                    this.result = e;
+                }
+            },
+            async uploadParentProfileImg() {
+                try {
+                    this.$refs.file.click();
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            previewImgParentProfile: function (event) {
+                try {
+                    var input = event.target;
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.imgParentProfile = e.target.result;
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                        this.selectedFile = event.target.files;
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async SaveParentProfile() {
+                const response = await DataSource.shared.saveStaffProfileImage(this.selectedFile);
+                if (response) {
+                    if (response.code === '88') {
+                        window.location.replace('/');
+                    } else if (response.code === "1") {
+                        this.$notify({
+                            title: 'Success',
+                            message: 'Records Successfully Saved',
+                            type: 'success'
+                        });
+                        this.$refs.modal_uploadProfile.hide();
+                    } else {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Save Parent Error - Please try again later'
+                        });
+                    }
+                }
+            },
+            ConvertBase64StringToImage(file) {
+                if (this.isImage(file))
+                    return "data:" + file.UPPImageFileType + ";base64," + file.UPPImage;
+                else
+                    return '';
+            },
+            isImage(obj_File) {
+                let ext = String(obj_File.UPPImageFileExt).toUpperCase();
+                let isImage = false;
+
+                switch (ext) {
+                    case ".PNG":
+                    case ".JPG":
+                    case ".BMP":
+                    case ".GIF":
+                        isImage = true;
+                        break;
+                    default:
+                        isImage = false;
+                        break;
+                }
+                return isImage;
             },
             showDeleteModal(deleteCmId, deleteCmContent, deleteCmPostId, post) {
                 this.$refs.modal_DeletePost.show();
@@ -449,8 +597,8 @@
                 this.isParent = Cookies.get('userTypeSession');
 
                 let promise_GetPosts = this.isParent === "Parent" ?
-                    DataSource.shared.getParentPost(1, null, null)
-                    : DataSource.shared.getStaffPost(1, null, null);
+                    DataSource.shared.getParentPostFeedPage(1, null, '', 'Portfolio')
+                    : DataSource.shared.getStaffPostFeedPage(1, null, '', 'Portfolio');
 
                 promise_GetPosts.then((response) => {
                     if (response.Table && (new Date(response.Table[0].PostCreatedDate)) > (new Date(this.list[0].PostCreatedDate))) {
@@ -463,7 +611,10 @@
             showMoreBroadcastModal() {
                 this.$refs.modal_ShowMoreBroadcast.show();
             },
-
+            showBroadcastReadMore(Post) {
+                this.tempBroadcastModalPostID = Post;
+                this.$refs.modal_broadcastReadMore.show();
+            },
             isNull(obj) {
                 return (obj === null || obj === undefined || obj === "undefined" || obj.length === 0 || obj === "");
             }
@@ -581,8 +732,8 @@
                 this.isParent = Cookies.get('userTypeSession');
                 this.list = [];
                 let promise_GetPosts = this.isParent === "Parent" ?
-                    DataSource.shared.getParentPost(this.int_NumberOfPost)
-                    : DataSource.shared.getStaffPost(this.int_NumberOfPost);
+                    DataSource.shared.getParentPostFeedPage(this.int_NumberOfPost, '', '', 'Portfolio')
+                    : DataSource.shared.getStaffPostFeedPage(this.int_NumberOfPost, '', '', 'Portfolio');
 
                 promise_GetPosts.then((response) => {
                     if (response.Table)

@@ -73,6 +73,7 @@
 
 body {
     background-color: #f5f6fa;
+    color: #627682;
 }
 
 h1, h2, h3, h4 {
@@ -285,6 +286,25 @@ label {
     border-radius: 4px;
 }
 
+.custom-info-elbutton span {
+    letter-spacing: 0px!important;
+    font-weight: 500!important;
+    color: #333!important;
+}
+
+.custom-info-elbutton {
+    background: #eee!important;
+    border: 0px!important;
+}
+
+.custom-info-elbutton:hover {
+    opacity: 0.5;
+}
+
+.custom-info-elbutton i {
+    color: #999;
+}
+
 /*
 2---button---
  */
@@ -344,6 +364,32 @@ label {
 
 .el-pagination {
     margin-top: 10px;
+}
+
+.el-table .Active {
+    color: #67c23a;
+}
+
+.el-table .Closed {
+    color: #f77474;
+}
+
+.el-table .Closed:before {
+    content: "\f1db";
+    font-family: fontawesome;
+    margin-right: 6px;
+    font-size: 10px;
+    position: relative;
+    top: -2px;
+}
+
+.el-table .Active:before {
+    content: "\f111";
+    font-family: fontawesome;
+    margin-right: 6px;
+    font-size: 10px;
+    position: relative;
+    top: -2px;
 }
 
 /*
@@ -462,7 +508,10 @@ label {
 .flex-3 {
     flex: 3;
 }
-
+small.small-grey-text {
+    color: #999;
+    display: block;
+}
 /*
 5---notification---
  */
@@ -1597,7 +1646,7 @@ li.info-menu__item i {
     text-align: center;
     z-index: 99;
     display: table;
-    margin-bottom: 30px;
+    /*margin-bottom: 30px;*/
     width: 100%;
     /*position: absolute;*/
     padding: 0 20px;
@@ -1880,10 +1929,10 @@ a.home-addStudent {
 .profile-student img {
     width: 120px;
     height: 120px;
-    margin: 0 20px -50px;
+    /*margin: 0 20px -50px;*/
     background: #ffffff;
-    border-radius: 100%;
-    box-shadow: 0 0 10px -5px #413f56;
+    /*border-radius: 100%;*/
+    /*box-shadow: 0 0 10px -5px #413f56;*/
 }
 
 .profile-student__wrapper {
@@ -1893,6 +1942,7 @@ a.home-addStudent {
     align-items: flex-end;
     /*margin-bottom: 50px;*/
     padding-top: 30px;
+    position: relative;
 }
 
 .profile-student span {
@@ -1901,25 +1951,95 @@ a.home-addStudent {
     color: #9693b9;
     text-align: left;
 }
+
 .profile-student__wrapper .container {
     display: flex;
     align-items: flex-end;
     margin: 15px auto;
+    position: relative;
+    z-index: 2;
 }
 
 .profile-student-desc {
     display: flex;
 }
+
 .profile-student-desc strong {
     font-weight: 400;
     font-size: 1.3em;
     color: white;
 }
+
 .profile-student-desc span {
     margin: 0 10px;
     padding: 0px;
     white-space: nowrap;
 }
+
+.profile-student-cover {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    overflow: hidden
+}
+
+.profile-student-cover:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to top, #413f56, #413f56ad 60%, transparent);
+    display: block;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.profile-student-cover img {
+    border-radius: 0px;
+    width: 100%;
+    height: auto;
+    margin: 0px;
+    top: -50%;
+    position: absolute;
+    left: 0px;
+}
+
+#staff-post .myaccount-image_wrap {
+    margin: 0px 10px -50px;
+    width: auto;
+    height: auto;
+    border-radius: 100%;
+    border: 0px;
+    background: transparent;
+    overflow: hidden;
+    position: relative;
+    display: initial;
+    top: 0px;
+    box-shadow: 0 0 10px -5px #413f56;
+}
+
+#staff-post .myaccount-image_wrap button span {
+    padding: 0px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.feed-box .image-wrapper li.postFile__item:nth-child(n+2) {
+    height: 150px !important;
+}
+
+div#modal_broadcastReadMore .feed-box {
+    box-shadow: none;
+    border-radius: 0px;
+}
+
+div#modal_broadcastReadMore hr {
+    display: none;
+}
+
 .author {
     text-align: left;
     font-weight: bold;
@@ -2353,6 +2473,7 @@ span.sideBarSection__img {
     /*box-shadow: 0px 3px 10px -5px black;*/
     /*border-color: #454545;*/
 }
+
 .sideBarSection__item .desc {
     margin: 0 20px;
 }
@@ -2375,6 +2496,7 @@ span.sideBarSection__img {
 .sideBarSection__item .desc .el-collapse-item__content {
     padding: 0px;
 }
+
 .sideBarSection__item .desc ul {
     margin: 0px;
 }
@@ -2487,6 +2609,7 @@ span.sideBarSection__img {
     background: transparent;
     color: #a5a7b5;
 }
+
 .feed-iconBox {
     display: table;
     padding: 0px 0px 14px 10px;
@@ -2547,6 +2670,7 @@ span.clearFile-single {
 div#staff-post {
     min-height: 100vh;
 }
+
 .parent-feed-menu {
     background: white;
     border-bottom: solid 1px #e6e6e6;
@@ -2559,6 +2683,7 @@ div#staff-post {
 .parent-feed-menu .container {
     padding-left: 167px;
 }
+
 /*
 20---broadcast---
  */
@@ -3261,7 +3386,6 @@ div#student-edit-class .header button span {
     background: #5565cf;
     padding: 20px;
     justify-content: center;
-    margin-top: -30px;
 }
 
 .datatable-form__input .form-control {
@@ -3278,7 +3402,7 @@ div#student-edit-class .header button span {
     margin-left: 10px;
 }
 
-#student-list .datatable-form__header .searchbtn {
+.datatable-form__header .searchbtn {
     background: #4856ad;
     border-color: #4856ad;
     height: 37px;
@@ -3342,7 +3466,7 @@ label.withoutInput {
     margin: 0px;
 }
 
-.ddlSearchStatua .el-input__icon {
+.ddlSearchStatus .el-input__icon {
     line-height: 30px;
 }
 
@@ -3442,6 +3566,26 @@ label.withoutInput {
     color: #fff;
     background-color: #ff6f68;
     border-color: #ff6f68;
+}
+
+.empty-list_icon {
+    /* width: 500px; */
+    /* margin: auto; */
+    text-align: center;
+    background: white;
+    margin: 20px 0px;
+    padding: 20px 0px;
+    border-radius: 4px;
+    color: #8c8f92;
+}
+
+.empty-list_icon img {
+    max-width: 100%;
+    width: 150px;
+    display: block;
+    margin: auto;
+    opacity: 0.5;
+    filter: grayscale(1);
 }
 
 /*
@@ -5660,4 +5804,167 @@ label.style-button-checkbox span.checkIcon svg.checkmark {
 
 .atr-list-header button {
     height: 40px;
+}
+
+/*
+41---StudentPayment---
+ */
+.payment-header {
+    background: white;
+    padding: 20px 0;
+}
+
+.payment-header .payment-title {
+    font-size: 1.2em;
+    color: #999;
+    font-weight: normal;
+}
+
+.payment-title-wrap {
+    padding: 15px 0px;
+}
+
+.payment-title {
+    margin: 0px;
+    color: #515659;
+    font-weight: normal;
+}
+
+.payment-student-info {
+    display: flex;
+    margin: 0 -10px;
+}
+
+.payment-student-object {
+    font-size: 0.9em;
+    text-align: left;
+    margin: 0 10px;
+    flex: 1;
+    color: #8c8f92;
+}
+
+.payment-student-object h4 {
+    font-size: 1.4em;
+    color: #222;
+    margin: 0px;
+}
+
+.student-course-list {
+    padding: 0px;
+}
+
+.student-course-list .datatable_group thead th {
+    color: #515659a3;
+    padding: 6px 0;
+    background: transparent !important;
+    border: 0px;
+}
+
+.student-course-list .action-list button {
+    padding: 10px;
+}
+
+.student-course-list .datatable_group {
+    background: white;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 20px 0;
+    padding: 10px 20px;
+}
+
+.student-course-list .datatable_group .el-table td:first-child {
+    border-left: 0px solid #ebeef5;
+}
+
+.student-course-list .datatable_group .el-table td:last-child {
+    border-right: 0px;
+}
+
+.student-course-list .sc-table {
+    margin: 0px;
+}
+
+.payment-list-header .el-button-group {
+    float: right;
+}
+
+.paymentList-button-group span {
+    display: block;
+    color: #8c8f92;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.paymentList-button-group .el-button span {
+    color: white;
+    margin: 0px;
+}
+
+.paymentList-button-group {
+    display: table;
+    float: right;
+}
+
+.payment-list-header {
+    align-items: center;
+}
+
+.paymentIcon-CreditNote {
+    font-size: 1.5em;
+    line-height: 0;
+    position: relative;
+    top: 3px;
+}
+
+.payment-icon {
+    color: white;
+    background: #ffc1c1;
+    height: 27px;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 0 2px;
+    width: 30px;
+    text-align: center;
+}
+
+.payment-icon.paymentIcon-receipt {
+    background: #9cd5ff;
+}
+
+.payment-icon.paymentIcon-CreditNote {
+    background: #ffd761;
+}
+
+.payment-icon.paymentIcon-Invoice {
+    background: #e0b7ff;
+}
+
+.payment-icon.paymentIcon-Invoice i {
+    font-size: 1.5em;
+}
+.payment-modal-object h4 {
+    font-size: 0.8em;
+    font-weight: normal;
+    color: #999
+}
+
+.payment-modal-info {
+    margin: 20px 0px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.payment-modal-object {
+    margin: 0px 10px 9px;
+    width: calc(33.34% - 21px);
+}
+
+.payment-modal-object span {
+    background: #f8f9fb;
+    padding: 2px 10px;
+    border-radius: 4px;
+    width: 100%;
+    display: block;
+    font-weight: 500;
 }

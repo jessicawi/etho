@@ -43,6 +43,7 @@ import studentReceiptDetail from "../pages/StudentReceiptDetail";
 import studentListPayment from "../pages/StudentListPayment";
 import studentCourseList from "../pages/StudentCourseList";
 import batchPaymentList from "../pages/BatchPaymentList";
+import cancelSchedule from "../pages/CancelSchedule";
 
 Vue.use(VueRouter);
 
@@ -83,7 +84,7 @@ const router = new VueRouter({
             component: studentList
         },
         {
-            path: '/student-list-Payment',
+            path: '/student-list-payment',
             name: 'Student List Payment',
             component: studentListPayment
         },
@@ -168,13 +169,13 @@ const router = new VueRouter({
             component: notFound
         },
         {
-            path: '/DailyRoutine',
+            path: '/DailyRoutineSingleUpdate',
             name: 'Daily Routine',
             component: dailyRoutine
         },
         {
-            path: '/DailyRoutineMassUpdate',
-            name: 'Daily Routine Mass Update',
+            path: '/DailyRoutine',
+            name: 'Daily Routine Update By Class',
             component: dailyRoutineMassUpdate
         },
         {
@@ -261,6 +262,11 @@ const router = new VueRouter({
             path:'/BatchPaymentList',
             name:'BatchPaymentList',
             component: batchPaymentList,
+        },
+        {
+            path:'/CancelSchedule',
+            name:'CancelSchedule',
+            component: cancelSchedule,
         },
     ]
 });

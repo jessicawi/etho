@@ -23,7 +23,6 @@
                     </li>
                 </ul>
                 <span> {{StudentResult}}</span>
-
             </div>
             <div class="portfolio_Content">
                 <div class="header mb-4">
@@ -71,10 +70,9 @@
                                     <td>
                                         {{tempobj_Portfolio.PortfolioStatus}}
                                     </td>
-
                                     <td>
                                         <!--<el-button size="mini" type="primary"-->
-                                                   <!--@click="initSavedPortfolioPostModal(tempobj_Portfolio)">VIEW-->
+                                        <!--@click="initSavedPortfolioPostModal(tempobj_Portfolio)">VIEW-->
                                         <!--</el-button>-->
                                         <el-button size="mini" type="primary"
                                                    @click="editPortfolio(tempobj_Portfolio)">VIEW
@@ -86,7 +84,6 @@
                         </div>
                     </div>
                     <div class="col-2">
-
                     </div>
                 </div>
             </div>
@@ -152,7 +149,6 @@
                                         <!--{{obj_Post.PostPorDtlAnalysisReflection}}</p>-->
                                         <!--<p class="card-text">Developmental Goals:-->
                                         <!--{{obj_Post.PostPorDtlDevelopmentGoals}}</p>-->
-
                                         <el-button class="mt-2" href="#" size="mini" type="text" icon="el-icon-view"
                                                    @click="showViewPostModal(tempobj_Post, showCreatePortfolioModal)">
                                             View
@@ -160,13 +156,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <infinite-loading
+                                    @infinite="infiniteHandler"
+                            ></infinite-loading>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
                         <span class="portfolio-selected__count">{{obj_PortFolio.arrobj_SelectedPortfolioPosts.length}} files selected</span>
-
                         <draggable v-model="obj_PortFolio.arrobj_SelectedPortfolioPosts" :options="draggableOptions"
                                    class="row overflow-x-scroll flex-row flex-nowrap portfolio-selected__item">
                             <div v-for="obj_SelectedItem in obj_PortFolio.arrobj_SelectedPortfolioPosts"
@@ -189,7 +187,6 @@
                                @click="stepNext">
                         Next step
                     </el-button>
-
                 </div>
             </div>
             <div class="portfolio-step2" v-if="stepActive === 1">
@@ -212,7 +209,6 @@
         <b-modal id="modal_PortfolioDescription" hide-footer size="lg" title="Portfolio Description"
                  ref="modal_PortfolioDescription"
                  centered>
-
         </b-modal>
         <b-modal id="modal_SavedPortfolioPost" hide-footer size="lg" title="View Portfolio"
                  ref="modal_SavedPortfolioPost"
@@ -459,10 +455,34 @@
                 selectedStudentsName: "",
                 activeClass: "",
                 activeStudent: "",
-                stepActive: 0
+                stepActive: 0,
+                scrolling: false,
             };
         },
         methods: {
+            infiniteHandler() {
+                this.showLoading();
+                let obj_LastPost = !this.isNull(this.arrobj_Posts) ? this.arrobj_Posts[this.arrobj_Posts.length - 1] : "";
+                DataSource.shared.getStudentPostByType(this.activeStudent, this.str_PostType, this.int_NumberOfPost, obj_LastPost.PostID).then((result) => {
+                    return result.Table;
+                }).then((arrobj_Portfolio) => {
+                    if (this.isNull(arrobj_Portfolio))
+                        return;
+
+                    let temparr_Promise = [];
+
+                    for (let obj of arrobj_Portfolio)
+                        temparr_Promise.push(DataSource.shared.getPostFile(obj.PostID));
+
+                    Promise.all(temparr_Promise).then((result) => {
+                        for (let [index, obj_Portfolio] of arrobj_Portfolio.entries())
+                            obj_Portfolio.ArrObj_Images = result[index].Table;
+                        this.arrobj_Posts.push(arrobj_Portfolio);
+                    });
+                }).finally(() => {
+                    setTimeout(this.hideLoading, 2050);
+                });
+            },
             stepNext() {
                 if (this.active++ > 2) this.active = 0;
                 this.stepActive = 1;
@@ -719,6 +739,7 @@
                 DataSource.shared.getStudentPostByType(Student_ID, this.str_PostType, this.int_NumberOfPost).then((result) => {
                     return result.Table;
                 }).then((arrobj_Portfolio) => {
+                    console.log(arrobj_Portfolio)
                     if (this.isNull(arrobj_Portfolio))
                         return;
 
@@ -732,6 +753,7 @@
                             obj_Portfolio.ArrObj_Images = result[index].Table;
 
                         this.arrobj_Posts = arrobj_Portfolio;
+                        console.log(this.arrobj_Posts);
                     });
                 }).finally(() => {
                     setTimeout(this.hideLoading, 2050);
@@ -868,7 +890,6 @@
                     return func.apply(this, args);
                 };
             },
-            /*#endregion*/
         },
         mounted() {
 
@@ -915,6 +936,8 @@
                 self.loadPortfolio();
                 self.loadPortfolioPosts();
             }, 250));
+
+
         },
         components: {
             draggable
@@ -1072,5 +1095,9 @@
 <style>
     #portfolioCarousel .carousel-control-prev, #portfolioCarousel .carousel-control-next {
         background-color: black;
+    }
+
+    .infinite-status-prompt {
+        display: none;
     }
 </style>

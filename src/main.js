@@ -25,6 +25,7 @@ import Vuex from "vuex";
 import VueTour from 'vue-tour';
 import VueClipboard from 'vue-clipboard2';
 import XLSX from 'xlsx';
+import InfiniteLoading from 'vue-infinite-loading';
 
 Vue.component('file-upload', VueUploadComponent);
 
@@ -32,6 +33,7 @@ require('vue-tour/dist/vue-tour.css');
 
 locale.use(lang);
 Vue.config.productionTip = false;
+Vue.use(InfiniteLoading);
 Vue.use(BootstrapVue);
 Vue.use(DataTables);
 Vue.use(DataTablesServer);

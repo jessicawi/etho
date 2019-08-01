@@ -46,7 +46,7 @@
                 <form @submit.prevent="verifyPost">
                     <div class="form-group">
                         <label for="tb_Content">Content</label>
-                        <input v-model="obj_Post.broadContent" type="text" class="form-control" id="tb_Content"
+                        <input v-model="obj_Post.PostContent" type="text" class="form-control" id="tb_Content"
                                placeholder="Please enter a title" required/>
                     </div>
                     <div class="form-group">
@@ -99,7 +99,7 @@
                 arrobj_SelectedFiles: [],
                 obj_Post: {
                     PostID: "",
-                    broadContent: "",
+                    PostContent: "",
                 },
             }
         },
@@ -121,7 +121,7 @@
             async verifyPost() {
 
                 this.$vs.loading();
-                if (this.isNull(this.obj_Post.broadContent) ||
+                if (this.isNull(this.obj_Post.PostContent) ||
                     this.isNull(this.arrobj_SelectedStudents)) {
                     setTimeout(() => {
                         this.$vs.loading.close();
@@ -137,7 +137,7 @@
                 /*let studentsIds = this.arrobj_SelectedStudents.map(x => x.Student_ID);*/
                 await this.sleep(1000);
                 DataSource.shared.saveBroadcastPost(this.arrobj_SelectedFiles,
-                    this.obj_Post.broadContent,
+                    this.obj_Post.PostContent,
                     this.arrobj_SelectedStudents, "", "",
                     this.obj_Post.PostID)
                     .then((result) => {
@@ -310,7 +310,7 @@
                 this.clearPreview();
                 this.obj_Post = {
                     PostID: "",
-                    broadContent: "",
+                    PostContent: "",
                 }
                 this.$emit("result", "CANCEL");
             },

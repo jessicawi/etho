@@ -38,9 +38,7 @@
 
                 <div class="datatable-form__input form-group flex-1">
                     <label>Course and Class</label>
-                    <el-select v-model="courseListSelected" placeholder="Class" id="ddl_Class"
-                               class="mb-3 promotion-academicYear-select"
-                               :disabled="academicYearListSelected === null">
+                    <el-select v-model="courseListSelected" class="ddlSearchStatus" placeholder="Class" id="ddl_Class">
                         <el-option-group
                                 v-for="tempcourseList_item of courseList"
                                 :key="tempcourseList_item.id"
@@ -65,8 +63,7 @@
                             start-placeholder="Start date"
                             end-placeholder="End date"
                             format="dd/MM/yyyy"
-                            value-format="dd/MM/yyyy"
-                            @change="testDate">
+                            value-format="dd/MM/yyyy">
                     </el-date-picker>
                 </div>
 
@@ -75,11 +72,26 @@
                 </div>
             </div>
 
-            <div class="datatable-form__submit text-center">
-                <button class="btn btn-success testbtn" id="btnTest" v-on:click="test()">testcheckitem</button>
-            </div>
-
             <div class="admin-wrap">
+                <div class="datatable-form__submit text-right">
+                    <el-button-group v-if="UnbilledBatchPaymentListInt.length>1">
+                        <div class="datatable-form__input form-group flex-1">
+                            <el-date-picker
+                                    v-model="inputDueDate"
+                                    type="date"
+                                    format="dd/MM/yyyy"
+                                    value-format="dd/MM/yyyy"
+                                    placeholder="**Payment Due Date">
+                            </el-date-picker>
+                        </div>
+                        <el-button type="primary" variant="primary" v-on:click="batchPreviewClick()">
+                            Preview
+                        </el-button>
+                        <el-button type="primary" variant="primary" v-on:click="batchGenerateClick()">
+                            Generate
+                        </el-button>
+                    </el-button-group>
+                </div>
                 <div class="pb-5">
                     <div class="empty-list_image"
                          v-if="UnbilledBatchPaymentListInt.length<1">
@@ -89,8 +101,9 @@
 
                     <div v-if="UnbilledBatchPaymentListInt.length>0" class="datatable_group">
                         <data-tables :data="UnbilledBatchPaymentListInt" @selection-change="changeSelection"
-                                     :row-key="getRowKeys" width="55" stripe tooltip-effect='light' border>
-                            <el-table-column type="selection" width="55" :reserve-selection="true" prop="id">
+                                     :row-key="getRowKeys"
+                                     width="55" stripe tooltip-effect='light' border>
+                            <el-table-column type="selection" width="55" :reserve-selection="true">
                             </el-table-column>
                             <el-table-column v-for="item in UnbilledBatchPaymentList"
                                              :prop="item.prop"
@@ -98,7 +111,24 @@
                                              :key="item.prop"
                                              sortable="custom">
                             </el-table-column>
+                            <el-table-column label="GST" min-width="60px">
+                                <template slot-scope="scope">
+                                    <el-input v-model="scope.row.newGSTAmount" type="number"
+                                              v-on:change="updateTotalClick(scope.row.newGSTAmount,scope.row.SPPD_PaymentAmount,scope.row)"
+                                              :min="adjustmentMin(scope.row.SPPD_GstValue)"
+                                              :max="adjustmentMax(scope.row.SPPD_GstValue)"
+                                              :step="0.01" placeholder="GST"></el-input>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="Total(IncludedGst)" min-width="100px">
+                                <template slot-scope="scope">
+                                    <el-input id="totalValueWithGst" v-model="scope.row.SPPD_TotalValue" type="number" readonly="readonly"></el-input>
+                                </template>
+                            </el-table-column>
                         </data-tables>
+                        <el-button type="primary" variant="primary" v-on:click="clearSelect()">
+                            Clear All Selection
+                        </el-button>
                     </div>
                 </div>
             </div>
@@ -110,22 +140,26 @@
     import DataSource from "../data/datasource";
     export default {
         name: "BatchPaymentList",
-
         data(){
             return{
+                readonly:true,
                 spdSelection:[],
                 arrobj_Classes:null,
                 obj_SelectedClass:null,
+                arrobj_selectedSPD:[],
+                datePicker:{
+                    disabledDate(date){
 
-                getRowKeys(rows){
-                    console.log(rows.PK_SPD_ID);
-                    return row.PK_SPD_ID;
+                        return date<(new Date().getTime() - (1 * 24 * 60 * 60 * 1000));
+                        //  Without using the second variable, you can replace 7 for with your back x days:
+                        //e.g return date< Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000));
+                    }
                 },
                 selectedData:[],
-
                 academicYearListSelected:null,
                 academicYearList:[],
                 academicYearListResponse:'',
+                tempUnbillList:[],
                 UnbilledBatchPaymentListInt:[],
                 UnbilledBatchPaymentList:[{
                     prop: "StudentName",
@@ -136,18 +170,12 @@
                 }, {
                     prop: "SPPD_PayerName",
                     label: "Billing Items"
-                }, {
-                    prop: "SPPD_GstValue",
-                    label: "GST"
                 },{
                     prop: "SPPD_PaymentAmount",
-                    label: "Total"
-                },{
-                    prop: "SPPD_TotalValue",
-                    label: "Total(IncludedGst)"
+                    label: "Amount"
                 }],
                 schoolsListSelected:'',
-
+                inputDueDate:'',
                 courseListResponse:'',
                 courseListSelected:null,
                 courseList:[],
@@ -162,19 +190,113 @@
 
                 schoolListInt:[],
                 currentSchoolsName:'',
+                previewResultList:'',
             }
         },
         async mounted(){
             await this.BindSchool();
         },
         async created(){},
+
         methods:{
-            testDate(){
-                console.log('TESTDATE');
+            getCurrentDate(){
+                var currentDate =new Date();
+                this.inputDueDate=currentDate;
             },
 
-            test(){
-                console.log(this.spdSelection);
+            displayPdf(base64string) {
+                var byteChar = atob(base64string);
+                var byteNo = new Array(byteChar.length);
+                for (var i = 0; i < byteChar.length; i++) {
+                    byteNo[i] = byteChar.charCodeAt(i);
+                }
+
+                var byteArray = new Uint8Array(byteNo);
+                var file = new Blob([byteArray], {type: 'application/pdf;base64'});
+                var fileUrl = URL.createObjectURL(file);
+                // window.openBrowser(fileUrl);
+                window.open(fileUrl, '_blank', 'width=500, height=500');
+            },
+
+            async batchPreviewClick(){
+                try{
+                    let actionType = 'Preview';
+                    let selected= this.sortByStudentNO();
+                    console.log('this.arrobj_selectedSPD',this.arrobj_selectedSPD);
+                    //let ObjList=[];
+                    if (!this.inputDueDate)
+                    {
+                        this.$notify({
+                            title: 'Require',
+                            message: '"Payment Due Date"'
+                        });
+                    }
+                    else{
+                        let List = [];
+                        let batchPaymentObj = {};
+                        this.arrobj_selectedSPD.forEach(m=>{
+                            let objList=[];
+                            m.ArrObj_Items.forEach(n=>{
+                                List = {
+                                    studentCourseID:n.PK_Student_Course_ID,
+                                    PK_SPD_ID:n.PK_SPD_ID,
+                                    SPPD_PayerName:n.SPPD_PayerName,
+                                    SPPD_PaymentItemType:n.SPPD_PaymentItemType,
+                                    SPPD_PaymentAmount:n.SPPD_PaymentAmount,
+                                    SPPD_GstValue:n.newGSTAmount,
+                                };
+                                objList.push(List);
+                            });
+
+                           batchPaymentObj["studentID_"+m.Str_SortBy] = objList;
+                        });
+                        console.log('batchPaymentObj=',batchPaymentObj);
+
+                        const resp = DataSource.shared.generateBatchInvoice(JSON.stringify(batchPaymentObj),this.inputDueDate,actionType);
+                        if (resp) {
+                            if (resp.code === '88') {
+                                window.location.replace('/');
+                            } else if (resp.code === '99') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Error 99!'
+                                });
+                            } else if (resp.code === '2') {
+                                this.$notify({
+                                    title: 'No Record',
+                                    message: 'No Record Found'
+                                });
+                            } else
+                            {
+                                this.displayPdf(resp.code);
+                                console.log('OKOKOKK');
+
+                            }
+                        }
+                    }
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            },
+
+            batchGenerateClick(){
+                try{
+                    let actionType = 'Generate';
+                    let selected = this.sortByStudentNO();
+                    console.log(selected,actionType);
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            },
+
+            clearSelect () {
+                this.$refs.batchListTable.clearSelection();
+            },
+
+            getRowKeys(row){
+                return row.PK_SPD_ID;
             },
 
             async changeSelection(val) {
@@ -191,6 +313,31 @@
                     //end get rows key data
                     console.log(this.selectedData);
                 }
+            },
+
+            adjustmentMin(value){
+                return (parseFloat(value)-parseFloat(0.01));
+            },
+
+            adjustmentMax(value){
+                return (parseFloat(value)+parseFloat(0.01));
+            },
+
+            updateTotalClick(gstValue,currentAmount,rowData){
+
+                let gst = parseFloat(gstValue);
+                let amount = parseFloat(currentAmount);
+                let total = 0.0;
+
+                total = gst +amount;
+
+                this.UnbilledBatchPaymentListInt.forEach(m => {
+
+                    if(m.PK_SPD_ID==rowData.PK_SPD_ID)
+                    {
+                        m.SPPD_TotalValue = total.toFixed(2);
+                    }
+                });
             },
 
             async BindSchool(){
@@ -232,6 +379,9 @@
                             this.academicYearList.push(m);
                         });
                         this.academicYearListResponse=[];
+                        //todo: to refesh academic year, course and class list
+                        await this.loadClasses();
+                        this.courseListSelected='';
                     }
                 }
                 catch (e) {
@@ -267,9 +417,20 @@
                     }
                     else
                         {
+                            let courseID='';
+                            let classID ='';
+
+                            if(this.courseListSelected){
+                                courseID = this.courseListSelected.PK_Course_ID;
+                                classID = this.courseListSelected.PK_Class_ID;
+                            }
+                            else{
+                                courseID = '';
+                                classID = '';
+                            }
+
                             const response = await DataSource.shared.getUnbilledBatchPaymentList(this.schoolsListSelected,
-                                '','',
-                                this.inputFromDate[0],this.inputFromDate[1]);
+                                courseID,classID,this.inputFromDate[0],this.inputFromDate[1]);
 
                         if (response) {
                             if (response.code === '88') {
@@ -286,7 +447,13 @@
                                 });
                             } else
                                 {
-                                    this.UnbilledBatchPaymentListInt = response.Table;
+                                    this.tempUnbillList = response.Table;
+                                    let tempList = [];
+                                    this.tempUnbillList.forEach(m=>{
+                                        m.newGSTAmount=m.SPPD_GstValue;
+                                        tempList.push(m);
+                                    })
+                                    this.UnbilledBatchPaymentListInt = tempList;
 
                                     this.currentSchoolsName = this.$refs.schoolsListSelected.selected.label;
                                 }
@@ -296,6 +463,11 @@
                 } catch (e) {
                     this.results = e;
                 }
+            },
+
+            sortByStudentNO() {
+                    let sortedList = this.groupBy(this.spdSelection, "Student_ID");
+                    this.arrobj_selectedSPD = sortedList;
             },
 
             groupBy(data, key) {
@@ -333,11 +505,8 @@
         position: relative;
         top: 2px;
     }
-
-    .btnExport {
-        display: block;
-    }
 </style>
 <style>
+    #totalValueWithGst{border:0px solid}
 </style>
 

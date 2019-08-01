@@ -2,7 +2,13 @@
 mobile
  */
 @media (max-width: 1025px) {
+    .pp-header button i {
+        display: none;
+    }
 
+    .pp-header button {
+        padding: 5px;
+    }
 
     .el-button-group button {
         width: 50%;
@@ -911,6 +917,28 @@ mobile
 
     .addComment {
         margin: 0px !important;
+    }
+
+    /*
+    portfolio
+     */
+
+    .pp-header button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .pp-header-wrap {
+        margin-bottom: 20px;
+    }
+
+
+    .pp-header button i {
+        display: inherit;
+    }
+
+    .pp-header button {
+        padding: 7px 10px;
     }
 
 }

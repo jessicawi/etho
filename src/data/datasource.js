@@ -3087,6 +3087,21 @@ export default class DataSource {
         }
     }
 
+    async generateBatchInvoice(obj,inputPaymentDueDate, action){
+        try{
+            const data={
+                obj:obj,
+                inputPaymentDueDate:inputPaymentDueDate,
+                action:action,
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/generateBatchInvoice", data, "POST");
+            return response;
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
     async importECADetailsByCSVExcel(files, ecaID) {
         const data = new FormData();
         data.append('token', Cookies.get('authToken'));

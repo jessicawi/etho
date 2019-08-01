@@ -1,310 +1,357 @@
 <template>
     <div id="portfoliopreview">
         <div class="container">
-            <div class="portfolio-preview__box">
+            <div class="portfolio-preview__box mt-5 ">
                 <div style="display: none;">{{ saveEditMode }}</div>
                 <div style="display: none;">{{ portfolioID }}</div>
-                <div class="ppTitle  mb-4">
-                    <el-tooltip class="item" effect="dark" content="Portfolio Name" placement="top">
-                        <input type="text" class=" inputLearningStory" v-model="inputLearningStory"
-                               id="inputLearningStory">
-                    </el-tooltip>
-                </div>
+                <h2 v-if="savePortfolioAction">Create Portfolio</h2>
+                <h2 v-if="approverPortfolioAction">Portfolio Edit</h2>
+                <h2 v-if="!approverPortfolioAction && !savePortfolioAction && !btnDownloadPDF">Portfolio</h2>
+                <h2 v-if="btnDownloadPDF">Portfolio Download</h2>
                 <div class="row">
-                    <!--<el-button @click="show3 = !show3">Click Me</el-button>-->
-                    <!--<el-collapse-transition>-->
-                    <!--<div v-show="show3">-->
-                    <!--<div class="transition-box">el-collapse-transition</div>-->
-                    <!--<div class="transition-box">el-collapse-transition</div>-->
-                    <!--</div>-->
-                    <!--</el-collapse-transition>-->
-                </div>
-                <div class=" ppEndduringThemes ">
-                    <div class="preview-top">
-                        <label class="ppEndduringThemesTitle">Enduring Themes: </label>
-                        <el-input
-                                type="textarea"
-                                autosize
-                                v-model="taEnduringThemes"
-                                class="mb-2"
-                        >
-                        </el-input>
-                        <el-button @click="show3 = !show3" class="preview-comment__btn" size="mini" v-if="commentField">
-                            <i class="material-icons">
-                                chat_bubble_outline
-                            </i>
-                        </el-button>
-                        <!--<textarea rows="1" class="textArea" v-model="taEnduringThemes"-->
-                        <!--@input="textareaResize($event)"></textarea>-->
-                        <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
-                        <!--v-if="commentField">-->
-                    </div>
-                    <div class="preview-comment">
-                        <el-collapse-transition>
-                            <div v-show="!show3" class="spanComment">
-                                <h6 class="text-left">Remark:</h6>
-                                <!--<textarea rows="1" class="textArea" v-model="inputEndduringThemesComment" @input="textareaResize($event)"></textarea>-->
-                                <input type="text" class="form-control" v-model="inputEndduringThemesComment">
-                                <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
-                                     v-if="value.AppComValue !== undefined && value.AppComDesc==='Enduring Themes' && value.AppComType === 'Portfolio Header'">
-                                    <label class="preview-comment__commenter">
-                                        Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span>Date: {{ value.AppComCreatedDate_convert }}</span>
-                                    </label>
-                                    <label>
-                                        {{ value.AppComValue }}
-                                    </label>
-                                </div>
+                    <div class="pp-header-wrap col-lg-4">
+                        <div class="pp-header">
+                            <div class="ppTitle  mb-4">
+                                <label>Portfolio Name</label>
+                                <input type="text" class=" inputLearningStory" v-model="inputLearningStory"
+                                       id="inputLearningStory">
                             </div>
-                        </el-collapse-transition>
-                    </div>
-                    <div class="preview-top">
-                        <label class="ppResearchQuestionTitle">Research Question: </label>
-                        <el-input
-                                type="textarea"
-                                autosize
-                                v-model="taResearchQuestion"
-                                class="mb-2 textArea"
-                        >
-                        </el-input>
-                        <!--<textarea rows="1" class="textArea" v-model="taResearchQuestion"-->
-                        <!--@input="textareaResize($event)"></textarea>-->
-                        <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
-                        <!--v-if="commentField">                        </i>-->
-                        <el-button @click="showResearch = !showResearch" class="preview-comment__btn" size="mini"
-                                   v-if="commentField">
-                            <i class="material-icons">
-                                chat_bubble_outline
-                            </i>
-                        </el-button>
-                    </div>
-                    <div class="preview-comment">
-                        <el-collapse-transition>
-                            <div v-show="!showResearch" class="spanComment">
-                                <h6 class="text-left">Remark:</h6>
-                                <!--<textarea rows="1" class="textArea" v-model="inputResearchQuestionComment" @input="textareaResize($event)"></textarea>-->
-                                <input type="text" class="form-control" v-model="inputResearchQuestionComment">
-                                <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
-                                     v-if="value.AppComValue !== undefined && value.AppComDesc==='Research Question' && value.AppComType === 'Portfolio Header'">
-                                    <label class="preview-comment__commenter">
-                                        Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter:
-                                        {{ value.AppComCreatedDate_convert }}
-                                    </label>
-                                    <label>
-                                        {{ value.AppComValue }}
-                                    </label>
-                                </div>
-                            </div>
-                        </el-collapse-transition>
-                    </div>
-                </div>
-                <!--div class="row ppEndduringThemes">
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 ppEndduringThemesTitle">Enduring Themes: </div>
-                    <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9" >
-
-                    </div>
-                </div>
-
-                <div class="row ppResearchQuestion">
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 ppResearchQuestionTitle"></div>
-                    <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9" >
-
-                    </div>
-                </div-->
-                <div v-for="item in postList" class="ppEachPost" ref="ppEachPost_Update">
-                    <div class="ppDateOfObservation">
-                        <span class="ppDateOfObservationTitle">Date of observation: </span>
-                        <span><input type="text" class="form-control inputPostCreatedDate" ref="postCreatedDate"
-                                     :value="item.PostCreatedDate_convert.trim()" readonly></span>
-                        <!--<span ref="postCreatedDate">{{item.PostCreatedDate_convert.trim()}}</span>-->
-                    </div>
-                    <div class="preview-content-wrap">
-                        <el-tooltip class="item" effect="dark" content="Post Content" placement="top">
-                            <input type="text" class="form-control ppPostContent" ref="postContent"
-                                   v-model="item.PostContent">
-                            <!--<input type="text" class="form-control ppPostContent" ref="postContent"-->
-                            <!--:value="item.PostContent.trim()" v-model="item.PostContent">-->
-                        </el-tooltip>
-                        <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
-                        <!--v-if="commentField">-->
-                        <!--<span class="spanComment">-->
-                        <!--<div v-for="value in portfolioCommentHistoryList"-->
-                        <!--v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Title'">-->
-                        <!--<label>-->
-                        <!--Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter: {{  value.AppComCreatedDate_convert }}-->
-                        <!--</label>-->
-                        <!--<label>-->
-                        <!--{{ value.AppComValue }}-->
-                        <!--</label>-->
-                        <!--</div>-->
-                        <!--<input type="text" class="form-control" ref="postContentComment">-->
-                        <!--</span>-->
-                        <!--</i>-->
-                        <el-button @click="showContent = !showContent" class="preview-comment__btn" size="mini"
-                                   v-if="commentField">
-                            <i class="material-icons">
-                                chat_bubble_outline
-                            </i>
-                        </el-button>
-                    </div>
-                    <div class="preview-comment">
-                        <el-collapse-transition>
-                            <div v-show="!showContent" class="spanComment">
-                                <h6 class="text-left">Remark:</h6>
-                                <input type="text" class="form-control" ref="postContentComment">
-                                <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
-                                     v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Title'">
-                                    <label class="preview-comment__commenter">
-                                        Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter:
-                                        {{ value.AppComCreatedDate_convert }}
-                                    </label>
-                                    <label>
-                                        {{ value.AppComValue }}
-                                    </label>
-                                </div>
-                            </div>
-                        </el-collapse-transition>
-                    </div>
-                    <div class="carousel-wrap">
-                        <b-carousel id="carousel1"
-                                    style="text-shadow: 1px 1px 2px #333;"
-                                    indicators
-                                    :controls="!isNull(mediaList[item.PostID]) && mediaList[item.PostID].length>1"
-                                    background="#ababab"
-                                    :interval="0">
-                            <div class="ppMedia" v-for="media in mediaList[item.PostID]">
-                                <b-carousel-slide>
-                                    <img slot="img" class="card-img-top d-block img-fluid w-100"
-                                         :src="getLowSource(media)"
-                                    />
-                                </b-carousel-slide>
-                            </div>
-                        </b-carousel>
-                    </div>
-                    <!--<div v-for="media in postList[item.PostID]" >-->
-                    <!--<img slot="img" class="card-img-top d-block img-fluid w-100"-->
-                    <!--:src="getLowSource(media)"/>-->
-                    <!--</div>-->
-                    <div class="ppGoals">
-                        <div class="ppGoalsTitle mb-2">Connection with long-term goals</div>
-                        <div class="preview-top mb-3">
-                            <el-input
-                                    type="textarea"
-                                    autosize
-                                    v-model="item.PostPorDtlDevelopmentGoals"
-                                    ref="postGoal"
-                                    class="mb-2"
-                            >
-                            </el-input>
-                            <!--<textarea rows="1" class="textArea" @input="textareaResize($event)" ref="postGoal">{{ item.PostPorDtlDevelopmentGoals }}</textarea>-->
-                            <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
-                            <!--v-if="commentField">-->
-                            <!--<span class="spanComment">-->
-                            <!--<div v-for="value in portfolioCommentHistoryList"-->
-                            <!--v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Goals'">-->
-                            <!--<label>-->
-                            <!--Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter: {{  value.AppComCreatedDate_convert }}-->
-                            <!--</label>-->
-                            <!--<label>-->
-                            <!--{{ value.AppComValue }}-->
-                            <!--</label>-->
-                            <!--</div>-->
-                            <!--<input type="text" class="form-control" ref="postGoalComment">-->
-                            <!--</span>-->
-                            <!--</i>-->
-                            <el-button @click="showConnection = !showConnection" class="preview-comment__btn"
-                                       size="mini" v-if="commentField">
-                                <i class="material-icons">
-                                    chat_bubble_outline
-                                </i>
-                            </el-button>
-                        </div>
-                        <div class="preview-comment">
-                            <el-collapse-transition>
-                                <div v-show="!showConnection" class="spanComment">
-                                    <h6 class="text-left">Remark:</h6>
-                                    <input type="text" class="form-control" ref="postGoalComment">
-                                    <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
-                                         v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Goals'">
-                                        <label class="preview-comment__commenter">
-                                            Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of
-                                            Commenter: {{ value.AppComCreatedDate_convert }}
-                                        </label>
-                                        <label>
-                                            {{ value.AppComValue }}
-                                        </label>
+                            <div class=" ppEndduringThemes mb-4">
+                                <div class="row ppCommentBtn">
+                                    <div class="col-lg-8"><label class="ppEndduringThemesTitle">Enduring
+                                        Themes: </label></div>
+                                    <div class="col-lg-4">
+                                        <el-button @click="show3 = !show3" class="preview-comment__btn" size="mini"
+                                                   v-if="commentField">
+                                            <i class="material-icons">
+                                                chat_bubble_outline
+                                            </i> Remark
+                                        </el-button>
                                     </div>
                                 </div>
-                            </el-collapse-transition>
-                        </div>
-                    </div>
-                    <div class="ppObservation">
-                        <div class="ppObservationTitle mb-2">Anecdotal Observations</div>
-                        <div class="preview-top mb-3">
-                            <el-input
-                                    type="textarea"
-                                    autosize
-                                    v-model="item.newAnalysis"
-                                    ref="postObservation"
-                            >
-                            </el-input>
-                            <!--<textarea rows="1" class="textArea" @input="textareaResize($event)" ref="postObservation">{{ item.PostPorDtlAnalysisReflection }}-->
-                            <!--{{ item.PostPorDtlObservation }}</textarea>-->
-                            <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
-                            <!--v-if="commentField">-->
-                            <!--<span class="spanComment">-->
-                            <!--<div v-for="value in portfolioCommentHistoryList"-->
-                            <!--v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Observations'">-->
-                            <!--<label>-->
-                            <!--Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter: {{  value.AppComCreatedDate_convert }}-->
-                            <!--</label>-->
-                            <!--<label>-->
-                            <!--{{ value.AppComValue }}-->
-                            <!--</label>-->
-                            <!--</div>-->
-                            <!--<input type="text" class="form-control" ref="postObservationComment">-->
-                            <!--</span>-->
-                            <!--</i>-->
-                            <el-button @click="showObservation = !showObservation" class="preview-comment__btn"
-                                       size="mini" v-if="commentField">
-                                <i class="material-icons">
-                                    chat_bubble_outline
-                                </i>
-                            </el-button>
-                        </div>
-                        <div class="preview-comment">
-                            <el-collapse-transition>
-                                <div v-show="!showObservation" class="spanComment">
-                                    <h6 class="text-left">Remark:</h6>
-                                    <input type="text" class="form-control" ref="postObservationComment">
-                                    <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
-                                         v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Observations'">
-                                        <label class="preview-comment__commenter">
-                                            Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of
-                                            Commenter: {{ value.AppComCreatedDate_convert }}
-                                        </label>
-                                        <label>
-                                            {{ value.AppComValue }}
-                                        </label>
+                                <div class="preview-top">
+                                    <el-input
+                                            type="textarea"
+                                            autosize
+                                            v-model="taEnduringThemes"
+                                            class="mb-4"
+                                    >
+                                    </el-input>
+                                    <!--<textarea rows="1" class="textArea" v-model="taEnduringThemes"-->
+                                    <!--@input="textareaResize($event)"></textarea>-->
+                                    <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
+                                    <!--v-if="commentField">-->
+                                </div>
+                                <div class="preview-comment">
+                                    <el-collapse-transition>
+                                        <div v-show="!show3" class="spanComment">
+                                            <h6 class="text-left">Remark:</h6>
+                                            <!--<textarea rows="1" class="textArea" v-model="inputEndduringThemesComment" @input="textareaResize($event)"></textarea>-->
+                                            <input type="text" class="form-control"
+                                                   v-model="inputEndduringThemesComment">
+                                            <div v-for="value in portfolioCommentHistoryList"
+                                                 class="preview-comment__list"
+                                                 v-if="value.AppComValue !== undefined && value.AppComDesc==='Enduring Themes' && value.AppComType === 'Portfolio Header'">
+                                                <label class="preview-comment__commenter">
+                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span>Date: {{ value.AppComCreatedDate_convert }}</span>
+                                                </label>
+                                                <label>
+                                                    {{ value.AppComValue }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </el-collapse-transition>
+                                </div>
+                                <div class="row ppCommentBtn">
+                                    <div class="col-lg-8"><label class="ppResearchQuestionTitle">Research
+                                        Question: </label>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <el-button @click="showResearch = !showResearch" class="preview-comment__btn"
+                                                   size="mini"
+                                                   v-if="commentField">
+                                            <i class="material-icons">
+                                                chat_bubble_outline
+                                            </i> Remark
+                                        </el-button>
                                     </div>
                                 </div>
-                            </el-collapse-transition>
+                                <div class="preview-top">
+                                    <el-input
+                                            type="textarea"
+                                            autosize
+                                            v-model="taResearchQuestion"
+                                            class="mb-2 textArea"
+                                    >
+                                    </el-input>
+                                    <!--<textarea rows="1" class="textArea" v-model="taResearchQuestion"-->
+                                    <!--@input="textareaResize($event)"></textarea>-->
+                                    <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
+                                    <!--v-if="commentField">                        </i>-->
+                                </div>
+                                <div class="preview-comment">
+                                    <el-collapse-transition>
+                                        <div v-show="!showResearch" class="spanComment">
+                                            <h6 class="text-left">Remark:</h6>
+                                            <!--<textarea rows="1" class="textArea" v-model="inputResearchQuestionComment" @input="textareaResize($event)"></textarea>-->
+                                            <input type="text" class="form-control"
+                                                   v-model="inputResearchQuestionComment">
+                                            <div v-for="value in portfolioCommentHistoryList"
+                                                 class="preview-comment__list"
+                                                 v-if="value.AppComValue !== undefined && value.AppComDesc==='Research Question' && value.AppComType === 'Portfolio Header'">
+                                                <label class="preview-comment__commenter">
+                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date
+                                                    of
+                                                    Commenter:
+                                                    {{ value.AppComCreatedDate_convert }}
+                                                </label>
+                                                <label>
+                                                    {{ value.AppComValue }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </el-collapse-transition>
+                                </div>
+                            </div>
+                            <router-link :to="{name: 'Portfolio'}">
+                                <button class="btn btn-secondary float-left">Back</button>
+                            </router-link>
+                            <button v-on:click="savePortfolio()" v-if="savePortfolioAction"
+                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                Submit
+                            </button>
+                            <button v-on:click="approvePortfolio('Approved')" v-if="approverPortfolioAction"
+                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                Approve
+                            </button>
+                            <button v-on:click="approvePortfolio('Reject')" v-if="approverPortfolioAction"
+                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                Reject
+                            </button>
+                            <button v-on:click="generatePortfolioPdf()" v-if="btnDownloadPDF"
+                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                Download PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class=" ppEachPost" ref="ppEachPost_Update" v-for="item in postList">
+                            <div class="ppDateOfObservation">
+                                <span class="ppDateOfObservationTitle">
+                                    <i class="material-icons">date_range</i> Date of observation: {{item.PostCreatedDate_convert}}
+                                </span>
+                                <!--<span><input type="text" class="form-control inputPostCreatedDate" ref="postCreatedDate"-->
+                                <!--:value="item.PostCreatedDate_convert.trim()" readonly></span>-->
+                                <!--<span ref="postCreatedDate">{{item.PostCreatedDate_convert.trim()}}</span>-->
+                            </div>
+                            <div class="preview-content-wrap">
+                                <div class="row ppCommentBtn">
+                                    <div class="col-lg-8"><label class="ppEndduringThemesTitle">Post Content </label>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <el-button @click="showContent = !showContent" class="preview-comment__btn"
+                                                   size="mini"
+                                                   v-if="commentField">
+                                            <i class="material-icons">
+                                                chat_bubble_outline
+                                            </i> Remark
+                                        </el-button>
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control ppPostContent" ref="postContent"
+                                       v-model="item.PostContent">
+                                <!--<input type="text" class="form-control ppPostContent" ref="postContent"-->
+                                <!--:value="item.PostContent.trim()" v-model="item.PostContent">-->
+                                <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
+                                <!--v-if="commentField">-->
+                                <!--<span class="spanComment">-->
+                                <!--<div v-for="value in portfolioCommentHistoryList"-->
+                                <!--v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Title'">-->
+                                <!--<label>-->
+                                <!--Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter: {{  value.AppComCreatedDate_convert }}-->
+                                <!--</label>-->
+                                <!--<label>-->
+                                <!--{{ value.AppComValue }}-->
+                                <!--</label>-->
+                                <!--</div>-->
+                                <!--<input type="text" class="form-control" ref="postContentComment">-->
+                                <!--</span>-->
+                                <!--</i>-->
+                            </div>
+                            <div class="preview-comment">
+                                <el-collapse-transition>
+                                    <div v-show="!showContent" class="spanComment">
+                                        <h6 class="text-left">Remark:</h6>
+                                        <input type="text" class="form-control" ref="postContentComment">
+                                        <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
+                                             v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Title'">
+                                            <label class="preview-comment__commenter">
+                                                Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of
+                                                Commenter:
+                                                {{ value.AppComCreatedDate_convert }}
+                                            </label>
+                                            <label>
+                                                {{ value.AppComValue }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </el-collapse-transition>
+                            </div>
+                            <div class="carousel-wrap">
+                                <b-carousel id="carousel1"
+                                            style="text-shadow: 1px 1px 2px #333;"
+                                            indicators
+                                            :controls="!isNull(mediaList[item.PostID]) && mediaList[item.PostID].length>1"
+                                            background="#ababab"
+                                            :interval="0">
+                                    <div class="ppMedia" v-for="media in mediaList[item.PostID]">
+                                        <b-carousel-slide>
+                                            <img slot="img" class="card-img-top d-block img-fluid w-100"
+                                                 :src="getLowSource(media)"
+                                            />
+                                        </b-carousel-slide>
+                                    </div>
+                                </b-carousel>
+                            </div>
+                            <!--<div v-for="media in postList[item.PostID]" >-->
+                            <!--<img slot="img" class="card-img-top d-block img-fluid w-100"-->
+                            <!--:src="getLowSource(media)"/>-->
+                            <!--</div>-->
+                            <div class="ppGoals">
+                                <div class="row ppCommentBtn">
+                                    <div class="col-lg-8"><label class="ppEndduringThemesTitle">Connection with
+                                        long-term goals </label></div>
+                                    <div class="col-lg-4">
+                                        <el-button @click="showConnection = !showConnection"
+                                                   class="preview-comment__btn"
+                                                   size="mini" v-if="commentField">
+                                            <i class="material-icons">
+                                                chat_bubble_outline
+                                            </i> Remark
+                                        </el-button>
+                                    </div>
+                                </div>
+                                <!--<div class="ppGoalsTitle mb-2"></div>-->
+                                <div class="preview-top mb-3">
+                                    <el-input
+                                            type="textarea"
+                                            autosize
+                                            v-model="item.PostPorDtlDevelopmentGoals"
+                                            ref="postGoal"
+                                            class="mb-2"
+                                    >
+                                    </el-input>
+                                    <!--<textarea rows="1" class="textArea" @input="textareaResize($event)" ref="postGoal">{{ item.PostPorDtlDevelopmentGoals }}</textarea>-->
+                                    <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
+                                    <!--v-if="commentField">-->
+                                    <!--<span class="spanComment">-->
+                                    <!--<div v-for="value in portfolioCommentHistoryList"-->
+                                    <!--v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Goals'">-->
+                                    <!--<label>-->
+                                    <!--Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter: {{  value.AppComCreatedDate_convert }}-->
+                                    <!--</label>-->
+                                    <!--<label>-->
+                                    <!--{{ value.AppComValue }}-->
+                                    <!--</label>-->
+                                    <!--</div>-->
+                                    <!--<input type="text" class="form-control" ref="postGoalComment">-->
+                                    <!--</span>-->
+                                    <!--</i>-->
+                                </div>
+                                <div class="preview-comment">
+                                    <el-collapse-transition>
+                                        <div v-show="!showConnection" class="spanComment">
+                                            <h6 class="text-left">Remark:</h6>
+                                            <input type="text" class="form-control" ref="postGoalComment">
+                                            <div v-for="value in portfolioCommentHistoryList"
+                                                 class="preview-comment__list"
+                                                 v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Goals'">
+                                                <label class="preview-comment__commenter">
+                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date
+                                                    of
+                                                    Commenter: {{ value.AppComCreatedDate_convert }}
+                                                </label>
+                                                <label>
+                                                    {{ value.AppComValue }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </el-collapse-transition>
+                                </div>
+                            </div>
+                            <div class="ppObservation">
+                                <div class="row ppCommentBtn">
+                                    <div class="col-lg-8"><label class="ppEndduringThemesTitle">Anecdotal
+                                        Observations</label></div>
+                                    <div class="col-lg-4">
+                                        <el-button @click="showObservation = !showObservation"
+                                                   class="preview-comment__btn"
+                                                   size="mini" v-if="commentField">
+                                            <i class="material-icons">
+                                                chat_bubble_outline
+                                            </i> Remark
+                                        </el-button>
+                                    </div>
+                                </div>
+                                <!--<div class="ppObservationTitle mb-2">Anecdotal Observations</div>-->
+                                <div class="preview-top mb-3">
+                                    <el-input
+                                            type="textarea"
+                                            autosize
+                                            v-model="item.newAnalysis"
+                                            ref="postObservation"
+                                    >
+                                    </el-input>
+                                    <!--<textarea rows="1" class="textArea" @input="textareaResize($event)" ref="postObservation">{{ item.PostPorDtlAnalysisReflection }}-->
+                                    <!--{{ item.PostPorDtlObservation }}</textarea>-->
+                                    <!--<i class="fa fa-clone" aria-hidden="true" v-on:click="openCommentField($event)"-->
+                                    <!--v-if="commentField">-->
+                                    <!--<span class="spanComment">-->
+                                    <!--<div v-for="value in portfolioCommentHistoryList"-->
+                                    <!--v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Observations'">-->
+                                    <!--<label>-->
+                                    <!--Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of Commenter: {{  value.AppComCreatedDate_convert }}-->
+                                    <!--</label>-->
+                                    <!--<label>-->
+                                    <!--{{ value.AppComValue }}-->
+                                    <!--</label>-->
+                                    <!--</div>-->
+                                    <!--<input type="text" class="form-control" ref="postObservationComment">-->
+                                    <!--</span>-->
+                                    <!--</i>-->
+                                </div>
+                                <div class="preview-comment">
+                                    <el-collapse-transition>
+                                        <div v-show="!showObservation" class="spanComment">
+                                            <h6 class="text-left">Remark:</h6>
+                                            <input type="text" class="form-control" ref="postObservationComment">
+                                            <div v-for="value in portfolioCommentHistoryList"
+                                                 class="preview-comment__list"
+                                                 v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Observations'">
+                                                <label class="preview-comment__commenter">
+                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date
+                                                    of
+                                                    Commenter: {{ value.AppComCreatedDate_convert }}
+                                                </label>
+                                                <label>
+                                                    {{ value.AppComValue }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </el-collapse-transition>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="portfolio-preview__submit">
-                    <button v-on:click="savePortfolio()" v-if="savePortfolioAction"
-                            class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Submit
-                    </button>
-                    <button v-on:click="approvePortfolio('Approved')" v-if="approverPortfolioAction"
-                            class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Approve
-                    </button>
-                    <button v-on:click="approvePortfolio('Reject')" v-if="approverPortfolioAction"
-                            class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Reject
-                    </button>
-                    <button v-on:click="generatePortfolioPdf()" v-if="btnDownloadPDF"
-                            class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch">Download PDF
-                    </button>
-                </div>
+                <!--<div class="portfolio-preview__submit row">-->
+                    <!--<div class="col-lg-6">-->
+
+                    <!--</div>-->
+                    <!--<div class="col-lg-6">-->
+
+                    <!--</div>-->
+                <!--</div>-->
             </div>
         </div>
     </div>
@@ -732,6 +779,7 @@
             },
             async generatePortfolioPdf() {
                 try {
+                    this.$vs.loading();
                     const response = await DataSource.shared.generatePortfolioPDF(this.$route.params.portfolioID);
                     if (response) {
                         //console.log(response);
@@ -788,7 +836,12 @@
     }
 
     .ppEachPost {
-        margin-bottom: 50px;
+        background: #fff;
+        padding: 20px;
+        /* border-radius: 5px; */
+        margin-bottom: 20px;
+        /* border: 1px solid #ccc; */
+
     }
 
     /*.ppGoals, .ppObservation {*/
@@ -813,11 +866,11 @@
     }
 
     .ppDateOfObservation {
-        text-align: right;
+        text-align: left;
     }
 
     .ppPostContent {
-        color: red;
+        color: #409eff;
         font-style: italic;
     }
 
@@ -831,7 +884,7 @@
     }
 
     .inputLearningStory, .ppPostContent {
-        text-align: center;
+        /*text-align: center;*/
     }
 
     .inputPostCreatedDate {

@@ -208,18 +208,18 @@
                                                                               <!--aria-hidden="true"></i>-->
                                 <!--<span>Broadcast</span></b-btn>-->
                         <!--</div>-->
-                        <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
-                            <!--<b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"-->
-                                                                            <!--aria-hidden="true"></i> <span>Updates</span>-->
-                            <!--</b-btn>-->
-                        <!--</div>-->
+                        <!--div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
+                            <b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"
+                                                                            aria-hidden="true"></i> <span>Updates</span>
+                            </b-btn>
+                        </div-->
                         <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
                             <!--<b-btn v-b-modal.modal1 @click="showPortfolio"><i class="fa fa-book" aria-hidden="true"></i>-->
                                 <!--<span>Portfolio</span></b-btn>-->
                         <!--</div>-->
                     </div>
                     <div class="success">{{success}}</div>
-                    <div v-if="isLoading">Loading...</div>
+                    <!--<div v-if="isLoading">Loading...</div>-->
                     <div class="" v-for="object of list"
                          :key="`${object.PostID}${object.commentItems ? object.commentItems.length : ''}`">
                         <PostComponent
@@ -232,9 +232,11 @@
                                 @loadPosts="loadPosts"
                                 ref="pComponent"
                                 @showDeleteModal="showDeleteModal"
+                                @deletePost="deletePost"
                         />
                         <hr/>
                     </div>
+                    <div class="lds-ellipsis" v-if="feedLoader || isLoading"><div></div><div></div><div></div><div></div></div>
                 </div>
             </div>
         </div>
@@ -392,6 +394,10 @@
                 imgParentProfile: "",
                 tempBroadcastModalPostID: [],
                 loading: true,
+
+                feedLoader: false,
+                deleteType:"",
+                deletePostID:""
             };
         },
         filters: {
@@ -425,6 +431,7 @@
             /*#region Scroll Loader Functions*/
             $(window).scroll(self.debounce(() => {
                     if (self.getScrollPercent() >= 50) {
+                        this.feedLoader = !this.feedLoader;
                         this.isParent = Cookies.get('userTypeSession');
                         let obj_LastPost = !this.isNull(this.list) ? this.list[this.list.length - 1] : "";
                         let promise_GetPosts = this.isParent === "Parent" ? DataSource.shared.getParentPostFeedPage(this.int_NumberOfPost, obj_LastPost.PostID, '', 'Portfolio') : DataSource.shared.getStaffPostFeedPage(this.int_NumberOfPost, obj_LastPost.PostID, '', 'Portfolio');
@@ -433,6 +440,8 @@
                         promise_GetPosts.then((response) => {
                             if (response.Table) {
                                 this.list.push.apply(this.list, response.Table);
+
+                                this.feedLoader = !this.feedLoader;
                             }
                         });
 
@@ -481,6 +490,7 @@
                                 }
                             });
                         }*/
+
                     }
                 }, 250
             ));
@@ -591,7 +601,12 @@
                 this.deleteCmId = deleteCmId;
                 this.deleteCmContent = deleteCmContent;
                 this.deleteCmPostId = deleteCmPostId;
-
+                this.deleteType = "comment";
+            },
+            deletePost(post) {
+                this.$refs.modal_DeletePost.show();
+                this.deleteType = "post";
+                this.deletePostID = post.PostID;
             },
             CheckNew() {
                 this.isParent = Cookies.get('userTypeSession');
@@ -726,6 +741,8 @@
             loadPosts() {
                 // this.showSession()
                 // user menu
+                this.feedLoader = !this.feedLoader;
+
                 $("html, body").animate({scrollTop: 0}, "fast");
                 this.bool_ShowRefresh = false;
                 this.initIntervalCheckNew();
@@ -740,6 +757,8 @@
                         this.list.push.apply(this.list, response.Table);
 
                     this.isLoading = false;
+                    this.feedLoader = !this.feedLoader;
+
                 });
 
 
@@ -916,6 +935,7 @@
             },
 
             loadBroadcast() {
+
                 this.isParent = Cookies.get('userTypeSession');
                 this.arrobj_BroadcastPost = [];
 
@@ -927,6 +947,8 @@
                     if (response.Table)
                         this.arrobj_BroadcastPost.push.apply(this.arrobj_BroadcastPost, response.Table);
                 });
+
+
             },
             hideComponentModal() {
                 this.obj_SelectedComponent = false;
@@ -1091,47 +1113,55 @@
             }
             ,
             async commentDelete() {
-                let PoCmID = this.deleteCmId;
-                let PoCmContent = this.deleteCmContent;
-                let postId = this.deleteCmPostId;
-                this.error = "";
-                try {
-                    this.actionMode = "Delete";
-                    const deleteCommentResponse = await DataSource.shared.deleteComment(PoCmID, PoCmContent, this.actionMode);
-                    if (deleteCommentResponse) {
-                        switch (deleteCommentResponse.code) {
-                            case "1":
-                                // reset all input filed to blank
-                                this.commentPostID = null;
-                                this.commentPostContent = "";
+                if (this.deleteType === "comment"){
+                    let PoCmID = this.deleteCmId;
+                    let PoCmContent = this.deleteCmContent;
+                    let postId = this.deleteCmPostId;
+                    this.error = "";
+                    try {
+                        this.actionMode = "Delete";
+                        const deleteCommentResponse = await DataSource.shared.deleteComment(PoCmID, PoCmContent, this.actionMode);
+                        if (deleteCommentResponse) {
+                            switch (deleteCommentResponse.code) {
+                                case "1":
+                                    // reset all input filed to blank
+                                    this.commentPostID = null;
+                                    this.commentPostContent = "";
 
-                                //     const newComment = await DataSource.shared.getComment(PoCmID);
+                                    //     const newComment = await DataSource.shared.getComment(PoCmID);
 
-                                this.list.find(item => {
+                                    this.list.find(item => {
 
-                                    if (item.PostID === postId) {
-                                        item.commentItems = item.commentItems.filter(comment => comment.PoCmID !== PoCmID);
-                                        this.sendMsg(postId, PoCmContent);
-                                        return item;
-                                    }
+                                        if (item.PostID === postId) {
+                                            item.commentItems = item.commentItems.filter(comment => comment.PoCmID !== PoCmID);
+                                            this.sendMsg(postId, PoCmContent);
+                                            return item;
+                                        }
 
-                                });
-                                //  this.$forceUpdate();
-                                break;
-                            case "88":
-                                this.results = `Please Login to submit post`;
-                                this.systemmsgError = true;
-                                break;
-                            case "99":
-                                this.results = `Please fill in content`;
-                                this.systemmsgError = true;
-                                break;
+                                    });
+                                    //  this.$forceUpdate();
+                                    break;
+                                case "88":
+                                    this.results = `Please Login to submit post`;
+                                    this.systemmsgError = true;
+                                    break;
+                                case "99":
+                                    this.results = `Please fill in content`;
+                                    this.systemmsgError = true;
+                                    break;
+                            }
                         }
+                    } catch (e) {
+                        console.log(e);
+                        this.error = e;
                     }
-                } catch (e) {
-                    console.log(e);
-                    this.error = e;
+                }else if(this.deleteType === "post"){
+
+                    DataSource.shared.softDeletePost(this.deletePostID).then((result) => {
+                    });
+                    this.loadPosts();
                 }
+
             }
             ,
             async disableReadonly(PoCmID) {

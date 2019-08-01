@@ -512,6 +512,62 @@ small.small-grey-text {
     color: #999;
     display: block;
 }
+.lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+.lds-ellipsis div {
+    position: absolute;
+    top: 27px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #007bff;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+    left: 6px;
+    animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+    left: 6px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+    left: 26px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+    left: 45px;
+    animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes lds-ellipsis3 {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+@keyframes lds-ellipsis2 {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(19px, 0);
+    }
+}
+
 /*
 5---notification---
  */
@@ -4198,86 +4254,132 @@ div#modal_ViewPost___BV_modal_body_ {
  */
 
 div#portfoliopreview .container {
-    background: white;
-    padding: 20px;
+    /*background: white;*/
+    /*padding: 20px;*/
 }
 
 .ppTitle {
-    text-align: center;
-    margin: auto;
-    display: table !important;
-    width: 400px;
-    max-width: 100%;
+    text-align: left;
+    /* margin: auto; */
+    display: block;
+    /* width: 400px; */
+    /* max-width: 100%; */
 }
 
 .ppTitle label {
-    text-align: center;
+    text-align: left;
     text-decoration: none !important;
-    font-weight: normal;
-    font-size: 14px;
+    font-weight: bold;
 }
 
 .ppTitle input {
-    border: 0px;
+    border: 1px solid #cccccc69;
     width: 100%;
     padding: 4px;
+    -webkit-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
     font-size: 20px;
-    border-bottom: 1px solid #999;
+    /* border-bottom: 1px solid #999; */
+    background: #fff;
+    padding: 5px 20px;
+    border-radius: 6px;
 }
 
 .ppTitle input:hover, .ppTitle input:focus {
-    background: #efefef8a;
-    border-radius: 4px;
-    border-color: transparent;
+    /*background: #efefef8a;*/
+    /*border-radius: 4px;*/
+    /*border-color: transparent;*/
 }
-
-div#portfoliopreview textarea {
-    background: #ebf1f8;
+#portfoliopreview {
+    display: table;
+    margin: auto;
+    width: 100%;
+    /*background: #f4f4f4;*/
+}
+#portfoliopreview textarea {
+    background: #fff;
     padding: 8px 16px;
     border: 0px;
     border-radius: 4px;
-}
-
-.preview-top label {
-    flex: 1;
-}
-
-.preview-top {
-    display: flex;
-    align-items: center;
-}
-
-.preview-top .el-textarea {
-    flex: 4;
+    border: 1px solid #cccccc69;
+    height: auto !important;
+    min-height: 0px !important;
+    display: block;
 }
 
 .portfolio-preview__box {
-    max-width: 800px;
-    margin: auto;
+    /*max-width: 800px;*/
+    /*margin: auto;*/
+}
+.ppEachPost .el-tab-pane {
+    background: white;
+    padding: 20px;
+    /* border-radius: 4px; */
 }
 
+.pp-header {
+    background: white;
+    padding: 20px;
+    border-radius: 4px;
+    display: table;
+    width: 100%;
+}
+
+.ppEachPost .el-tabs__item {
+    /*background: #e1e4e8;*/
+    /*border-radius: 0px;*/
+    /*border-right: 3px solid #cccccc8c;*/
+    /*max-width: 200px;*/
+    /*display: block;*/
+    /*word-break: break-word;*/
+    /*white-space: pre-wrap;*/
+    /*height: auto;*/
+    /*line-height: 140%;*/
+    /*padding: 10px 20px;*/
+    /*min-width: 100px;*/
+    text-align: center !important;
+}
+
+.ppEachPost .el-tabs__item.is-active {
+    background: white;
+    /* color: white; */
+    border-color: #109eff;
+}
+
+.ppEachPost .el-tabs__active-bar.is-left {
+    display: none;
+}
+
+.ppEachPost .el-tabs__nav-wrap::after {
+    display: none;
+}
+
+.ppEachPost .el-tabs__content{
+    border-left: 1px solid #eee;
+}
 .ppDateOfObservation {
-    margin: 20px 10px 30px !important;
+    /*margin: 20px 10px 30px !important;*/
 }
 
 .preview-content-wrap input.ppPostContent {
-    background: #ebf1f8;
-    border: 0px;
+    background: #ffffff;
+    border: 1px solid #cccccc69;
 }
 
 button.preview-comment__btn {
     background: #edf0f4;
-    border: 0px;
-    margin: 0 10px;
-    width: 40px;
-    height: 40px;
-    border-radius: 36px;
-    padding: 0px;
+    border: 0px solid #ccc;
+    margin: 0;
+    /* width: 40px; */
+    /* height: 40px; */
+    /* border-radius: 36px; */
+    padding: 7px 10px;
+    float: right;
 }
 
 button.preview-comment__btn i {
-    font-size: 16px;
+    font-size: 13px;
+    top: 3px;
 }
 
 .preview-comment input {
@@ -4304,7 +4406,7 @@ button.preview-comment__btn i {
 }
 
 .preview-content-wrap {
-    display: flex;
+    /*display: flex;*/
 }
 
 #portfoliopreview .spanComment input {
@@ -4322,6 +4424,8 @@ button.preview-comment__btn i {
     background: #edf0f4;
     border-radius: 4px;
     display: flex;
+    margin-bottom: 10px;
+    align-items: center;
 }
 
 label.preview-comment__commenter span {
@@ -4330,7 +4434,7 @@ label.preview-comment__commenter span {
 }
 
 .preview-comment__list label.preview-comment__commenter {
-    font-weight: bold;
+    font-weight: 500;
     border: 0;
     padding: 0;
     margin: 0;
@@ -4338,7 +4442,7 @@ label.preview-comment__commenter span {
 
 .preview-comment__list label {
     font-weight: normal;
-    padding-bottom: 5px;
+    padding-bottom: 0;
     margin: 0 10px;
 }
 
@@ -4346,7 +4450,27 @@ label.preview-comment__commenter span {
     display: inline-block;
     margin: 0 10px;
 }
+.ppCommentBtn {
+    margin-bottom: 5px;
+}
+.ppDateOfObservationTitle {
+    color: #999;
+    font-weight: normal !important;
+    font-size: 0.9em;
+}
 
+.ppDateOfObservationTitle i {
+    color: #999;
+    font-weight: normal !important;
+    font-size: 1.5em;
+    top: 3px;
+}
+#portfoliopreview h2 {
+    color: #969aa0;
+    font-size: 1.7em;
+    text-align: left;
+    margin-bottom: 30px;
+}
 /*
 30---daily routine---
  */

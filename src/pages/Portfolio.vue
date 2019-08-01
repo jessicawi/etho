@@ -629,12 +629,10 @@
             /*#region Loader Functions*/
             showLoading() {
                 this.$vs.loading();
-            }
-            ,
+            },
             hideLoading() {
                 this.$vs.loading.close();
-            }
-            ,
+            },
             /*#endregion*/
 
             isNull(obj) {

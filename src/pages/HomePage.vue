@@ -175,6 +175,18 @@
                                                  sortable="custom">
                                 </el-table-column>
                             </data-tables>
+
+                            <el-row slot="tool" style="margin: 10px 0">
+                                <el-col :span="8">
+                                    <label class="lblAttTotalPresent">Total Present: {{attTotalPresent}}</label>
+                                </el-col>
+                                <el-col :span="8">
+                                    <label class="lblAttTotalNotPresent">Total Not Present: {{attTotalNotPresent}}</label>
+                                </el-col>
+                                <el-col :span="8">
+                                    <label class="lblAttTotalStudent">Total Students: {{attTotalStudent}}</label>
+                                </el-col>
+                            </el-row>
                         </div>
                     </div>
                 </div>
@@ -264,6 +276,10 @@
                 emptyImage: false,
                 noresponse: false,
                 studentMovements: [],
+                attTotalStudent: '',
+                attTotalPresent: '',
+                attTotalNotPresent: '',
+
                 chartdata: {
                     labels: [],
                     datasets: [
@@ -739,6 +755,15 @@
                         console.log('Attendance list: No Record');
                     } else {
                         this.attendanceTodayNumberInt = response.Table;
+
+                        this.attTotalStudent = 0;
+                        this.attTotalPresent = 0;
+                        this.attTotalNotPresent = 0;
+                        this.attendanceTodayNumberInt.forEach(m => {
+                            this.attTotalStudent = this.attTotalStudent + m.TotalNumberOfStudent;
+                            this.attTotalPresent = this.attTotalPresent + m.TotalAttanded;
+                            this.attTotalNotPresent = this.attTotalNotPresent + m.TotalUnAttanded;
+                        });
                     }
                 }
             },
@@ -933,5 +958,10 @@
     .thumbnail {
         width: 80%;
         margin: 20px auto;
+    }
+
+    .lblAttTotalPresent, .lblAttTotalNotPresent, .lblAttTotalStudent {
+        text-align: center;
+        font-size: 15px;
     }
 </style>

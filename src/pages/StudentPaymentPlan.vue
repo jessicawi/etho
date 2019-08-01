@@ -1043,7 +1043,7 @@
                     label: "Last Name"
                 }, {
                     prop: "Regst_date_convert",
-                    label: "Regisration Date"
+                    label: "Registration Date"
                 }, {
                     prop: "SiblingLevelName",
                     label: "Level"
@@ -1208,6 +1208,12 @@
                     prop: "invoiceAmount",
                     label: "Invoice Amount"
                 }, {
+                    prop: "outstandingAmount",
+                    label: "Outstanding Amount"
+                }, {
+                    prop: "invoiceDueDate",
+                    label: "Invoice Due Date"
+                },{
                     prop: "invoiceRemarks",
                     label: "Remarks"
                 }],
@@ -2123,6 +2129,7 @@
 
                                 let pList = [];
                                 response.Table.forEach(m => {
+                                    console.log(m);
                                     if (!m.IH_Invoice_Name) {
                                         m.IH_Invoice_Name = '-';
                                     }
@@ -3402,7 +3409,8 @@
                         obj_List.push(objDetail);
                     }
 
-                    const resp = await DataSource.shared.getLeftOverPaymentReceipt(JSON.stringify(obj_List), this.studentID, objValue.IH_Invoice_Name, this.studentCourseID);
+
+                    const resp = await DataSource.shared.getLeftOverPaymentReceipt(JSON.stringify(obj_List), this.studentID, (objValue.IH_Invoice_Name == "-" ? "" : objValue.IH_Invoice_Name), this.studentCourseID);
 
                     if (resp) {
                         switch (resp.code) {
@@ -3700,6 +3708,7 @@
                                 message: 'Successfully Sent!',
                                 type: 'success'
                             });
+                            this.$refs.showPaymentReminderModal.hide();
                             break;
 
                     }

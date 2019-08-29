@@ -42,7 +42,7 @@
         },
         mounted() {
             const isLogin = Cookies.get('authToken');
-            if (this.$route.path !== "/login" && this.$route.path !== "/register/parent" && this.$route.path !== "/reset-password" && this.$route.path !== "/reset-email"  && (!isLogin || isLogin === "null" || isLogin === "undefined")) {
+            if (this.$route.path !== "/login" && this.$route.path !== "/register/parent" && this.$route.path !== "/reset-password" && this.$route.path !== "/reset-email" && this.$route.path !== "/PortfolioMedia"  && (!isLogin || isLogin === "null" || isLogin === "undefined")) {
                 // alert("expired");
                 this.$message.error('Session is expired, please login again.');
                 this.$router.push('/login')

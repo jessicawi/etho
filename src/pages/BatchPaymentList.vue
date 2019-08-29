@@ -10,23 +10,10 @@
             <div class="datatable-form__header atr-header-wrap mb-4">
 
                 <div class="datatable-form__input form-group flex-1">
-                    <label>Schools</label>
-                    <el-select placeholder="Select School" v-model="schoolsListSelected"
-                               v-on:change="BindAcademicYear()" class="ddlSearchStatus">
-                        <el-option
-                                v-for="item in schoolsList"
-                                :label="item.SCH_Name"
-                                :value="item.PK_SCH_ID"
-                        >
-                        </el-option>
-                    </el-select>
-                </div>
-
-                <div class="datatable-form__input form-group flex-1">
                     <label>Academic Year</label>
                     <el-select class="ddlSearchStatus"
                                placeholder="Search Academic Year" v-model="academicYearListSelected"
-                               v-on:change="loadClasses()"  filterable>
+                               v-on:change="loadCourses()"  filterable>
                         <el-option
                                 v-for="item in academicYearList"
                                 :label="item.SMT_Code"
@@ -37,20 +24,30 @@
                 </div>
 
                 <div class="datatable-form__input form-group flex-1">
-                    <label>Course and Class</label>
-                    <el-select v-model="courseListSelected" class="ddlSearchStatus" placeholder="Class" id="ddl_Class">
-                        <el-option-group
-                                v-for="tempcourseList_item of courseList"
-                                :key="tempcourseList_item.id"
-                                :value="tempcourseList_item.PK_Course_ID"
-                                :label="tempcourseList_item.Str_SortBy">
-                            <el-option
-                                    v-for="tempobj_Class of tempcourseList_item.ArrObj_Items"
-                                    :key="tempobj_Class.id"
-                                    :label="tempobj_Class.CLS_ClassName + ' of ' + tempobj_Class.CLS_Batch"
-                                    :value="tempobj_Class">
-                            </el-option>
-                        </el-option-group>
+                    <label>Course</label>
+                    <el-select class="ddlSearchStatus"
+                               placeholder="Select course" v-model="courseSelected"
+                               v-on:change="loadClasses()"  filterable>
+                        <el-option
+                                v-for="item in courseList"
+                                :label="item.CRS_Course_Name"
+                                :value="item.PK_Course_ID"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+
+                <div class="datatable-form__input form-group flex-1">
+                    <label>Class</label>
+                    <el-select class="ddlSearchStatus"
+                               placeholder="Select Class" v-model="classesSelected"
+                               filterable>
+                        <el-option
+                                v-for="item in classesList"
+                                :label="item.CLS_ClassName+'-'+item.CLS_Batch"
+                                :value="item.PK_Class_ID"
+                        >
+                        </el-option>
                     </el-select>
                 </div>
 
@@ -74,6 +71,10 @@
 
             <div class="admin-wrap">
                 <div class="datatable-form__submit text-right">
+                        <div class="col-lg-6" v-if="UnbilledBatchPaymentListInt.length>1">
+                            <el-checkbox v-model="cbPrintMonthlyBreakdown" label="Print monthly breakdown" border
+                                         class="float-left"></el-checkbox>
+                        </div>
                     <el-button-group v-if="UnbilledBatchPaymentListInt.length>1">
                         <div class="datatable-form__input form-group flex-1">
                             <el-date-picker
@@ -101,7 +102,6 @@
 
                     <div v-if="UnbilledBatchPaymentListInt.length>0" class="datatable_group">
                         <data-tables :data="UnbilledBatchPaymentListInt" @selection-change="changeSelection"
-                                     :row-key="getRowKeys"
                                      width="55" stripe tooltip-effect='light' border>
                             <el-table-column type="selection" width="55" :reserve-selection="true">
                             </el-table-column>
@@ -138,14 +138,15 @@
 
 <script>
     import DataSource from "../data/datasource";
+    import Cookies from "js-cookie";
+    import Vue from 'vue';
+
     export default {
         name: "BatchPaymentList",
         data(){
             return{
                 readonly:true,
                 spdSelection:[],
-                arrobj_Classes:null,
-                obj_SelectedClass:null,
                 arrobj_selectedSPD:[],
                 datePicker:{
                     disabledDate(date){
@@ -174,14 +175,23 @@
                     prop: "SPPD_PaymentAmount",
                     label: "Amount"
                 }],
-                schoolsListSelected:'',
                 inputDueDate:'',
                 courseListResponse:'',
-                courseListSelected:null,
                 courseList:[],
-                classListSelected:'',
-                classList:[],
-                inputFromDate:'',
+
+                //Class items
+                classesSelected:'',
+                classesList:[],
+                classesListResponse:[],
+                //class Item
+
+                //start:update
+                courseSelected:'',
+                courseID:'',
+                semesterID:'',
+                schoolID:'',
+                //
+                inputFromDate:[],
                 startupText:'',
 
                 schoolsList:[],
@@ -189,14 +199,43 @@
                 schoolsListResponse:[],
 
                 schoolListInt:[],
-                currentSchoolsName:'',
                 previewResultList:'',
+
+                //breakdown items
+                cbPrintMonthlyBreakdown:false,
+                breakdownFlag:'',
+                objNonCourseFees:[],
+                nonEligibleStudentList:[],
+                //breakdown items
             }
         },
         async mounted(){
-            await this.BindSchool();
+            this.schoolID = Cookies.get('schoolSession');
+
+            if (this.$route.query.AY) {
+                await this.BindAcademicYear();
+                this.academicYearListSelected = this.$route.query.AY;
+
+                await this.loadCourses();
+                this.courseSelected = this.$route.query.CR;
+
+                await this.loadClasses();
+                if (this.$route.query.CL) {
+                    this.classesSelected = this.$route.query.CL;
+                }
+
+                if (this.$route.query.FR) {
+                    Vue.set(this.inputFromDate, 0, this.$route.query.FR.replace(/-/gim,'/'));
+                    Vue.set(this.inputFromDate, 1, this.$route.query.TO.replace(/-/gim,'/'));
+                }
+
+                await this.Search();
+            } else {
+                await this.BindAcademicYear();
+            }
         },
-        async created(){},
+        async created(){
+        },
 
         methods:{
             getCurrentDate(){
@@ -218,12 +257,37 @@
                 window.open(fileUrl, '_blank', 'width=500, height=500');
             },
 
+            async checkBatchPaymentBreakdownEligible(){
+                    var eligible = true;
+                    let courseFeesCount = 0;
+                    this.nonEligibleStudentList=[];
+                    this.arrobj_selectedSPD.forEach(m=>{
+                        let stuName='';
+                        let nonCourseFeesCount = 0;
+                                m.ArrObj_Items.forEach(n=>{
+                                    if(n.PPD_CalCategory==="Course Fees")
+                                    {
+                                        courseFeesCount++;
+                                    }
+                                    else
+                                    {
+                                        nonCourseFeesCount++;
+                                        stuName=n.StudentName;
+                                    }
+                                });
+                        if(m.ArrObj_Items.length==nonCourseFeesCount){
+                            this.nonEligibleStudentList.push(stuName);
+                            eligible = false;
+                        }
+
+                    });
+
+                return eligible;
+            },
+
             async batchPreviewClick(){
                 try{
-                    let actionType = 'Preview';
-                    let selected= this.sortByStudentNO();
-                    console.log('this.arrobj_selectedSPD',this.arrobj_selectedSPD);
-                    //let ObjList=[];
+                    this.sortByStudentNO();
                     if (!this.inputDueDate)
                     {
                         this.$notify({
@@ -232,67 +296,203 @@
                         });
                     }
                     else{
-                        let List = [];
-                        let batchPaymentObj = {};
-                        this.arrobj_selectedSPD.forEach(m=>{
-                            let objList=[];
-                            m.ArrObj_Items.forEach(n=>{
-                                List = {
-                                    studentCourseID:n.PK_Student_Course_ID,
-                                    PK_SPD_ID:n.PK_SPD_ID,
-                                    SPPD_PayerName:n.SPPD_PayerName,
-                                    SPPD_PaymentItemType:n.SPPD_PaymentItemType,
-                                    SPPD_PaymentAmount:n.SPPD_PaymentAmount,
-                                    SPPD_GstValue:n.newGSTAmount,
-                                };
-                                objList.push(List);
-                            });
-
-                           batchPaymentObj["studentID_"+m.Str_SortBy] = objList;
-                        });
-                        console.log('batchPaymentObj=',batchPaymentObj);
-
-                        const resp = DataSource.shared.generateBatchInvoice(JSON.stringify(batchPaymentObj),this.inputDueDate,actionType);
-                        if (resp) {
-                            if (resp.code === '88') {
-                                window.location.replace('/');
-                            } else if (resp.code === '99') {
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Error 99!'
-                                });
-                            } else if (resp.code === '2') {
-                                this.$notify({
-                                    title: 'No Record',
-                                    message: 'No Record Found'
-                                });
-                            } else
+                        //check breakdown
+                        if(this.cbPrintMonthlyBreakdown){
+                             var breakdownflag = await this.checkBatchPaymentBreakdownEligible();
+                            if(breakdownflag==true)
                             {
-                                this.displayPdf(resp.code);
-                                console.log('OKOKOKK');
-
+                                this.breakdownFlag='Y';
+                                await this.batchPreview();
                             }
+                            else
+                            {
+                                let nonEligibleStudentListString="";
+                                this.nonEligibleStudentList.forEach(n=>{
+                                    nonEligibleStudentListString+=(n+', ');
+                                });
+                                let nonEligibleStudent= nonEligibleStudentListString.trim().substring(0,nonEligibleStudentListString.trim().length-1);
+                                this.breakdownFlag='N';
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'Below students are not eligible for breakdown! (no course fees type found)'+nonEligibleStudent,
+                                });
+                            }
+                        }
+                        else
+                        {
+                            this.breakdownFlag='N';
+                            await this.batchPreview();
+                        }
+                        //check breakdown
+                    }
+                }
+                catch (e) {
+                    this.results = e;
+                }
+
+            },
+
+            async batchPreview(){
+                try{
+                    let actionType = 'Preview';
+                    let List = [];
+                    let batchPaymentObj = {};
+                    this.arrobj_selectedSPD.forEach(m=>{
+                        let objList=[];
+                        m.ArrObj_Items.forEach(n=>{
+                            List = {
+                                studentCourseID:n.PK_Student_Course_ID,
+                                PK_SPD_ID:n.PK_SPD_ID,
+                                SPPD_PayerName:n.SPPD_PayerName,
+                                SPPD_PaymentItemType:n.SPPD_PaymentItemType,
+                                SPPD_PaymentAmount:n.SPPD_PaymentAmount,
+                                SPPD_GstValue:n.newGSTAmount,
+                            };
+                            objList.push(List);
+                        });
+
+                        batchPaymentObj["studentID_"+m.Str_SortBy] = objList;
+
+                    });
+
+                    this.$vs.loading();
+                    const resp = await DataSource.shared.generateBatchInvoice(JSON.stringify(batchPaymentObj),this.inputDueDate,actionType,this.breakdownFlag);
+                    if (resp) {
+                        if (resp.code === '88') {
+                            window.location.replace('/');
+                        } else if (resp.code === '99') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Cannot preview batch invoice!'
+                            });
+                        } else if (resp.code === '2') {
+                            this.$notify({
+                                title: 'No Record',
+                                message: 'No Record Found'
+                            });
+                        } else
+                        {
+                            this.arrobj_selectedSPD=[];
+                            this.displayPdf(resp.code);
                         }
                     }
                 }
                 catch (e) {
                     this.results = e;
                 }
+                this.$vs.loading.close();
             },
 
-            batchGenerateClick(){
+            async batchGenerateClick(){
                 try{
-                    let actionType = 'Generate';
-                    let selected = this.sortByStudentNO();
-                    console.log(selected,actionType);
+                    this.sortByStudentNO();
+                    if (!this.inputDueDate)
+                    {
+                        this.$notify.error({
+                            title: 'Require',
+                            message: '"Payment Due Date"'
+                        });
+                    }
+                    else if(this.spdSelection.length === 0) {
+                        console.log("2");
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Please select at least 1 payment item'
+                        });
+                    }
+                    else{
+                        //call batchGenerate method,
+                        //check breakdown
+                        if(this.cbPrintMonthlyBreakdown){
+                            var breakdownflag = await this.checkBatchPaymentBreakdownEligible();
+                            if(breakdownflag==true)
+                            {
+                                this.breakdownFlag='Y';
+                                await this.batchGenerate();
+                            }
+                            else
+                            {
+                                let nonEligibleStudentListString="";
+                                this.nonEligibleStudentList.forEach(n=>{
+                                    nonEligibleStudentListString+=(n+', ');
+                                });
+                                let nonEligibleStudent= nonEligibleStudentListString.trim().substring(0,nonEligibleStudentListString.trim().length-1);
+                                this.breakdownFlag='N';
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'Below students are not eligible for breakdown! (no course fees type found)'+nonEligibleStudent,
+                                });
+                            }
+                        }
+                        else
+                        {
+                            this.breakdownFlag='N';
+                            await this.batchGenerate();
+                        }
+                        //check breakdown
+
+                    }
+
                 }
                 catch (e) {
                     this.results = e;
                 }
             },
 
-            clearSelect () {
-                this.$refs.batchListTable.clearSelection();
+            async batchGenerate(){
+                try{
+                    this.$vs.loading();
+                    let actionType = 'Generate';
+                    let List = [];
+                    let batchPaymentObj = {};
+                    this.arrobj_selectedSPD.forEach(m=>{
+                        let objList=[];
+                        m.ArrObj_Items.forEach(n=>{
+                            List = {
+                                studentCourseID:n.PK_Student_Course_ID,
+                                PK_SPD_ID:n.PK_SPD_ID,
+                                SPPD_PayerName:n.SPPD_PayerName,
+                                SPPD_PaymentItemType:n.SPPD_PaymentItemType,
+                                SPPD_PaymentAmount:n.SPPD_PaymentAmount,
+                                SPPD_GstValue:n.newGSTAmount,
+                            };
+                            objList.push(List);
+                        });
+
+                        batchPaymentObj["studentID_"+m.Str_SortBy] = objList;
+                    });
+
+                    const resp = await DataSource.shared.generateBatchInvoice(JSON.stringify(batchPaymentObj),this.inputDueDate,actionType,this.breakdownFlag);
+                    if (resp) {
+                        if (resp.code === '88') {
+                            window.location.replace('/');
+                        } else if (resp.code === '99') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Cannot generate batch invoice!'
+                            });
+                        } else if (resp.code === '2') {
+                            this.$notify({
+                                title: 'No Record',
+                                message: 'No Record Found'
+                            });
+                        } else
+                        {
+                            batchPaymentObj={};
+                            this.arrobj_selectedSPD=[];
+                            this.displayPdf(resp.code);
+                            this.Search();
+                        }
+                    }
+                }
+                catch (e) {
+                    this.results = e;
+                }
+                this.$vs.loading.close();
+            },
+
+            async clearSelect () {
+                 this.spdSelection=null;
             },
 
             getRowKeys(row){
@@ -300,19 +500,7 @@
             },
 
             async changeSelection(val) {
-                this.spdSelection = val;
-
-                //get rows key data
-                this.selectedData =[];
-                if(val){
-                    val.forEach(m=>{
-                        if(m){
-                            this.selectedData.push(m.PK_SPD_ID);
-                        }
-                    })
-                    //end get rows key data
-                    console.log(this.selectedData);
-                }
+                this.spdSelection=val;
             },
 
             adjustmentMin(value){
@@ -340,48 +528,19 @@
                 });
             },
 
-            async BindSchool(){
-                try {
-                    const response = await DataSource.shared.getAllActiveSchool('', 'UTY201300000061');
-                    if (response) {
-                        if (response.code === '88') {
-                            window.location.replace('/');
-                        } else if (response.code === '99') {
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'No School Found!'
-                            });
-                        } else if (response.code === '2') {
-                            this.schoolsList = [];
-                        } else {
-                            this.schoolsListResponse = response.Table;
-                            this.schoolsListResponse.forEach(m => {
-                                if (m.PK_SCH_ID !== 'SCH20120000001') {
-                                    this.schoolsList.push(m);
-                                }
-                            });
-                            this.schoolsListResponse =[];
-                        }
-
-                    }
-                } catch (e) {
-                    this.results = e;
-                }
-            },
-
             async BindAcademicYear(){
                 try{
                     this.academicYearList=[];
-                    if(this.schoolsListSelected.length>0){
-                        const response = await DataSource.shared.getAcademicYearBySchoolID(this.schoolsListSelected);
+                    if(this.schoolID.length>0){
+                        const response = await DataSource.shared.getAcademicYearBySchoolID(this.schoolID);
                         this.academicYearListResponse=response.Table;
                         this.academicYearListResponse.forEach(m => {
                             this.academicYearList.push(m);
                         });
+
                         this.academicYearListResponse=[];
                         //todo: to refesh academic year, course and class list
-                        await this.loadClasses();
-                        this.courseListSelected='';
+                        await this.loadCourses();
                     }
                 }
                 catch (e) {
@@ -389,47 +548,85 @@
                 }
             },
 
-            async loadClasses() {
-
-                this.courseList = null;
-
-                await DataSource.shared.getClassByAcademicYear(this.academicYearListSelected).then((result) => {
-                    if (result.code == 2 || result.code == 99) {
-                        this.courseListSelected = null;
-                        return;
+            async loadCourses(){
+                try{
+                    this.courseList = [];
+                    this.classesList = [];
+                    this.semesterID = this.academicYearListSelected;
+                    let coursePList =[];
+                    if(this.schoolID.length>0){
+                        const response = await DataSource.shared.getCourseBySemesterID(this.schoolID,this.semesterID);
+                        this.courseListResponse=response.Table;
+                        this.courseListResponse.forEach(m => {
+                            coursePList.push(m);
+                        });
+                        this.courseList=coursePList;
+                        this.courseListResponse=[];
                     }
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            },
 
-                    this.courseList = this.groupBy(result.Table, "CRS_Course_Name");
-
-                });
+            async loadClasses(){
+                try{
+                    if(this.schoolID.length>0){
+                        let classesPList =[];
+                        const response = await DataSource.shared.getClassBySemesterAndCourseID(this.semesterID,this.courseSelected);
+                        this.classesListResponse=response.Table;
+                        this.classesListResponse.forEach(m => {
+                            classesPList.push(m);
+                        });
+                        this.classesList = classesPList;
+                        this.classesListResponse=[];
+                    }
+                }
+                catch (e) {
+                    this.results = e;
+                }
             },
 
             async Search() {
                 try {
                     this.startupText = "No Data Found...";
-
-                    if (!this.schoolsListSelected)
+                    this.UnbilledBatchPaymentListInt =[];
+                    if (!this.schoolID)
                     {
                         this.$notify({
                             title: 'Require',
-                            message: '"School"'
+                            message: '"No assigned school"'
+                        });
+                    }
+                    else if(!this.semesterID)
+                    {
+                        this.$notify({
+                            title: 'Require',
+                            message: '"Please select academic year"'
+                        });
+                    }
+                    else if(!this.courseSelected)
+                    {
+                        this.$notify({
+                            title: 'Require',
+                            message: '"Please select course"'
                         });
                     }
                     else
                         {
+                            this.$vs.loading();
                             let courseID='';
                             let classID ='';
-
-                            if(this.courseListSelected){
-                                courseID = this.courseListSelected.PK_Course_ID;
-                                classID = this.courseListSelected.PK_Class_ID;
+                            if(this.courseSelected){
+                                courseID = this.courseSelected;
+                                classID = this.classesSelected;
                             }
                             else{
                                 courseID = '';
                                 classID = '';
                             }
 
-                            const response = await DataSource.shared.getUnbilledBatchPaymentList(this.schoolsListSelected,
+                            const response = await DataSource.shared.getUnbilledBatchPaymentList(this.schoolID, this.semesterID,
                                 courseID,classID,this.inputFromDate[0],this.inputFromDate[1]);
 
                         if (response) {
@@ -453,9 +650,8 @@
                                         m.newGSTAmount=m.SPPD_GstValue;
                                         tempList.push(m);
                                     })
+                                    this.spdSelection=[];
                                     this.UnbilledBatchPaymentListInt = tempList;
-
-                                    this.currentSchoolsName = this.$refs.schoolsListSelected.selected.label;
                                 }
                         }
 
@@ -463,6 +659,7 @@
                 } catch (e) {
                     this.results = e;
                 }
+                this.$vs.loading.close();
             },
 
             sortByStudentNO() {
@@ -471,14 +668,6 @@
             },
 
             groupBy(data, key) {
-                //Credits to Ceasar Bautista and Juan Castillo @ stackoverflow
-                /*return data.reduce(function(storage, item) {
-                    let group = item[key];
-
-                    storage[group] = storage[group] || [];
-                    storage[group].push(item);
-                    return storage;
-                }, {});*/
 
                 let ArrObj_Sorted = [];
 

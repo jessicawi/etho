@@ -24,7 +24,7 @@
                         width="100"
                         trigger="click"
                         class="feed-box__dropdown"
-                        v-if="approverPostNotShow">
+                        v-if="approverPostNotShow && post.PostCreatedBy === feedUserID">
                     <button @click="editPost(post)" class="btn btn-link">Edit Post</button>
                     <button @click="removePost(post)" class="btn btn-link">Delete Post</button>
                     <el-button slot="reference"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></el-button>
@@ -105,42 +105,58 @@
                 </form>
                 <div class="commentWrap" v-if="post.commentItems"
                      :class="{'is-collapsed' : post.collapsed }">
-                    <div class="comment__item" v-for="commentItem of post.commentItems"
-                         :key="commentItem.PoCmID">
+                    <transition-group name="top">
+                    <div class="comment__item" v-if="post.commentItems && commentIndex <= post.commentItems.length && post.commentItems[commentIndex-1]" v-for="commentIndex in commentsToShow"
+                         :key="post.commentItems[commentIndex-1].PoCmID">
+                        <!--<div class="comment__item" v-for="commentItem of post.commentItems"-->
+                             <!--:key="commentItem.PoCmID">-->
                         <div class="commentItem__header">
-                            <div class="comment__name">{{commentItem.CONname}}</div>
-                            <div class="comment__date">{{commentItem.PoCmCreatedDate_convert}}</div>
+                            <div class="comment__name">
+                                <span>{{post.commentItems[commentIndex-1].CONname}}</span>
+
+                            </div>
+                            <div class="comment__date">
+                                <div class="post-comment-actionGroup" v-if="post.commentItems[commentIndex-1].CONid === feedUserID">
+                                    <el-button class="save" type="text" slot="reference"
+                                               @click="saveClick(post.commentItems[commentIndex-1].PoCmID, post.commentItems[commentIndex-1].PoCmContent)"
+                                               :class="{'d-none' : readonly === true || checkidcomment !== post.commentItems[commentIndex-1].PoCmID}">
+                                        Save
+                                    </el-button>
+                                    <el-button class="edit" type="text" slot="reference" @click="editClick(post.commentItems[commentIndex-1].PoCmID)"
+                                               v-if="showEdit">
+                                        Edit
+                                    </el-button>
+                                    .
+                                    <el-button class="delete" type="text" slot="reference"
+                                               @click="emitShowDeleteModal(post.commentItems[commentIndex-1].PoCmID, post.commentItems[commentIndex-1].PoCmContent, post.PostID, post)">
+                                        Delete
+                                    </el-button>
+                                    .
+                                    <AlertComponent :showModal="deleteModalShow" @cancelClick="closeDeleteModal"
+                                                    @okClick="deleteComment"/>
+                                </div>
+                                <span>{{post.commentItems[commentIndex-1].PoCmCreatedDate_convert}}</span>
+                            </div>
                         </div>
-                        <div class="commentPostContent_show" v-if="checkidcomment !== commentItem.PoCmID">
-                            {{commentItem.PoCmContent}}
+                        <div class="commentPostContent_show" v-if="checkidcomment !== post.commentItems[commentIndex-1].PoCmID">
+                            {{post.commentItems[commentIndex-1].PoCmContent}}
                         </div>
-                        <textarea v-if="readonly === false && checkidcomment === commentItem.PoCmID" type="text"
+                        <textarea v-if="readonly === false && checkidcomment === post.commentItems[commentIndex-1].PoCmID" type="text"
                                   class="comment__content" id="commentPostContent"
-                                  v-model="commentItem.PoCmContent" v-bind:readonly="readonly"
-                                  :class="{'editable' : readonly === false && checkidcomment === commentItem.PoCmID }"></textarea>
-                        <el-button class="save" type="text" slot="reference"
-                                   @click="saveClick(commentItem.PoCmID, commentItem.PoCmContent)"
-                                   :class="{'d-none' : readonly === true || checkidcomment !== commentItem.PoCmID}">
-                            Save
-                        </el-button>
-                        <el-button class="edit" type="text" slot="reference" @click="editClick(commentItem.PoCmID)"
-                                   v-if="showEdit">
-                            Edit
-                        </el-button>
-                        .
-                        <el-button class="delete" type="text" slot="reference"
-                                   @click="emitShowDeleteModal(commentItem.PoCmID, commentItem.PoCmContent, post.PostID, post)">
-                            Delete
-                        </el-button>
-                        .
-                        <AlertComponent :showModal="deleteModalShow" @cancelClick="closeDeleteModal"
-                                        @okClick="deleteComment"/>
+                                  v-model="post.commentItems[commentIndex-1].PoCmContent" v-bind:readonly="readonly"
+                                  :class="{'editable' : readonly === false && checkidcomment === post.commentItems[commentIndex-1].PoCmID }"></textarea>
+
                     </div>
-                    <button v-on:click=" post.collapsed = !post.collapsed "
+                    </transition-group>
+                    <button @click="commentsToShow += 2"
+                            v-if="post.commentItems&&post.commentItems.length > commentsToShow">
+                        More Comment
+                    </button>
+                    <!--button v-on:click=" post.collapsed = !post.collapsed "
                             :class="{'d-none' : !post.collapsed }"
                             v-if="post.commentItems&&post.commentItems.length !== 2">
                         More Comment
-                    </button>
+                    </butto-->
                 </div>
             </div>
             <div class="postFile" v-if="!isNull(post.postFiles)">
@@ -155,7 +171,6 @@
                     <!--{{postFile.PostItemCreatedDate}}-->
                 </div>
             </div>
-            <hr/>
             <!--<div class="feed-iconBox" v-if="approverPostNotShow">-->
                 <!--<el-button @click="showCommentTransition(post.PostID)" class="float-left ml-2 post-icon-btn"><i-->
                         <!--class="material-icons">-->
@@ -484,6 +499,9 @@
                 isFile: false,
                 approverPostNotShow: true,
                 remainingImage: "",
+
+                feedUserID: Cookies.get('userIDSession'),
+                commentsToShow: 2,
             };
         },
         mounted() {

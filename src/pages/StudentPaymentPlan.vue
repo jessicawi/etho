@@ -28,24 +28,6 @@
                 </div>
             </div>
             <div class="student-course-list container mt-5">
-                <!--<div class="row form-group__wrapper">-->
-                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                <!--<label>Student Name</label>-->
-                <!--<input type="text" class="form-control form__input" v-model="inputStudentName" disabled>-->
-                <!--</div>-->
-                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                <!--<label>Student NO</label>-->
-                <!--<input type="text" class="form-control form__input" v-model="inputStudentNO" disabled>-->
-                <!--</div>-->
-                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                <!--<label>Meal Preferences</label>-->
-                <!--<input type="text" class="form-control" v-model="inputMealPreferences" disabled>-->
-                <!--</div>-->
-                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                <!--<label>Payee Name</label>-->
-                <!--<input type="text" class="form-control" v-model="inputPayeeName" disabled>-->
-                <!--</div>-->
-                <!--</div>-->
                 <h5 class="text-left payment-title" id="StudentSibling">
                     Siblings
                 </h5>
@@ -107,7 +89,6 @@
                                 <div class="receiptScope"
                                      v-for="item in splitReceiptList(scope.row.recNameList)"
                                      v-bind:key="item.ID">
-                                    <!--                                        <a href="#" id="link">{{item}}</a>-->
                                     {{item}}
                                 </div>
                             </template>
@@ -120,6 +101,15 @@
                                         <el-tooltip class="item" effect="dark" content="Show Transaction"
                                                     placement="top-start">
                                             <i class="el-icon-sort"></i>
+                                        </el-tooltip>
+                                    </a>
+                                    <a href="#" class="payment-icon paymentIcon-transaction"
+                                       @click="showRefund(scope.row)"  v-if="scope.row.refundFlag =='Yes'">
+                                        <el-tooltip class="item" effect="dark" content="Show Refund"
+                                                    placement="top-start">
+                                            <i class="material-icons" style="color:darkcyan">
+                                                payment
+                                            </i>
                                         </el-tooltip>
                                     </a>
                                     <a href="#" v-if="scope.row.generateReceiptFlag =='Yes'&&btnDisabled==false"
@@ -155,24 +145,6 @@
                         </el-table-column>
                     </data-tables>
                 </div>
-                <!--div class=" form-group__wrapper" v-if="PaymentListInt.length>0">
-                    <div class="buttonArea col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
-                            <button v-on:click="showGenerateInvoice" type="button" :disabled="btnDisabled"
-                                    class="btn btn-primary waves-effect waves-light m-r-10">Generate/Preview
-                                Invoice
-                            </button>
-                        </div>
-                    </div>
-                    <div class="buttonArea col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
-                            <button v-on:click="showGenerateReceipt" type="button" :disabled="btnDisabled"
-                                    class="btn btn-primary waves-effect waves-light m-r-10">Generate/Preview
-                                Receipt
-                            </button>
-                        </div>
-                    </div>
-                </div-->
             </div>
         </div>
         <b-modal id="viewTransactionModal" size="xl" title="Transactions History" ok-only ok-variant="secondary"
@@ -352,32 +324,42 @@
                                readonly="readonly">
                         <!--<input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible"-->
                         <!--v-show="isSiblingDiscountNotEligible" readonly="readonly">-->
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                            <div><label>List of Siblings</label></div>
-                            <div>
-                                <div v-if="siblingList">
-                                    <label v-for="(item, index) in siblingListInfo">{{index + 1}}. {{item.Full_Name}}
-                                        {{item.Middle_name}} {{item.Last_name}} ({{item.Status}})</label>
-                                </div>
-                                <div v-if="!siblingList">
-                                    No Siblings....
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <label><span v-show="isDdlSiblingDiscRequired">* </span>Rule to Apply</label>
+                    <el-select v-model="ddlPaymentPlanRuleApplySiblings" class="fullwidth"
+                               :disabled="disablePaymentPlanRuleApplySiblings"
+                               @change="onchangePaymentPlanRuleSiblings()">
+                        <el-option
+                                v-for="item in paymentPlanRuleApplySiblingsList"
+                                :key="item.PK_PPR_ID"
+                                :label="item.PPR_Name"
+                                :value="item.PK_PPR_ID">
+                        </el-option>
+                    </el-select>
+                    <input type="text" class="form-control" v-model="inputPaymentPlanRuleSiblingsAmount"
+                           v-show="isInputPaymentPlanRuleSiblingsAmount" readonly="readonly">
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div><label>List of Siblings</label></div>
+                    <div>
+                        <!--                                <div v-if="siblingList">-->
+                        <!--                                    <label v-for="(item, index) in siblingListInfo">{{index + 1}}. {{item.Full_Name}}-->
+                        <!--                                        {{item.Middle_name}} {{item.Last_name}} ({{item.Status}})</label>-->
+                        <!--                                </div>-->
+                        <div v-if="siblingListTableInt.length>0" class="datatable_group">
+                            <data-tables :data="siblingListTableInt">
+                                <el-table-column v-for="siblingItem in siblingListTableList" :prop="siblingItem.prop"
+                                                 :label="siblingItem.label" :key="siblingItem.prop">
+                                </el-table-column>
+                            </data-tables>
                         </div>
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 mb3">
-                            <label><span v-show="isDdlSiblingDiscRequired">* </span>Rule to Apply</label>
-                            <el-select v-model="ddlPaymentPlanRuleApplySiblings" class="fullwidth"
-                                       :disabled="disablePaymentPlanRuleApplySiblings"
-                                       @change="onchangePaymentPlanRuleSiblings()">
-                                <el-option
-                                        v-for="item in paymentPlanRuleApplySiblingsList"
-                                        :key="item.PK_PPR_ID"
-                                        :label="item.PPR_Name"
-                                        :value="item.PK_PPR_ID">
-                                </el-option>
-                            </el-select>
-                            <input type="text" class="form-control" v-model="inputPaymentPlanRuleSiblingsAmount"
-                                   v-show="isInputPaymentPlanRuleSiblingsAmount" readonly="readonly">
+                        <!--                                <div v-if="!siblingList">-->
+                        <!--                                    No Siblings....-->
+                        <!--                                </div>-->
+                        <div v-else class="siblingNoRecordArea">
+                            <label>No Sibling...</label>
                         </div>
                     </div>
                 </div>
@@ -692,12 +674,16 @@
                     <div class="date">
                         <el-date-picker v-model="inputReceiptDate" format="dd/MM/yyyy"
                                         value-format="dd/MM/yyyy" type="date"
-                                        placeholder="Pick a day"></el-date-picker>
+                                        placeholder="Pick a day" disabled></el-date-picker>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <label>Remarks</label>
                     <input type="text" class="form-control" v-model="inputRemarks">
+                </div>
+                <div class="col-lg-6">
+                    <el-checkbox v-model="requiredInvoice" label="Does this receipt required Invoice??"
+                                                         class="float-left"></el-checkbox>
                 </div>
             </div>
             <div class="row">
@@ -735,7 +721,7 @@
                         <el-button type="primary" v-on:click="previewReceiptClick()">
                             <span>Preview</span>
                         </el-button>
-                        <el-button type="primary" v-on:click="generateReceiptClick()">
+                        <el-button type="primary" v-on:click="generateReceiptClick('AdhocReceipt')">
                             <span>Generate</span>
                         </el-button>
                     </el-button-group>
@@ -761,18 +747,7 @@
                                         value-format="dd/MM/yyyy" type="date"
                                         placeholder="Pick a day"></el-date-picker>
                     </div>
-                    <!--<label>Letterhead (Hong Kong only):</label>-->
-                    <!--<label>-->
-                    <!--<input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">-->
-                    <!--Print monthly breakdown-->
-                    <!--<span>-->
-                    <!--<span>-->
-                    <!--<svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"-->
-                    <!--fill="none" stroke="white"-->
-                    <!--d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>-->
-                    <!--</span>-->
-                    <!--</span>-->
-                    <!--</label>-->
+
                 </div>
                 <div class="col-lg-6 ">
                     <label>Remarks</label>
@@ -794,11 +769,19 @@
                         </el-button>
                     </el-button-group>
                 </div>
+                <div v-if="InvoiceOverPaymentItemInt.length>0" class="datatable_group col-lg-12">
+                    <label>Over Payment</label>
+                    <data-tables :data="InvoiceOverPaymentItemInt">
+                        <el-table-column v-for="item in InvoiceOverPaymentItemList" :prop="item.prop"
+                                         :label="item.label" :key="item.prop">
+                        </el-table-column>
+                    </data-tables>
+                </div>
                 <div v-if="studentInvoiceGenerationListInt.length>0" class="datatable_group col-lg-12">
                     <data-tables :data="studentInvoiceGenerationListInt" @selection-change="changeSelection"
                                  :action-col="studentInvoiceItemListAction"
                                  ref="invoiceGenerationTable">
-                        <el-table-column type="selection" width="55">
+                        <el-table-column type="selection" width="55" :selectable="canSelectRow">
                         </el-table-column>
                         <el-table-column v-for="item in studentInvoiceGenerationList" :prop="item.prop"
                                          :label="item.label" :key="item.prop">
@@ -884,7 +867,7 @@
                     <div class="date">
                         <el-date-picker v-model="inputReceiptDate" format="dd/MM/yyyy"
                                         value-format="dd/MM/yyyy" type="date"
-                                        placeholder="Pick a day"></el-date-picker>
+                                        placeholder="Pick a day" disabled></el-date-picker>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -949,17 +932,17 @@
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <!--<label>Letterhead (Hong Kong only):</label>-->
-                            <label>
-                                <input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">
-                                Print monthly breakdown
-                                <span>
-                                    <span>
-                                        <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
-                                                                                         fill="none" stroke="white"
-                                                                                         d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>
-                                    </span>
-                                </span>
-                            </label>
+<!--                            <label>-->
+<!--                                <input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">-->
+<!--                                Print monthly breakdown-->
+<!--                                <span>-->
+<!--                                    <span>-->
+<!--                                        <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"-->
+<!--                                                                                         fill="none" stroke="white"-->
+<!--                                                                                         d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>-->
+<!--                                    </span>-->
+<!--                                </span>-->
+<!--                            </label>-->
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <label>Remarks</label>
@@ -983,7 +966,7 @@
                 </div>
             </div>
         </b-modal>
-        <b-modal id="showOverPaymentConfirmationModal" hide-footer title="OVERPAYMENT"
+        <b-modal id="showOverPaymentConfirmationModal" size="sm" hide-footer title="OVERPAYMENT"
                  ref="showOverPaymentConfirmationModal">
             <div class="d-block text-center">
                 <h3>There are {{overPaymentItemsCount}} overpayment items in your selection! Proceed?</h3>
@@ -1019,6 +1002,51 @@
             </div>
 
         </b-modal>
+        <b-modal id="viewRefundModal" size="xl" title="Refund" ok-only ok-variant="secondary"
+                 ok-title="Cancel" ref="viewRefundModal">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div v-if="refundListInt.length>0" class="datatable_group col-lg-12">
+                        <data-tables :data="refundListInt" ref="refundGenerationTable" @selection-change="changeSelection">
+                            <el-table-column type="selection" width="55">
+                            </el-table-column>
+                            <el-table-column v-for="item in refundList" min-width="50px"
+                                             :prop="item.prop"
+                                             :label="item.label" :key="item.prop"
+                                             sortable="custom">
+                            </el-table-column>
+                            <el-table-column label="Refund Amount" min-width="35px">
+                                <template slot-scope="scope">
+                                    <el-input v-model="scope.row.newRefundAmount" type="number"
+                                              placeholder="Amount"></el-input>
+                                </template>
+                            </el-table-column>
+                        </data-tables>
+
+                        <div class="row actionDiv">
+                            *Remarks
+                            <el-input type="text" v-model="inputRefundRemarks"></el-input>
+                            <div class="col-lg-6">
+                                <el-button-group>
+                                    <el-button type="primary" v-on:click="generateRefundClick()">
+                                        <span>Refund!</span>
+                                    </el-button>
+                                </el-button-group>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </b-modal>
+        <b-modal id="showSiblingConfirmationModal" hide-footer title="Sibling Found" size="sm"
+                 ref="showSiblingConfirmationModal">
+            <div class="d-block text-center">
+                <h3>There are {{siblingItemsCount}} siblings items in your selection! Proceed?</h3>
+            </div>
+            <b-button class="mt-2" variant="success" block v-on:click="SiblingConfirmationClick('Yes')">Yes</b-button>
+            <b-button class="mt-2" variant="danger" block v-on:click="SiblingConfirmationClick('No')">No</b-button>
+        </b-modal>
     </div>
 </template>
 <script>
@@ -1029,7 +1057,6 @@
 
         data() {
             return {
-
                 //For Sibling data-table
                 siblingListTableInt: [],
                 siblingListTableList: [{
@@ -1054,7 +1081,23 @@
                     prop: "SCH_Name",
                     label: "Center Name"
                 }],
-                //
+                //start:InvoiceOverPaymentItemInt
+                invoiceOverPaymentResponse:[],
+                InvoiceOverPaymentItemInt:[],
+                InvoiceOverPaymentItemList:[{
+                    prop: "SPPD_PayerName",
+                    label: "Name"
+                }, {
+                    prop: "paymentDate",
+                    label: "Payment Date"
+                }, {
+                    prop: "SPPD_PaymentAmount",
+                    label: "Amount"
+                },{
+                    prop: "SPPD_TotalValue",
+                    label: "Total Amount"
+                }],
+                //End:InvoiceOverPaymentItemInt
 
                 //student info
                 test: '',
@@ -1097,6 +1140,7 @@
                 leftOverTemp: [],
                 leftOverTempResp: [],
                 overPaymentItemsCount: 0,
+                isInvoiceLineItemDisabled:false,
                 //Preview OR Generate
                 overPaymentFlag: '',
 
@@ -1105,6 +1149,9 @@
                 inputCNRemark: '',
                 isChecked: true,
                 //
+
+                //get invoice name for receipt generation
+                receiptInvoiceName:'',
 
                 //For Reinvoice
                 customizeReInvoiceResponce: [],
@@ -1398,6 +1445,7 @@
                 //end CN
 
                 cbPrintMonthlyBreakdown: '',
+                breakdownFlag:'',
 
                 PaymentListAction: {
                     label: 'Delete',
@@ -1537,9 +1585,35 @@
                 }, {
                     value: '',
                     prop: 'RecTotal',
-                },
-                ],
+                }],
 
+                refundListInt:[],
+                refundList:[{
+                    prop: "RD_Item_Description",
+                    label: "Item Description"
+                },{
+                    prop: "itemAmount",
+                    label: "Amount"
+                },{
+                    prop: "gstValue",
+                    label: "GST"
+                },{
+                    prop: "totalAmount",
+                    label: "Total"
+                }],
+                tempRefundList:[],
+                inputRefundNewPayAmount:'',
+                tempRefundResp:[],
+                refundInvoiceName:'',
+                inputRefundRemarks:'',
+
+                //adhoc receipt generation
+                adhocPaymentDueDateResponse:[],
+                adhocPaymentDueDate:'',
+                requiredInvoice:'',
+                //adhoc receipt generation
+                siblingItemsCount:'',
+                siblingConfirmationFlag:'',
             };
         },
 
@@ -1568,10 +1642,13 @@
             closeModal() {
                 this.$refs.generateReceiptModal.hide();
                 this.$refs.generateInvoiceModal.hide();
+                this.$refs.viewRefundModal.hide();
             },
+
             closePaymentPlanModal() {
                 this.$refs.newApplyPaymentPlanShowModal.hide();
             },
+
             async changeSelection(val) {
                 this.spdSelection = val;
             },
@@ -1643,16 +1720,19 @@
 
             },
 
+            //Start: To disabled el-table-column "selectable"
             canSelectRow(row, index) {
-                if (row.isReinvoiceItem === 'Yes') {
-                    console.log(row.isReinvoiceItem, 'Yes', index);
-                    this.isSelectable = false;
-                } else if (row.isReinvoiceItem === 'No') {
-                    console.log(row.isReinvoiceItem, 'No', index);
-                    this.isSelectable = true;
+
+                if (row.SPPD_IsAutoOverpay === 'Y') {
+                    this.isInvoiceLineItemDisabled = false;
                 }
-                return this.isSelectable;
+                else{
+                    this.isInvoiceLineItemDisabled = true;
+                }
+                return this.isInvoiceLineItemDisabled;
+
             },
+            //End: To disabled el-table-column "selectable"
 
             async BindStudentInfo() {
                 try {
@@ -1680,8 +1760,7 @@
                 }
             },
 
-            clearSelect() {
-                this.$refs.receiptGenerationTable.clearSelection();
+            async clearSelect() {
                 this.$refs.invoiceGenerationTable.clearSelection();
                 this.$refs.ReceiptGenerationByTransactionHistoryTable.clearSelection();
                 this.$refs.ReceiptLeftOverPaymentTable.clearSelection();
@@ -2129,7 +2208,6 @@
 
                                 let pList = [];
                                 response.Table.forEach(m => {
-                                    console.log(m);
                                     if (!m.IH_Invoice_Name) {
                                         m.IH_Invoice_Name = '-';
                                     }
@@ -2263,7 +2341,16 @@
 
             onlyNumber($event) {
                 let keyCode = ($event.keyCode ? $event.keyCode : $event.which);
-                if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) { // 46 is dot
+                // Allow the minus sign (-) if the user enters it first
+                if (keyCode === 45 && (this.inputAddItemAmount === '' || this.inputAddItemAmount === null)) { // code 45 is "-"
+                    return;
+                } else if (keyCode === 46 && !this.inputAddItemAmount.includes('.') && this.inputAddItemAmount !== '') { // code 46 is "."
+                    if (this.inputAddItemAmount.includes('-') && this.inputAddItemAmount.length === 1) {
+                        $event.preventDefault();
+                    } else {
+                        return;
+                    }
+                } else if (keyCode < 48 || keyCode > 57){
                     $event.preventDefault();
                 }
             },
@@ -2690,7 +2777,7 @@
                                 newAmount: item.newPayAmount,
                                 RD_Item_Amount: item.SPPD_PaymentAmount,
                                 RD_GSTValue: item.SPPD_GstValue,
-
+                                IH_Invoice_Name:'',
                             };
                             //Todo: overpayment confirmation checking START
                             if (parseFloat(item.SPPD_TotalValue) < parseFloat(item.newPayAmount)) {
@@ -2726,6 +2813,7 @@
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
                             } else {
+                                this.$vs.loading();
                                 //to preview receipt
                                 const receiptResp = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, 'Preview');
 
@@ -2751,11 +2839,11 @@
                 } catch (e) {
                     this.results = e;
                 }
+                this.$vs.loading.close();
             },
 
-            async generateReceiptClick() {
+            async generateReceiptClick(value) {
                 this.overPaymentFlag = 'Generate';
-
                 try {
                     if (!this.ddlPaymentMode) {
                         alert('Please select payment mode.');
@@ -2768,6 +2856,12 @@
                         let countTotalNewPayAmount = 0;
 
                         this.spdSelection.forEach(item => {
+
+                            //to assign invoiceName='' for adhoc receipt without invoice generated
+                            if(value==='AdhocReceipt')
+                            {
+                                this.receiptInvoiceName='';
+                            }
                             selectedItemCount++;
                             countTotalPaidAmount += parseFloat(item.SPPD_TotalValue);
                             countTotalNewPayAmount += parseFloat(item.newPayAmount);
@@ -2783,6 +2877,7 @@
                                 newAmount: item.newPayAmount,
                                 RD_Item_Amount: item.SPPD_PaymentAmount,
                                 RD_GSTValue: item.SPPD_GstValue,
+                                IH_Invoice_Name:this.receiptInvoiceName,
                             };
                             //Todo: overpayment confirmation checking START
                             if (parseFloat(item.SPPD_TotalValue) < parseFloat(item.newPayAmount)) {
@@ -2796,8 +2891,6 @@
                         this.overPaymentSPDList = SPD_List;
                         countTotalPaidAmount = countTotalPaidAmount.toFixed(2);
                         countTotalNewPayAmount = countTotalNewPayAmount.toFixed(2);
-
-                        console.log(countOverPaymentItems, 'selectedItemCount=', selectedItemCount, 'countTotalPaidAmount=', countTotalPaidAmount, 'countTotalNewPayAmount', countTotalNewPayAmount);
 
                         if (this.spdSelection.length === 0) {
                             this.$notify.error({
@@ -2820,29 +2913,146 @@
                             if (countOverPaymentItems > 0) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
-                            } else {
-                                //to get receipt detail
-                                const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, 'Generate');
+                            }
+                            else
+                                {
+                                if(value==='AdhocReceipt'&&this.requiredInvoice==true)
+                                {
+                                    //todo:get payment due date start
+                                    const dueDateResp = await DataSource.shared.getPaymentPlanLevelStartDate(this.studentCourseID);
+                                    if (dueDateResp) {
+                                        if (dueDateResp.code === '88'){
+                                            window.location.replace('/');
+                                        }
+                                        else if(dueDateResp.code === '99'){
+                                            console.log('99');
+                                        }
+                                        else{
+                                            //payment terms(get how many day)
+                                            var SCH_TermsOfPayment = 0;
 
-                                if (receiptResponse.code === '88') {
-                                    window.location.replace('/');
-                                } else if (receiptResponse.code === '99' || receiptResponse.code === '2') {
-                                    this.$notify.error({
-                                        title: 'Error',
-                                        message: 'Failed to generate receipt!'
+                                            this.adhocPaymentDueDateResponse = dueDateResp.Table;
+                                            this.adhocPaymentDueDateResponse.forEach(m => {
+                                                SCH_TermsOfPayment = m.SCH_TermsOfPayment;
+                                            });
+                                            let addDaysPaymentDue;
+                                            if (SCH_TermsOfPayment || parseInt(SCH_TermsOfPayment) === 0) {
+                                                addDaysPaymentDue = new Date(new Date().setDate(new Date().getDate() + parseInt(SCH_TermsOfPayment)));
+                                            } else {
+                                                addDaysPaymentDue = new Date(new Date().setDate(new Date().getDate() + 15));
+                                            }
+                                            this.adhocPaymentDueDate = addDaysPaymentDue.getDate() + '/' + (addDaysPaymentDue.getMonth() + 1) + '/' + addDaysPaymentDue.getFullYear();
+
+                                        }
+                                    }
+                                    //todo:get payment due date end
+
+                                    let adhocSPD_List = [];
+                                    this.spdSelection.forEach(item => {
+                                        let adhocSpdDetail = {
+                                            PK_SPD_ID: item.PK_SPD_ID,
+                                            SPPD_Status: item.SPPD_Status,
+                                            SPPD_PayerName: item.SPPD_PayerName,
+                                            SPPD_FK_Payment_Plan_Detail_ID: item.SPPD_FK_Payment_Plan_Detail_ID,
+                                            SPPD_FK_PaymentMaster_ID: item.SPPD_FK_PaymentMaster_ID,
+                                            SPPD_PaymentAmount: item.SPPD_PaymentAmount,
+                                            SPPD_PaymentItemType: item.SPPD_PaymentItemType,
+                                            SPPD_GstValue: item.SPPD_GstValue,
+                                            //get adhoc payment due date
+                                            inputPaymentDueDate: this.adhocPaymentDueDate,
+                                            IH_Invoice_Name:this.receiptInvoiceName,
+                                            breakdownFlag:'N',
+                                            AdhocReceipt:'Yes'
+                                            //get adhoc payment due date
+                                        };
+                                        adhocSPD_List.push(adhocSpdDetail);
                                     });
-                                } else {
 
-                                    this.displayPdf(receiptResponse.code);
-                                    await this.getStudentReceiptGenerationList();
-                                    await this.getPaymentList();
-                                    await this.getleftOverPaymentReceipt();
-                                    this.$refs.generateReceiptModal.hide();
-                                    this.ddlPaymentMode = '';
-                                    this.inputRemarks = '';
-                                    this.inputChequeNoBankName = '';
-                                    this.inputReceiptDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
-                                    this.clearSelect();
+                                    //to generate invoice
+                                    this.$vs.loading();
+                                    const invoiceResponse = await DataSource.shared.generateInvoice(JSON.stringify(adhocSPD_List), this.studentID, this.studentCourseID, this.adhocPaymentDueDate, this.inputRemarks,'Generate', '');
+
+                                    if (invoiceResponse.code === '88') {
+                                        window.location.replace('/');
+                                    } else if (invoiceResponse.code === '99' || invoiceResponse.code === '2') {
+                                        this.$notify.error({
+                                            title: 'Error',
+                                            message: 'Failed to generate invoice!'
+                                        });
+                                    } else {
+                                        this.$notify({
+                                            title: 'Success',
+                                            message: 'Adhoc Invoice generated successful!',
+                                            type: 'success'
+                                        });
+
+                                        //to get receipt detail
+                                        let ListToGetInvoiceName=[];
+                                        SPD_List.forEach(m=>{
+
+                                                m.IH_Invoice_Name=invoiceResponse.code;
+
+                                            ListToGetInvoiceName.push(m);
+                                        });
+                                        const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, 'Generate');
+
+                                        if (receiptResponse.code === '88') {
+                                            window.location.replace('/');
+                                        }
+                                        else if (receiptResponse.code === '99' || receiptResponse.code === '2')
+                                        {
+                                            this.$notify.error({
+                                                title: 'Error',
+                                                message: 'Failed to generate receipt!'
+                                            });
+                                        }
+                                        else
+                                        {
+                                            this.displayPdf(receiptResponse.code);
+                                            await this.getStudentReceiptGenerationList();
+                                            await this.getPaymentList();
+                                            await this.getleftOverPaymentReceipt();
+                                            this.$refs.generateReceiptModal.hide();
+                                            this.ddlPaymentMode = '';
+                                            this.inputRemarks = '';
+                                            this.inputChequeNoBankName = '';
+                                            this.requiredInvoice=false;
+                                            this.inputReceiptDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
+                                            this.clearSelect();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+
+                                    //to get receipt detail
+                                    this.$vs.loading();
+                                    const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, 'Generate');
+
+                                    if (receiptResponse.code === '88') {
+                                        window.location.replace('/');
+                                    }
+                                    else if (receiptResponse.code === '99' || receiptResponse.code === '2')
+                                    {
+                                        this.$notify.error({
+                                            title: 'Error',
+                                            message: 'Failed to generate receipt!'
+                                        });
+                                    }
+                                    else
+                                    {
+                                        this.displayPdf(receiptResponse.code);
+                                        await this.getStudentReceiptGenerationList();
+                                        await this.getPaymentList();
+                                        await this.getleftOverPaymentReceipt();
+                                        this.$refs.generateReceiptModal.hide();
+                                        this.ddlPaymentMode = '';
+                                        this.inputRemarks = '';
+                                        this.inputChequeNoBankName = '';
+                                        this.inputReceiptDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
+                                        this.clearSelect();
+                                    }
+
                                 }
 
                             }
@@ -2854,12 +3064,13 @@
                 } catch (e) {
                     this.results = e;
                 }
+                this.$vs.loading.close();
 
             },
 
             async previewLeftOverReceiptClick() {
-                this.overPaymentFlag = 'Preview';
                 try {
+                    this.overPaymentFlag = 'Preview';
                     if (!this.ddlPaymentMode) {
                         alert('Please select payment mode.');
                     } else {
@@ -2868,7 +3079,7 @@
                         let selectedItemCount = 0;
                         let countTotalPaidAmount = 0;
                         let countTotalNewPayAmount = 0;
-
+                        console.log('this.receiptInvoiceName',this.receiptInvoiceName);
                         this.spdSelection.forEach(item => {
                             selectedItemCount++;
                             countTotalPaidAmount += parseFloat(item.totalValue);
@@ -2887,6 +3098,7 @@
                                 RD_Item_Amount: item.itemAmount,
                                 totalValue: item.totalValue,
                                 newAmount: item.newPayAmount,
+                                IH_Invoice_Name:this.receiptInvoiceName,
                             };
                             //Todo: overpayment confirmation checking START
                             if (parseFloat(item.totalValue) < parseFloat(item.newPayAmount)) {
@@ -2899,8 +3111,6 @@
                         this.overPaymentSPDList = SPD_List;
                         countTotalPaidAmount = countTotalPaidAmount.toFixed(2);
                         countTotalNewPayAmount = countTotalNewPayAmount.toFixed(2);
-
-                        console.log(countOverPaymentItems, 'selectedItemCount=', selectedItemCount, 'countTotalPaidAmount=', countTotalPaidAmount, 'countTotalNewPayAmount', countTotalNewPayAmount);
 
                         if (this.spdSelection.length === 0) {
                             this.$notify.error({
@@ -2924,6 +3134,7 @@
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
                             } else {
+                                this.$vs.loading();
                                 //to preview receipt
                                 const receiptResp = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, 'Preview');
 
@@ -2946,12 +3157,12 @@
                 } catch (e) {
                     this.results = e;
                 }
+                this.$vs.loading.close();
             },
 
             async generateLeftOverReceiptClick() {
-                this.overPaymentFlag = 'Generate';
-                // this.$vs.loading();
                 try {
+                    this.overPaymentFlag = 'Generate';
                     if (!this.ddlPaymentMode) {
                         alert('Please select payment mode.');
                     } else {
@@ -2961,7 +3172,7 @@
                         let selectedItemCount = 0;
                         let countTotalPaidAmount = 0;
                         let countTotalNewPayAmount = 0;
-
+                        console.log('this.receiptInvoiceName',this.receiptInvoiceName);
                         this.spdSelection.forEach(item => {
                             selectedItemCount++;
                             countTotalPaidAmount += parseFloat(item.totalValue);
@@ -2980,6 +3191,7 @@
                                 RD_Item_Amount: item.itemAmount,
                                 totalValue: item.totalValue,
                                 newAmount: item.newPayAmount,
+                                IH_Invoice_Name:this.receiptInvoiceName,
                             };
                             //Todo: overpayment confirmation checking START
                             if (parseFloat(item.totalValue) < parseFloat(item.newPayAmount)) {
@@ -2991,8 +3203,6 @@
                         this.overPaymentSPDList = SPD_List;
                         countTotalPaidAmount = countTotalPaidAmount.toFixed(2);
                         countTotalNewPayAmount = countTotalNewPayAmount.toFixed(2);
-
-                        console.log(countOverPaymentItems, 'selectedItemCount=', selectedItemCount, 'countTotalPaidAmount=', countTotalPaidAmount, 'countTotalNewPayAmount', countTotalNewPayAmount);
 
                         if (this.spdSelection.length === 0) {
                             this.$notify.error({
@@ -3015,6 +3225,7 @@
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
                             } else {
+                                this.$vs.loading();
                                 //to get receipt detail
                                 const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, 'Generate');
 
@@ -3047,7 +3258,7 @@
                 } catch (e) {
                     this.results = e;
                 }
-                // this.$vs.loading.close();
+                this.$vs.loading.close();
             },
 
             //todo: for CN generation
@@ -3084,6 +3295,7 @@
                             SPD_List.push(spdDetail);
                         });
 
+                        this.$vs.loading();
                         const response = await DataSource.shared.generateCN(JSON.stringify(SPD_List));
 
                         if (response.code === '88') {
@@ -3104,7 +3316,7 @@
                 } catch (e) {
                     this.results = e;
                 }
-
+                this.$vs.loading.close();
             },
 
             //todo - For invoice generation
@@ -3139,15 +3351,25 @@
                                 this.respTempInvoice.forEach(m => {
                                     if (m.RecTotal == null) {
                                         m.RecTotal = 0;
-                                    } else {
+                                    }
+                                    else {
                                         m.RecTotal = m.SPPD_TotalValue;
                                     }
-                                    m.IsCheck = false;
-                                    m.newGSTAmount=m.SPPD_GstValue;
-                                    this.customizeInvoiceResponse.push(m);
+                                    //InvoiceOverPaymentItemInt
+                                    if(m.SPPD_IsAutoOverpay=='Y'){
+                                        this.invoiceOverPaymentResponse.push(m);
+
+                                    }
+                                    else{
+                                        m.IsCheck = false;
+                                        m.newGSTAmount=m.SPPD_GstValue;
+                                        this.customizeInvoiceResponse.push(m);
+                                    }
                                 });
                                 this.studentInvoiceGenerationListInt = this.customizeInvoiceResponse;
+                                this.InvoiceOverPaymentItemInt = this.invoiceOverPaymentResponse;
                                 this.customizeInvoiceResponse = [];
+                                this.invoiceOverPaymentResponse =[];
                         }
                     }
                 } catch (e) {
@@ -3156,8 +3378,43 @@
                 this.$vs.loading.close();
             },
 
+            //reserved:start
+            async invoicePreviewValidateChecking()
+            {
+
+            },
+            async invoiceGenerateValidateChecking()
+            {
+
+            },
+            //reserved:end
+
+            checkPaymentBreakdownEligible(){
+                if(this.cbPrintMonthlyBreakdown){
+                    let breakdownCounter = 0;
+                    this.spdSelection.forEach(m=>{
+                        if(m.PPD_CalCategory==="Course Fees")
+                        {
+                            breakdownCounter++;
+                        }
+                    });
+                    console.log(breakdownCounter,'this.cbPrintMonthlyBreakdown=',this.cbPrintMonthlyBreakdown);
+                    if(breakdownCounter===0){
+                        this.cbPrintMonthlyBreakdown = true;
+                        this.breakdownFlag='N';
+                        this.$notify.error({
+                            title: 'Message',
+                            message: 'Please select at least 1 course fees item!'
+                        });
+                    }
+                    else{
+                        this.breakdownFlag='Y';
+                    }
+                }
+                return this.breakdownFlag;
+            },
+
             async previewInvoiceClick(value) {
-                // this.$vs.loading();
                 try {
                     let SPD_List = [];
                     let InvoiceType = '';
@@ -3176,13 +3433,41 @@
                                 SPPD_NewPaymentAmount: item.newPayAmount,
                                 inputPaymentDueDate: this.inputPaymentDueDate,
                                 printBreakdownChecked: this.cbPrintMonthlyBreakdown,
+                                breakdownFlag:this.breakdownFlag,
+                                AdhocReceipt:'No',
                             };
                             SPD_List.push(spdDetail);
                             this.reInvoiceName = item.invoiceName;
                         });
-                    } else {
+                    }
+                    else
+                    {
+                        //check breakdown
+                        if(this.cbPrintMonthlyBreakdown){
+                            var breakdownflag = await this.checkPaymentBreakdownEligible();
+
+                            if(breakdownflag=='N')
+                            {
+                                this.breakdownFlag='N';
+                                return;
+                            }
+                            else
+                            {
+                                this.breakdownFlag='Y';
+                            }
+                        }else{
+
+                            this.breakdownFlag='N';
+                        }
+                        //check breakdown
+
+
                         InvoiceType = 'Preview';
+                        // let countSiblingKeyWord = 0;
                         this.spdSelection.forEach(item => {
+                            // if(item.SPPD_PayerName.toUpperCase().includes('SIBLING')){
+                            //     countSiblingKeyWord++;
+                            // }
                             let spdDetail = {
                                 PK_SPD_ID: item.PK_SPD_ID,
                                 SPPD_Status: item.SPPD_Status,
@@ -3194,9 +3479,17 @@
                                 SPPD_GstValue: item.newGSTAmount,
                                 inputPaymentDueDate: this.inputPaymentDueDate,
                                 printBreakdownChecked: this.cbPrintMonthlyBreakdown,
+                                breakdownFlag:this.breakdownFlag,
+                                AdhocReceipt:'No',
                             };
                             SPD_List.push(spdDetail);
                         });
+                        // console.log(parseInt(countSiblingKeyWord));
+                        // this.siblingItemsCount=countSiblingKeyWord;
+                        // if(parseInt(countSiblingKeyWord)>0){
+                        //     // this.siblingConfirmationFlag = true;
+                        //     this.$refs.showSiblingConfirmationModal.show();
+                        // }
                     }
 
                     //to prompt item closed
@@ -3241,6 +3534,8 @@
                                     message: 'Invoice cannot be generated for discount item only. Please choose fee item along and do invoice.'
                                 });
                             } else {
+
+                                this.$vs.loading();
                                 //to preview invoice
                                 const invoiceResponse = await DataSource.shared.generateInvoice(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, this.inputPaymentDueDate, this.inputRemarks, InvoiceType, this.reInvoiceName);
 
@@ -3254,8 +3549,7 @@
                                 } else {
 
                                     this.displayPdf(invoiceResponse.code);
-                                    this.clearSelect();
-                                    this.reInvoiceName = '';
+                                    await this.clearSelect();
                                 }
                             }
                         }
@@ -3263,11 +3557,10 @@
                 } catch (e) {
                     this.results = e;
                 }
-
+                this.$vs.loading.close();
             },
 
             async generateInvoiceClick(value) {
-                // this.$vs.loading();
                 try {
                     let SPD_List = [];
                     let InvoiceType = '';
@@ -3285,11 +3578,33 @@
                                 printBreakdownChecked: this.cbPrintMonthlyBreakdown,
                                 inputPaymentDueDate: this.inputPaymentDueDate,
                                 SPPD_NewPaymentAmount: item.newPayAmount,
+                                breakdownFlag:this.breakdownFlag,
+                                AdhocReceipt:'No',
                             };
                             SPD_List.push(spdDetail);
                             this.reInvoiceName = item.invoiceName;
                         });
                     } else {
+
+                        //check breakdown
+                        if(this.cbPrintMonthlyBreakdown){
+                            var breakdownflag = await this.checkPaymentBreakdownEligible();
+
+                            if(breakdownflag=='N')
+                            {
+                                this.breakdownFlag='N';
+                                return;
+                            }
+                            else
+                            {
+                                this.breakdownFlag='Y';
+                            }
+                        }else{
+
+                            this.breakdownFlag='N';
+                        }
+                        //check breakdown
+
                         InvoiceType = 'Generate';
                         this.spdSelection.forEach(item => {
                             let spdDetail = {
@@ -3303,6 +3618,8 @@
                                 SPPD_GstValue: item.newGSTAmount,
                                 inputPaymentDueDate: this.inputPaymentDueDate,
                                 printBreakdownChecked: this.cbPrintMonthlyBreakdown,
+                                breakdownFlag:this.breakdownFlag,
+                                AdhocReceipt:'No',
                             };
                             SPD_List.push(spdDetail);
                         });
@@ -3359,6 +3676,7 @@
                                 });
                             } else {
                                 //to generate invoice
+                                this.$vs.loading();
                                 const invoiceResponse = await DataSource.shared.generateInvoice(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, this.inputPaymentDueDate, this.inputRemarks, InvoiceType, this.reInvoiceName);
 
                                 if (invoiceResponse.code === '88') {
@@ -3374,6 +3692,7 @@
                                     await this.getStudentInvoiceGenerationList();
                                     this.$refs.generateInvoiceModal.hide();
                                     this.clearSelect();
+                                    this.cbPrintMonthlyBreakdown = false;
                                 }
                             }
                         }
@@ -3381,7 +3700,7 @@
                 } catch (e) {
                     this.results = e;
                 }
-                // this.$vs.loading.close();
+                this.$vs.loading.close();
             },
 
             validatePaymentMode() {
@@ -3408,7 +3727,6 @@
                         };
                         obj_List.push(objDetail);
                     }
-
 
                     const resp = await DataSource.shared.getLeftOverPaymentReceipt(JSON.stringify(obj_List), this.studentID, (objValue.IH_Invoice_Name == "-" ? "" : objValue.IH_Invoice_Name), this.studentCourseID);
 
@@ -3457,6 +3775,154 @@
                 this.$refs.viewTransactionShowModal.show();
             },
 
+            async showRefund(value) {
+                await this.getRefund(value);
+                this.$refs.viewRefundModal.show();
+            },
+
+            async getRefund(objValue){
+                try {
+                    //get refund invoice name
+                    this.refundInvoiceName = objValue.IH_Invoice_Name;
+                    //
+                    let obj_List = [];
+
+                    if (objValue.recNameList) {
+                        //assign '-' to ''
+                        let emptyInvoiceValue='';
+                        if(this.refundInvoiceName=='-'){
+                            emptyInvoiceValue = '';
+                        }
+                        else{
+                            emptyInvoiceValue = this.refundInvoiceName;
+                        }
+                        //assign '-' to ''
+                        this.tempRefundList = objValue.recNameList.split(',');
+                        this.tempRefundList.forEach(m => {
+
+                            let objDetail = {
+                                receiptName: m,
+                                invoiceName:emptyInvoiceValue,
+                            };
+                            obj_List.push(objDetail);
+                        });
+                    } else {
+                        let objDetail = {
+                            receiptName:'',
+                            invoiceName:'',
+                        };
+                        obj_List.push(objDetail);
+                    }
+
+                    const resp = await DataSource.shared.getItemTotalReceipt(JSON.stringify(obj_List));
+
+                    if (resp) {
+                        switch (resp.code) {
+                            case "88":
+                                this.$router.push('/');
+                                break;
+                            case "99":
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Error'
+                                });
+                                break;
+
+                            default:
+                                this.tempRefundResp = resp.Table;
+                                let SPList=[];
+                                this.tempRefundResp.forEach(m=>{
+                                        let spdDetail = {
+                                            FK_RD_SPD_ID: m.FK_RD_SPD_ID,
+                                            RD_GST_Applicable: m.RD_GST_Applicable,
+                                            RD_Item_Description: m.RD_Item_Description,
+                                            newRefundAmount: m.totalAmount,
+                                            totalAmount: m.totalAmount,
+                                            itemAmount: m.itemAmount,
+                                            gstValue: m.gstValue,
+                                            IH_Currency:m.RH_Receipt_Currency,
+                                        };
+                                    SPList.push(spdDetail);
+                                });
+                                this.refundListInt=SPList;
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+
+            async generateRefundClick(){
+                try{
+                    if (this.spdSelection.length === 0) {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Please select at least 1 refund item'
+                        });
+                    }
+                    else
+                    {
+                        this.$vs.loading();
+                        let refundInvName ='';
+
+                        if(this.refundInvoiceName==='-'){
+                            refundInvName='';
+                        }
+                        else{
+                            refundInvName=this.refundInvoiceName;
+                        }
+
+                        let Obj_List = [];
+                        this.spdSelection.forEach(m => {
+                            let spdDetail = {
+                                IH_Invoice_Name: refundInvName,
+                                studentID: this.studentID,
+                                SPD_ID: m.FK_RD_SPD_ID,
+                                refundAmount: m.newRefundAmount,
+                                totalAmount: m.totalAmount,
+                                //refundDate:m.refundDate,
+                                refundDate:"06/08/2019",
+                                refundRemarks:this.inputRefundRemarks,
+                                ID_Item_Description:m.RD_Item_Description,
+                                ID_GST_Applicable:m.RD_GST_Applicable,
+                                RH_Receipt_Currency:m.RH_Receipt_Currency,
+                            };
+                            Obj_List.push(spdDetail);
+                        });
+                        const resp = await DataSource.shared.generateRefund(JSON.stringify(Obj_List));
+                        if (resp) {
+                            switch (resp.code) {
+                                case "88":
+                                    this.$router.push('/');
+                                    break;
+                                case "99":
+                                    this.$notify.error({
+                                        title: 'Error',
+                                        message: 'Failed to refund'
+                                    });
+                                    break;
+
+                                default:
+                                    this.$notify({
+                                        title: 'Success',
+                                        message: 'Refund Success!',
+                                        type: 'success'
+                                    });
+                                    this.inputRefundRemarks='';
+                                    await this.getPaymentList();
+                                    this.$refs.viewRefundModal.hide();
+                                    break;
+                            }
+                        }
+                    }
+                }
+                catch (e) {
+                    this.results = e;
+                }
+                this.$vs.loading.close();
+
+            },
+
             async getTransactionDocumentPdf(objValue) {
                 try {
                     const resp = await DataSource.shared.getTransactionDocumentPdf(objValue.DocumentType, objValue.InvRecID);
@@ -3469,7 +3935,6 @@
                             message: 'Failed to preview!'
                         });
                     } else {
-
                         this.displayPdf(resp.code);
                         this.clearSelect();
                     }
@@ -3484,7 +3949,6 @@
                     if (objValue.recNameList) {
                         this.tempList = objValue.recNameList.split(',');
                         this.tempList.forEach(m => {
-
                             let objDetail = {
                                 receiptName: m,
                             };
@@ -3500,6 +3964,7 @@
                     let invoiceName = objValue.IH_Invoice_Name;
                     //For credit note
                     this.cnInvoiceName = objValue.IH_Invoice_Name;
+                    this.receiptInvoiceName = objValue.IH_Invoice_Name;
 
                     const resp = await DataSource.shared.getReceiptWithTransactionHistory(JSON.stringify(obj_List), this.studentID, invoiceName);
 
@@ -3729,7 +4194,23 @@
                 } catch (e) {
                     this.results = e;
                 }
-            }
+            },
+
+            SiblingConfirmationClick(value){
+                try{
+                    console.log(value);
+                    if(value==='Yes'){
+                        //cont
+                    }
+                    else{
+                        this.$refs.showSiblingConfirmationModal.hide();
+                    }
+                    return value;
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            },
 
         },
     };

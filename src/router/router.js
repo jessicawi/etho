@@ -44,6 +44,12 @@ import studentListPayment from "../pages/StudentListPayment";
 import studentCourseList from "../pages/StudentCourseList";
 import batchPaymentList from "../pages/BatchPaymentList";
 import cancelSchedule from "../pages/CancelSchedule";
+import classAttendanceReport from "../pages/ClassAttendanceReport";
+import invoiceList from "../pages/InvoiceList";
+import attendanceMaster from "../pages/AttendanceMaster";
+import classOverview from "../pages/ClassOverview";
+import portfolioMedia from "../pages/PortfolioMedia";
+import printClassStudent from "../pages/PrintClassStudent";
 
 Vue.use(VueRouter);
 
@@ -267,6 +273,37 @@ const router = new VueRouter({
             path:'/CancelSchedule',
             name:'CancelSchedule',
             component: cancelSchedule,
+        },
+        {
+            path:'/ClassAttendanceReport',
+            name:'ClassAttendanceReport',
+            component: classAttendanceReport,
+        },
+        {
+            path:'/InvoiceList',
+            name:'InvoiceLIst',
+            component: invoiceList,
+        },
+        {
+            path:'/AttendanceMaster',
+            name:'AttendanceMaster',
+            component: attendanceMaster,
+        },
+        {
+            path:'/ClassOverview',
+            name:'ClassOverview',
+            component: classOverview,
+        },
+        {
+            path:'/PortfolioMedia',
+            name:'PortfolioMedia',
+            component: portfolioMedia,
+            meta: {bodyClass: 'portfolioMedia'}
+        },
+        {
+            path:'/PrintClassStudent',
+            name:'PrintClassStudent',
+            component: printClassStudent,
         },
     ]
 });

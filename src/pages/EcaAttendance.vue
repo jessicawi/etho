@@ -31,6 +31,7 @@
                                 <th>Student Name</th>
                                 <th>Remarks</th>
                                 <th>Parents Mobile</th>
+                                <th>Class (Level)</th>
                             </tr>
                             <tr v-for="(item,i) in attendanceList" ref="attendanceList_Update">
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
@@ -45,6 +46,12 @@
                                 </td>
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
                                     <input type="text" class="form-control" ref="studentRemark" v-model="item.remarks">
+                                    <div v-if="item.attClassRemarks !== ''">
+                                        <label class="lblClassAttRemark">
+                                            Attendance Remark: <br>
+                                            <span class="lblClassAttRemarkContent">{{item.attClassRemarks}}</span>
+                                        </label>
+                                    </div>
                                 </td>
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
                                     <el-popover
@@ -68,6 +75,9 @@
                                         <el-tag v-if="item.motherMobile === ''">Mother - Nil</el-tag>
                                         <el-button slot="reference" type="primary" round>Show Mobile</el-button>
                                     </el-popover>
+                                </td>
+                                <td>
+                                    <label class="lblClassLevelName">{{ item.className }} ({{ item.levelName }})</label>
                                 </td>
                             </tr>
                         </table>
@@ -230,5 +240,13 @@
 
     .lblStudentName {
         font-weight: normal !important;
+    }
+
+    .lblClassAttRemark {
+        text-align: left !important;
+    }
+
+    .lblClassAttRemarkContent {
+        font-weight: normal;
     }
 </style>

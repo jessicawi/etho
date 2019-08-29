@@ -92,12 +92,12 @@
                             <span>{{ scope.row.SMT_Code }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="Level Start Date'">
+                    <el-table-column label="Level Start Date">
                         <template slot-scope="scope">
                             <span>{{ scope.row.SCRS_From_Date_convert }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="Level End Date'">
+                    <el-table-column label="Level End Date">
                         <template slot-scope="scope">
                             <span>{{ scope.row.SCRS_To_Date_convert }}</span>
                         </template>
@@ -171,7 +171,7 @@
 
                         props: {
                             type: 'primary',
-                            icon: 'el el-circle-arrow-right'
+                            icon: 'el-icon-info'
 
                         },
 

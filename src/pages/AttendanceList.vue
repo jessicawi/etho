@@ -3,7 +3,7 @@
         <div class="container admin-wrap">
             <div class="row header mb-5">
                 <div class="col-lg-5 ">
-                    <h3 class="text-left mb-3">ATTENDANCE</h3>
+                    <h3 class="text-left mb-3">ATTENDANCE ( {{currentDateWithAlphabet}} )</h3>
                 </div>
                 <div class="col-lg-7">
                     <div class="row searchingArea attendance-search">
@@ -181,6 +181,7 @@
 </template>
 <script>
     import DataSource from "../data/datasource";
+    import moment from 'moment';
 
     export default {
         name: "AttendanceList",
@@ -203,6 +204,11 @@
             await this.bindClasses();
         },
         async mounted() {
+        },
+        computed: {
+            currentDateWithAlphabet() {
+                return moment().format("DD MMM YYYY");
+            },
         },
         methods: {
             showBundleAttendance(item) {

@@ -9,7 +9,7 @@
         <div class="mt-3 container  pt-5">
             <label style="display:none !important;">{{lblParentID}}</label>
 
-            <b-tabs class="parentPageBTabs">
+            <el-tabs v-model="activeTab" class="parentPageBTabs" stretch @tab-click="activeTabHappen">
                 <!--<span class="alert-badge badge1"-->
                       <!--v-if="$v.inputFatherDateofBirth.$error || $v.inputFatherFirstName.$error || $v.inputFatherLastName.$error">-->
                     <!--!-->
@@ -18,16 +18,32 @@
                       <!--v-if="$v.inputMotherDateofBirth.$error || $v.inputMotherFirstName.$error || $v.inputMotherLastName.$error">-->
                     <!--!-->
                 <!--</span>-->
-                <span class="alert-badge badge1"
-                      v-if="$v.inputFatherFirstName.$error || $v.inputFatherLastName.$error">
-                    !
-                </span>
-                <span class="alert-badge badge2"
-                      v-if="$v.inputMotherFirstName.$error || $v.inputMotherLastName.$error">
-                    !
-                </span>
 
-                <b-tab title="Father" active>
+                <!--<span class="alert-badge badge1"-->
+                      <!--v-if="$v.inputFatherFirstName.$error || $v.inputFatherLastName.$error || $v.inputFatherEmail.$error || $v.inputFatherCompanyEmail.$error">-->
+                    <!--!-->
+                <!--</span>-->
+                <!--<span class="alert-badge badge2"-->
+                      <!--v-if="$v.inputMotherFirstName.$error || $v.inputMotherLastName.$error || $v.inputMotherEmail.$error || $v.inputMotherCompanyEmail.$error">-->
+                    <!--!-->
+                <!--</span>-->
+                <!--<span class="alert-badge badge3"-->
+                      <!--v-if="$v.inputGuardianEmail.$error || $v.inputGuardianCompanyEmail.$error">-->
+                    <!--!-->
+                <!--</span>-->
+                <!--<span class="alert-badge badge4"-->
+                      <!--v-if="$v.inputThirdPartyCompanyEmail.$error">-->
+                    <!--!-->
+                <!--</span>-->
+
+                <el-tab-pane name="Father">
+                    <span slot="label">
+                        <span v-if="!$v.inputFatherFirstName.$error && !$v.inputFatherLastName.$error && !$v.inputFatherEmail.$error && !$v.inputFatherCompanyEmail.$error">Father</span>
+
+                        <el-badge value="!" class="item"
+                                  v-if="$v.inputFatherFirstName.$error || $v.inputFatherLastName.$error || $v.inputFatherEmail.$error || $v.inputFatherCompanyEmail.$error">
+                            Father</el-badge>
+                    </span>
                     <div class="">
                         <div class="fatherAreaDiv">
                             <div class="">
@@ -113,7 +129,10 @@
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Email</label>
-                                    <input type="text" class="form-control" ref="inputFatherEmail">
+                                    <input type="text" class="form-control" v-model="inputFatherEmail">
+                                    <div class="requiredFieldsMsg" v-if="$v.inputFatherEmail.$error">
+                                        Invalid Email Address
+                                    </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -316,7 +335,10 @@
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Company Email</label>
-                                    <input type="text" class="form-control" ref="inputFatherCompanyEmail">
+                                    <input type="text" class="form-control" v-model="inputFatherCompanyEmail">
+                                    <div class="requiredFieldsMsg" v-if="$v.inputFatherCompanyEmail.$error">
+                                        Invalid Email Address
+                                    </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -331,8 +353,15 @@
                             </div>
                         </div>
                     </div>
-                </b-tab>
-                <b-tab title="Mother">
+                </el-tab-pane>
+                <el-tab-pane name="Mother">
+                    <span slot="label">
+                        <span v-if="!$v.inputMotherFirstName.$error && !$v.inputMotherLastName.$error && !$v.inputMotherEmail.$error && !$v.inputMotherCompanyEmail.$error">Mother</span>
+
+                        <el-badge value="!" class="item"
+                                  v-if="$v.inputMotherFirstName.$error || $v.inputMotherLastName.$error || $v.inputMotherEmail.$error || $v.inputMotherCompanyEmail.$error">
+                            Mother</el-badge>
+                    </span>
                     <div class="">
                         <div class="motherAreaDiv">
                             <div class="">
@@ -418,7 +447,10 @@
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Email</label>
-                                    <input type="text" class="form-control" ref="inputMotherEmail">
+                                    <input type="text" class="form-control" v-model="inputMotherEmail">
+                                    <div class="requiredFieldsMsg" v-if="$v.inputMotherEmail.$error">
+                                        Invalid Email Address
+                                    </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -621,7 +653,10 @@
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Company Email</label>
-                                    <input type="text" class="form-control" ref="inputMotherCompanyEmail">
+                                    <input type="text" class="form-control" v-model="inputMotherCompanyEmail">
+                                    <div class="requiredFieldsMsg" v-if="$v.inputMotherCompanyEmail.$error">
+                                        Invalid Email Address
+                                    </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -636,8 +671,15 @@
                             </div>
                         </div>
                     </div>
-                </b-tab>
-                <b-tab title="Guardian">
+                </el-tab-pane>
+                <el-tab-pane name="Guardian" label="Guardian">
+                    <span slot="label">
+                        <span v-if="!$v.inputGuardianEmail.$error && !$v.inputGuardianCompanyEmail.$error">Guardian</span>
+
+                        <el-badge value="!" class="item"
+                                  v-if="$v.inputGuardianEmail.$error || $v.inputGuardianCompanyEmail.$error">
+                            Guardian</el-badge>
+                    </span>
                     <div class="">
                         <div class="guardianAreaDiv">
                             <div class="">
@@ -710,7 +752,10 @@
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Email</label>
-                                    <input type="text" class="form-control" ref="inputGuardianEmail">
+                                    <input type="text" class="form-control" v-model="inputGuardianEmail">
+                                    <div class="requiredFieldsMsg" v-if="$v.inputGuardianEmail.$error">
+                                        Invalid Email Address
+                                    </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -904,7 +949,10 @@
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Company Email</label>
-                                    <input type="text" class="form-control" ref="inputGuardianCompanyEmail">
+                                    <input type="text" class="form-control" v-model="inputGuardianCompanyEmail">
+                                    <div class="requiredFieldsMsg" v-if="$v.inputGuardianCompanyEmail.$error">
+                                        Invalid Email Address
+                                    </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -919,8 +967,15 @@
                             </div>
                         </div>
                     </div>
-                </b-tab>
-                <b-tab title="Thrid Party">
+                </el-tab-pane>
+                <el-tab-pane name="Third Party">
+                    <span slot="label">
+                        <span v-if="!$v.inputThirdPartyCompanyEmail.$error">Third Party</span>
+
+                        <el-badge value="!" class="item"
+                                  v-if="$v.inputThirdPartyCompanyEmail.$error">
+                            Third Party</el-badge>
+                    </span>
                     <div class="">
                         <div class="thirdpartyAreaDiv">
                             <div class="">
@@ -969,13 +1024,16 @@
 
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>Company Email</label>
-                                    <input type="text" class="form-control" ref="inputThirdPartyCompanyEmail">
+                                    <input type="text" class="form-control" v-model="inputThirdPartyCompanyEmail">
+                                    <div class="requiredFieldsMsg" v-if="$v.inputThirdPartyCompanyEmail.$error">
+                                        Invalid Email Address
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </b-tab>
-                <b-tab title="Other">
+                </el-tab-pane>
+                <el-tab-pane name="Other" label="Other">
                     <div class="">
                         <div class="otherAreaDiv">
                             <div class="">
@@ -1012,8 +1070,9 @@
                             </div>
                         </div>
                     </div>
-                </b-tab>
-            </b-tabs>
+                </el-tab-pane>
+            </el-tabs>
+
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                     <div class="text-center mg-b-pro-edt custom-pro-edt-ds">
@@ -1038,7 +1097,8 @@
 
 <script>
     import DataSource from "../data/datasource";
-    import {required, requiredIf, requiredUnless} from "vuelidate/lib/validators";
+    import {required, requiredIf, requiredUnless, email} from "vuelidate/lib/validators";
+    import Vue from 'vue';
 
     export default {
         name: "Parent",
@@ -1058,6 +1118,7 @@
                 ddlRaceList: [],
                 staffList: [],
 
+                activeTab: 'Father',
                 inputFatherFirstName: '',
                 inputFatherLastName: '',
                 inputMotherFirstName: '',
@@ -1095,6 +1156,15 @@
                 isStaffFather: false,
                 isStaffMother: false,
                 isStaffGuardian: false,
+
+                inputFatherEmail: '',
+                inputFatherCompanyEmail: '',
+                inputMotherEmail: '',
+                inputMotherCompanyEmail: '',
+                inputGuardianEmail: '',
+                inputGuardianCompanyEmail: '',
+                inputThirdPartyCompanyEmail: '',
+
             };
         },
         computed: {
@@ -1131,6 +1201,14 @@
             ddlFatherEmployeeName: {requiredIf: requiredIf('reqFatherEmployeeName')},
             ddlMotherEmployeeName: {requiredIf: requiredIf('reqMotherEmployeeName')},
             ddlGuardianEmployeeName: {requiredIf: requiredIf('reqGuardianEmployeeName')},
+
+            inputFatherEmail: {email},
+            inputFatherCompanyEmail: {email},
+            inputMotherEmail: {email},
+            inputMotherCompanyEmail: {email},
+            inputGuardianEmail: {email},
+            inputGuardianCompanyEmail: {email},
+            inputThirdPartyCompanyEmail: {email},
         },
         async created() {
             await this.BindCountryList();
@@ -1268,7 +1346,7 @@
                         }
                         ;
                         if (m.PAR_Father_Email !== undefined) {
-                            this.$refs.inputFatherEmail.value = m.PAR_Father_Email;
+                            this.inputFatherEmail = m.PAR_Father_Email;
                         }
                         ;
                         if (m.PAR_Fat_Nationality !== undefined) {
@@ -1362,7 +1440,7 @@
                         }
                         ;
                         if (m.PAR_FComp_Email !== undefined) {
-                            this.$refs.inputFatherCompanyEmail.value = m.PAR_FComp_Email;
+                            this.inputFatherCompanyEmail = m.PAR_FComp_Email;
                         }
                         ;
                         this.ddlFatherRace = m.PAR_Father_Race;
@@ -1412,7 +1490,7 @@
                         }
                         ;
                         if (m.PAR_Mother_Email !== undefined) {
-                            this.$refs.inputMotherEmail.value = m.PAR_Mother_Email;
+                            this.inputMotherEmail = m.PAR_Mother_Email;
                         }
                         ;
                         if (m.PAR_Mot_Nationality !== undefined) {
@@ -1420,7 +1498,7 @@
                         }
                         ;
                         if (m.PAR_MotReligion !== undefined) {
-                            this.$refs.ddlMotherReligion = m.PAR_MotReligion;
+                            this.ddlMotherReligion = m.PAR_MotReligion;
                         }
                         ;
                         if (m.PAR_MotRemarks !== undefined) {
@@ -1428,7 +1506,7 @@
                         }
                         ;
                         if (m.PAR_Mother_IDType !== undefined) {
-                            this.$refs.ddlMotherIdentificationType = m.PAR_Mother_IDType;
+                            this.ddlMotherIdentificationType = m.PAR_Mother_IDType;
                         }
                         ;
                         if (m.PAR_Mother_UID !== undefined) {
@@ -1496,7 +1574,7 @@
                         }
                         ;
                         if (m.PAR_MComp_Email !== undefined) {
-                            this.$refs.inputMotherCompanyEmail.value = m.PAR_MComp_Email;
+                            this.inputMotherCompanyEmail = m.PAR_MComp_Email;
                         }
                         ;
                         this.ddlMotherRace = m.PAR_Mother_Race;
@@ -1558,7 +1636,7 @@
                         }
                         ;
                         if (m.PAR_Guardian_Email !== undefined) {
-                            this.$refs.inputGuardianEmail.value = m.PAR_Guardian_Email;
+                            this.inputGuardianEmail = m.PAR_Guardian_Email;
                         }
                         ;
                         if (m.PAR_Gar_Nationality !== undefined) {
@@ -1632,7 +1710,7 @@
                         }
                         ;
                         if (m.PAR_GComp_Email !== undefined) {
-                            this.$refs.inputGuardianCompanyEmail.value = m.PAR_GComp_Email;
+                            this.inputGuardianCompanyEmail = m.PAR_GComp_Email;
                         }
                         ;
                         this.ddlGuardianRace = m.PAR_Guardian_Race;
@@ -1685,7 +1763,7 @@
                         }
                         ;
                         if (m.PAR_TPComp_Email !== undefined) {
-                            this.$refs.inputThirdPartyCompanyEmail.value = m.PAR_TPComp_Email;
+                            this.inputThirdPartyCompanyEmail = m.PAR_TPComp_Email;
                         }
                         ;
                         //third party
@@ -1696,177 +1774,347 @@
             },
             async Save() {
                 try {
-                    this.lblParentID;
-                    if (this.lblParentID != '') {
-                        let jsonString = '"PAR_Father_FirstName":"' + this.$refs.inputFatherFirstName.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_MiddleName":"' + this.$refs.inputFatherMiddleName.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_LastName":"' + this.$refs.inputFatherLastName.value + '"';
-                        // if (this.inputFatherDateofBirth !== undefined && this.inputFatherDateofBirth !== null) {
-                        //     jsonString = jsonString + ',"PAR_Father_DOB":"' + this.inputFatherDateofBirth + '"';
+                    if (this.lblParentID !== '') {
+                        // let jsonString = '"PAR_Father_FirstName":"' + this.$refs.inputFatherFirstName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_MiddleName":"' + this.$refs.inputFatherMiddleName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_LastName":"' + this.$refs.inputFatherLastName.value + '"';
+                        // // if (this.inputFatherDateofBirth !== undefined && this.inputFatherDateofBirth !== null) {
+                        // //     jsonString = jsonString + ',"PAR_Father_DOB":"' + this.inputFatherDateofBirth + '"';
+                        // // };
+                        // jsonString = jsonString + ',"PAR_Fat_Emp_Status":"' + this.ddlFatherEmploymentStatus + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Occupation":"' + this.$refs.inputFatherOccupation.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Designation":"' + this.$refs.inputFatherDesignation.value + '"';
+                        // jsonString = jsonString + ',"PAR_FatResContact":"' + this.$refs.inputFatherHomeTelNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_FatOffContact":"' + this.$refs.inputFatherOfficeTelNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Fax":"' + this.$refs.inputFatherFax.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Phone":"' + this.$refs.inputFatherMobileNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Email":"' + this.$refs.inputFatherEmail.value + '"';
+                        // jsonString = jsonString + ',"PAR_Fat_Nationality":"' + this.$refs.ddlFatherNationality.value + '"';
+                        // jsonString = jsonString + ',"PAR_FatReligion":"' + this.ddlFatherReligion + '"';
+                        // jsonString = jsonString + ',"PAR_FatRemarks":"' + this.$refs.inputFatherRemarks.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_IDType":"' + this.ddlFatherIdentificationType + '"';
+                        // jsonString = jsonString + ',"PAR_Father_UID":"' + this.$refs.inputFatherIdentificationNo.value + '"';
+                        // if (this.inputFatherIdentificationNoExpiryDate !== undefined && this.inputFatherIdentificationNoExpiryDate !== null) {
+                        //     jsonString = jsonString + ',"PAR_Father_IDExpDate":"' + this.inputFatherIdentificationNoExpiryDate + '"';
                         // };
-                        jsonString = jsonString + ',"PAR_Fat_Emp_Status":"' + this.ddlFatherEmploymentStatus + '"';
-                        jsonString = jsonString + ',"PAR_Father_Occupation":"' + this.$refs.inputFatherOccupation.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Designation":"' + this.$refs.inputFatherDesignation.value + '"';
-                        jsonString = jsonString + ',"PAR_FatResContact":"' + this.$refs.inputFatherHomeTelNo.value + '"';
-                        jsonString = jsonString + ',"PAR_FatOffContact":"' + this.$refs.inputFatherOfficeTelNo.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Fax":"' + this.$refs.inputFatherFax.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Phone":"' + this.$refs.inputFatherMobileNo.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Email":"' + this.$refs.inputFatherEmail.value + '"';
-                        jsonString = jsonString + ',"PAR_Fat_Nationality":"' + this.$refs.ddlFatherNationality.value + '"';
-                        jsonString = jsonString + ',"PAR_FatReligion":"' + this.ddlFatherReligion + '"';
-                        jsonString = jsonString + ',"PAR_FatRemarks":"' + this.$refs.inputFatherRemarks.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_IDType":"' + this.ddlFatherIdentificationType + '"';
-                        jsonString = jsonString + ',"PAR_Father_UID":"' + this.$refs.inputFatherIdentificationNo.value + '"';
-                        if (this.inputFatherIdentificationNoExpiryDate !== undefined && this.inputFatherIdentificationNoExpiryDate !== null) {
-                            jsonString = jsonString + ',"PAR_Father_IDExpDate":"' + this.inputFatherIdentificationNoExpiryDate + '"';
-                        };
-                        if (this.$refs.cbFatherShareMyEmail.checked === true) {
-                            jsonString = jsonString + ',"PAR_ShareMyContact":"Yes"';
-                        } else {
-                            jsonString = jsonString + ',"PAR_ShareMyContact":"No"';
-                        }
-                        if (this.$refs.cbFatherShareMyMobileNumber.checked === true) {
-                            jsonString = jsonString + ',"PAR_ShareMyMobile":"Yes"';
-                        } else {
-                            jsonString = jsonString + ',"PAR_ShareMyMobile":"No"';
-                        }
-                        if (this.$refs.cbFatherEtonStaff.checked === true) {
-                            jsonString = jsonString + ',"PAR_Father_IsStaff":"True"';
-                        } else {
-                            jsonString = jsonString + ',"PAR_Father_IsStaff":"False"';
-                        }
-                        if (this.$refs.cbMotherEtonStaff.checked === true) {
-                            jsonString = jsonString + ',"PAR_Mother_IsStaff":"True"';
-                        } else {
-                            jsonString = jsonString + ',"PAR_Mother_IsStaff":"False"';
-                        }
-                        if (this.$refs.cbGuardianEtonStaff.checked === true) {
-                            jsonString = jsonString + ',"PAR_Guardian_IsStaff":"True"';
-                        } else {
-                            jsonString = jsonString + ',"PAR_Guardian_IsStaff":"False"';
-                        }
-                        jsonString = jsonString + ',"PAR_Father_FK_CONid":"' + this.ddlFatherEmployeeName + '"';
-                        jsonString = jsonString + ',"PAR_Mother_FK_CONid":"' + this.ddlMotherEmployeeName + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_FK_CONid":"' + this.ddlGuardianEmployeeName + '"';
-                        jsonString = jsonString + ',"PAR_Father_Loc_Residence_No":"' + this.$refs.inputFatherAddress1.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Loc_Address1":"' + this.$refs.inputFatherAddress2.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Loc_Address2":"' + this.$refs.inputFatherAddress3.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Loc_City":"' + this.$refs.inputFatherCity.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Loc_Country":"' + this.$refs.ddlFatherCountry.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Loc_Postalcode":"' + this.$refs.inputFatherPostalCode.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_CompanyName":"' + this.$refs.inputFatherCompanyName.value + '"';
-                        jsonString = jsonString + ',"PAR_Fat_Comp_Addressee":"' + this.$refs.inputFatherCompanyAddresseeName.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Residence_No":"' + this.$refs.inputFatherCompanyAddress1.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Address1":"' + this.$refs.inputFatherCompanyAddress2.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Address2":"' + this.$refs.inputFatherCompanyAddress3.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_City":"' + this.$refs.inputFatherCompanyCity.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Country":"' + this.$refs.ddlFatherCompanyCountry.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_PostalCode":"' + this.$refs.inputFatherCompanyPostalCode.value + '"';
-                        jsonString = jsonString + ',"PAR_FComp_Email":"' + this.$refs.inputFatherCompanyEmail.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_FirstName":"' + this.$refs.inputMotherFirstName.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_MiddleName":"' + this.$refs.inputMotherMiddleName.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_LastName":"' + this.$refs.inputMotherLastName.value + '"';
-                        // if (this.inputMotherDateofBirth !== undefined && this.inputMotherDateofBirth !== null) {
-                        //     jsonString = jsonString + ',"PAR_Mother_DOB":"' + this.inputMotherDateofBirth + '"';
+                        // if (this.$refs.cbFatherShareMyEmail.checked === true) {
+                        //     jsonString = jsonString + ',"PAR_ShareMyContact":"Yes"';
+                        // } else {
+                        //     jsonString = jsonString + ',"PAR_ShareMyContact":"No"';
+                        // }
+                        // if (this.$refs.cbFatherShareMyMobileNumber.checked === true) {
+                        //     jsonString = jsonString + ',"PAR_ShareMyMobile":"Yes"';
+                        // } else {
+                        //     jsonString = jsonString + ',"PAR_ShareMyMobile":"No"';
+                        // }
+                        // if (this.$refs.cbFatherEtonStaff.checked === true) {
+                        //     jsonString = jsonString + ',"PAR_Father_IsStaff":"True"';
+                        // } else {
+                        //     jsonString = jsonString + ',"PAR_Father_IsStaff":"False"';
+                        // }
+                        // if (this.$refs.cbMotherEtonStaff.checked === true) {
+                        //     jsonString = jsonString + ',"PAR_Mother_IsStaff":"True"';
+                        // } else {
+                        //     jsonString = jsonString + ',"PAR_Mother_IsStaff":"False"';
+                        // }
+                        // if (this.$refs.cbGuardianEtonStaff.checked === true) {
+                        //     jsonString = jsonString + ',"PAR_Guardian_IsStaff":"True"';
+                        // } else {
+                        //     jsonString = jsonString + ',"PAR_Guardian_IsStaff":"False"';
+                        // }
+                        // jsonString = jsonString + ',"PAR_Father_FK_CONid":"' + this.ddlFatherEmployeeName + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_FK_CONid":"' + this.ddlMotherEmployeeName + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_FK_CONid":"' + this.ddlGuardianEmployeeName + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Loc_Residence_No":"' + this.$refs.inputFatherAddress1.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Loc_Address1":"' + this.$refs.inputFatherAddress2.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Loc_Address2":"' + this.$refs.inputFatherAddress3.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Loc_City":"' + this.$refs.inputFatherCity.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Loc_Country":"' + this.$refs.ddlFatherCountry.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Loc_Postalcode":"' + this.$refs.inputFatherPostalCode.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_CompanyName":"' + this.$refs.inputFatherCompanyName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Fat_Comp_Addressee":"' + this.$refs.inputFatherCompanyAddresseeName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Residence_No":"' + this.$refs.inputFatherCompanyAddress1.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Address1":"' + this.$refs.inputFatherCompanyAddress2.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Address2":"' + this.$refs.inputFatherCompanyAddress3.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_City":"' + this.$refs.inputFatherCompanyCity.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Country":"' + this.$refs.ddlFatherCompanyCountry.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_PostalCode":"' + this.$refs.inputFatherCompanyPostalCode.value + '"';
+                        // jsonString = jsonString + ',"PAR_FComp_Email":"' + this.$refs.inputFatherCompanyEmail.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_FirstName":"' + this.$refs.inputMotherFirstName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_MiddleName":"' + this.$refs.inputMotherMiddleName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_LastName":"' + this.$refs.inputMotherLastName.value + '"';
+                        // // if (this.inputMotherDateofBirth !== undefined && this.inputMotherDateofBirth !== null) {
+                        // //     jsonString = jsonString + ',"PAR_Mother_DOB":"' + this.inputMotherDateofBirth + '"';
+                        // // };
+                        // jsonString = jsonString + ',"PAR_Mot_Emp_Status":"' + this.ddlMotherEmploymentStatus + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Occupation":"' + this.$refs.inputMotherOccupation.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Designation":"' + this.$refs.inputMotherDesignation.value + '"';
+                        // jsonString = jsonString + ',"PAR_MotResContact":"' + this.$refs.inputMotherHomeTelNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_MotOffContact":"' + this.$refs.inputMotherOfficeTelNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Fax":"' + this.$refs.inputMotherFax.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Phone":"' + this.$refs.inputMotherMobileNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Email":"' + this.$refs.inputMotherEmail.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mot_Nationality":"' + this.$refs.ddlMotherNationality.value + '"';
+                        // jsonString = jsonString + ',"PAR_MotReligion":"' + this.ddlMotherReligion + '"';
+                        // jsonString = jsonString + ',"PAR_MotRemarks":"' + this.$refs.inputMotherRemarks.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_IDType":"' + this.ddlMotherIdentificationType + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_UID":"' + this.$refs.inputMotherIdentificationNo.value + '"';
+                        // if (this.inputMotherIdentificationNoExpiryDate !== undefined && this.inputMotherIdentificationNoExpiryDate !== null) {
+                        //     jsonString = jsonString + ',"PAR_Mother_IDExpDate":"' + this.inputMotherIdentificationNoExpiryDate + '"';
                         // };
-                        jsonString = jsonString + ',"PAR_Mot_Emp_Status":"' + this.ddlMotherEmploymentStatus + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Occupation":"' + this.$refs.inputMotherOccupation.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Designation":"' + this.$refs.inputMotherDesignation.value + '"';
-                        jsonString = jsonString + ',"PAR_MotResContact":"' + this.$refs.inputMotherHomeTelNo.value + '"';
-                        jsonString = jsonString + ',"PAR_MotOffContact":"' + this.$refs.inputMotherOfficeTelNo.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Fax":"' + this.$refs.inputMotherFax.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Phone":"' + this.$refs.inputMotherMobileNo.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Email":"' + this.$refs.inputMotherEmail.value + '"';
-                        jsonString = jsonString + ',"PAR_Mot_Nationality":"' + this.$refs.ddlMotherNationality.value + '"';
-                        jsonString = jsonString + ',"PAR_MotReligion":"' + this.ddlMotherReligion + '"';
-                        jsonString = jsonString + ',"PAR_MotRemarks":"' + this.$refs.inputMotherRemarks.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_IDType":"' + this.ddlMotherIdentificationType + '"';
-                        jsonString = jsonString + ',"PAR_Mother_UID":"' + this.$refs.inputMotherIdentificationNo.value + '"';
-                        if (this.inputMotherIdentificationNoExpiryDate !== undefined && this.inputMotherIdentificationNoExpiryDate !== null) {
-                            jsonString = jsonString + ',"PAR_Mother_IDExpDate":"' + this.inputMotherIdentificationNoExpiryDate + '"';
-                        };
-                        jsonString = jsonString + ',"PAR_Mother_Loc_Residence_No":"' + this.$refs.inputMotherAddress1.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Loc_Address1":"' + this.$refs.inputMotherAddress2.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Loc_Address2":"' + this.$refs.inputMotherAddress3.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Loc_City":"' + this.$refs.inputMotherCity.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Loc_Country":"' + this.$refs.ddlMotherCountry.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Loc_Postalcode":"' + this.$refs.inputMotherPostalCode.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_CompanyName":"' + this.$refs.inputMotherCompanyName.value + '"';
-                        jsonString = jsonString + ',"PAR_Mot_Comp_Addressee":"' + this.$refs.inputMotherCompanyAddresseeName.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Residence_No":"' + this.$refs.inputMotherCompanyAddress1.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Address1":"' + this.$refs.inputMotherCompanyAddress2.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Address2":"' + this.$refs.inputMotherCompanyAddress3.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_City":"' + this.$refs.inputMotherCompanyCity.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Country":"' + this.$refs.ddlMotherCompanyCountry.value + '"';
-                        jsonString = jsonString + ',"PAR_Mother_PostalCode":"' + this.$refs.inputMotherCompanyPostalCode.value + '"';
-                        jsonString = jsonString + ',"PAR_MComp_Email":"' + this.$refs.inputMotherCompanyEmail.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_FirstName":"' + this.$refs.inputGuardianFirstName.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_MiddleName":"' + this.$refs.inputGuardianMiddleName.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_LastName":"' + this.$refs.inputGuardianLastName.value + '"';
-                        // if (this.inputGuardianDateofBirth !== undefined && this.inputGuardianDateofBirth !== null) {
-                        //     jsonString = jsonString + ',"PAR_Guardian_DOB":"' + this.inputGuardianDateofBirth + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Loc_Residence_No":"' + this.$refs.inputMotherAddress1.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Loc_Address1":"' + this.$refs.inputMotherAddress2.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Loc_Address2":"' + this.$refs.inputMotherAddress3.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Loc_City":"' + this.$refs.inputMotherCity.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Loc_Country":"' + this.$refs.ddlMotherCountry.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Loc_Postalcode":"' + this.$refs.inputMotherPostalCode.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_CompanyName":"' + this.$refs.inputMotherCompanyName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mot_Comp_Addressee":"' + this.$refs.inputMotherCompanyAddresseeName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Residence_No":"' + this.$refs.inputMotherCompanyAddress1.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Address1":"' + this.$refs.inputMotherCompanyAddress2.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Address2":"' + this.$refs.inputMotherCompanyAddress3.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_City":"' + this.$refs.inputMotherCompanyCity.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Country":"' + this.$refs.ddlMotherCompanyCountry.value + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_PostalCode":"' + this.$refs.inputMotherCompanyPostalCode.value + '"';
+                        // jsonString = jsonString + ',"PAR_MComp_Email":"' + this.$refs.inputMotherCompanyEmail.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_FirstName":"' + this.$refs.inputGuardianFirstName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_MiddleName":"' + this.$refs.inputGuardianMiddleName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_LastName":"' + this.$refs.inputGuardianLastName.value + '"';
+                        // // if (this.inputGuardianDateofBirth !== undefined && this.inputGuardianDateofBirth !== null) {
+                        // //     jsonString = jsonString + ',"PAR_Guardian_DOB":"' + this.inputGuardianDateofBirth + '"';
+                        // // };
+                        // jsonString = jsonString + ',"PAR_Gar_Emp_Status":"' + this.ddlGuardianEmploymentStatus + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Occupation":"' + this.$refs.inputGuardianOccupation.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Designation":"' + this.$refs.inputGuardianDesignation.value + '"';
+                        // jsonString = jsonString + ',"PAR_GarResContact":"' + this.$refs.inputGuardianHomeTelNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_GarOffContact":"' + this.$refs.inputGuardianOfficeTelNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Fax":"' + this.$refs.inputGuardianFax.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Phone":"' + this.$refs.inputGuardianMobileNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Email":"' + this.$refs.inputGuardianEmail.value + '"';
+                        // jsonString = jsonString + ',"PAR_Gar_Nationality":"' + this.$refs.ddlGuardianNationality.value + '"';
+                        // jsonString = jsonString + ',"PAR_GarReligion":"' + this.ddlGuardianReligion + '"';
+                        // jsonString = jsonString + ',"PAR_GarRemarks":"' + this.$refs.inputGuardianRemarks.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_IDType":"' + this.ddlGuardianIdentificationType + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_UID":"' + this.$refs.inputGuardianIdentificationNo.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Loc_Residence_No":"' + this.$refs.inputGuardianAddress1.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Loc_Address1":"' + this.$refs.inputGuardianAddress2.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Loc_Address2":"' + this.$refs.inputGuardianAddress3.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Loc_City":"' + this.$refs.inputGuardianCity.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Loc_Country":"' + this.$refs.ddlGuardianCountry.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Loc_PostalCode":"' + this.$refs.inputGuardianPostalCode.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_CompanyName":"' + this.$refs.inputGuardianCompanyName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Gar_Comp_Addressee":"' + this.$refs.inputGuardianCompanyAddresseeName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Residence_No":"' + this.$refs.inputGuardianCompanyAddress1.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Address1":"' + this.$refs.inputGuardianCompanyAddress2.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Address2":"' + this.$refs.inputGuardianCompanyAddress3.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_City":"' + this.$refs.inputGuardianCompanyCity.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Country":"' + this.$refs.ddlGuardianCompanyCountry.value + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Postalcode":"' + this.$refs.inputGuardianCompanyPostalCode.value + '"';
+                        // jsonString = jsonString + ',"PAR_GComp_Email":"' + this.$refs.inputGuardianCompanyEmail.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPComp":"' + this.$refs.inputThirdPartyCompanyName.value + '"';
+                        // jsonString = jsonString + ',"PAR_Fat_TP_Addressee":"' + this.$refs.inputThirdPartyAddresseeName.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPAddr1":"' + this.$refs.inputThirdPartyAddress1.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPAddr2":"' + this.$refs.inputThirdPartyAddress2.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPAddr3":"' + this.$refs.inputThirdPartyAddress3.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPCity":"' + this.$refs.inputThirdPartyCity.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPCountry":"' + this.$refs.inputThirdPartyCountry.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPPin":"' + this.$refs.inputThirdPartyPostalCode.value + '"';
+                        // jsonString = jsonString + ',"PAR_TPComp_Email":"' + this.$refs.inputThirdPartyCompanyEmail.value + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Race":"' + this.ddlFatherRace + '"';
+                        // jsonString = jsonString + ',"PAR_Father_MaritalStatus":"' + this.ddlFatherMaritalStatus + '"';
+                        // jsonString = jsonString + ',"PAR_Father_Working":"' + this.ddlFatherWorking + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Race":"' + this.ddlMotherRace + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_MaritalStatus":"' + this.ddlMotherMaritalStatus + '"';
+                        // jsonString = jsonString + ',"PAR_Mother_Working":"' + this.ddlMotherWorking + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Race":"' + this.ddlGuardianRace + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_MaritalStatus":"' + this.ddlGuardianMaritalStatus + '"';
+                        // jsonString = jsonString + ',"PAR_Guardian_Working":"' + this.ddlGuardianWorking + '"';
+                        // if (this.inputFatherWorkingCommencementDate !== undefined && this.inputFatherWorkingCommencementDate !== null) {
+                        //     jsonString = jsonString + ',"PAR_Father_WorkingCommencementDate":"' + this.inputFatherWorkingCommencementDate + '"';
                         // };
-                        jsonString = jsonString + ',"PAR_Gar_Emp_Status":"' + this.ddlGuardianEmploymentStatus + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Occupation":"' + this.$refs.inputGuardianOccupation.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Designation":"' + this.$refs.inputGuardianDesignation.value + '"';
-                        jsonString = jsonString + ',"PAR_GarResContact":"' + this.$refs.inputGuardianHomeTelNo.value + '"';
-                        jsonString = jsonString + ',"PAR_GarOffContact":"' + this.$refs.inputGuardianOfficeTelNo.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Fax":"' + this.$refs.inputGuardianFax.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Phone":"' + this.$refs.inputGuardianMobileNo.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Email":"' + this.$refs.inputGuardianEmail.value + '"';
-                        jsonString = jsonString + ',"PAR_Gar_Nationality":"' + this.$refs.ddlGuardianNationality.value + '"';
-                        jsonString = jsonString + ',"PAR_GarReligion":"' + this.ddlGuardianReligion + '"';
-                        jsonString = jsonString + ',"PAR_GarRemarks":"' + this.$refs.inputGuardianRemarks.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_IDType":"' + this.ddlGuardianIdentificationType + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_UID":"' + this.$refs.inputGuardianIdentificationNo.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Loc_Residence_No":"' + this.$refs.inputGuardianAddress1.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Loc_Address1":"' + this.$refs.inputGuardianAddress2.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Loc_Address2":"' + this.$refs.inputGuardianAddress3.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Loc_City":"' + this.$refs.inputGuardianCity.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Loc_Country":"' + this.$refs.ddlGuardianCountry.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Loc_PostalCode":"' + this.$refs.inputGuardianPostalCode.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_CompanyName":"' + this.$refs.inputGuardianCompanyName.value + '"';
-                        jsonString = jsonString + ',"PAR_Gar_Comp_Addressee":"' + this.$refs.inputGuardianCompanyAddresseeName.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Residence_No":"' + this.$refs.inputGuardianCompanyAddress1.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Address1":"' + this.$refs.inputGuardianCompanyAddress2.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Address2":"' + this.$refs.inputGuardianCompanyAddress3.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_City":"' + this.$refs.inputGuardianCompanyCity.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Country":"' + this.$refs.ddlGuardianCompanyCountry.value + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Postalcode":"' + this.$refs.inputGuardianCompanyPostalCode.value + '"';
-                        jsonString = jsonString + ',"PAR_GComp_Email":"' + this.$refs.inputGuardianCompanyEmail.value + '"';
-                        jsonString = jsonString + ',"PAR_TPComp":"' + this.$refs.inputThirdPartyCompanyName.value + '"';
-                        jsonString = jsonString + ',"PAR_Fat_TP_Addressee":"' + this.$refs.inputThirdPartyAddresseeName.value + '"';
-                        jsonString = jsonString + ',"PAR_TPAddr1":"' + this.$refs.inputThirdPartyAddress1.value + '"';
-                        jsonString = jsonString + ',"PAR_TPAddr2":"' + this.$refs.inputThirdPartyAddress2.value + '"';
-                        jsonString = jsonString + ',"PAR_TPAddr3":"' + this.$refs.inputThirdPartyAddress3.value + '"';
-                        jsonString = jsonString + ',"PAR_TPCity":"' + this.$refs.inputThirdPartyCity.value + '"';
-                        jsonString = jsonString + ',"PAR_TPCountry":"' + this.$refs.inputThirdPartyCountry.value + '"';
-                        jsonString = jsonString + ',"PAR_TPPin":"' + this.$refs.inputThirdPartyPostalCode.value + '"';
-                        jsonString = jsonString + ',"PAR_TPComp_Email":"' + this.$refs.inputThirdPartyCompanyEmail.value + '"';
-                        jsonString = jsonString + ',"PAR_Father_Race":"' + this.ddlFatherRace + '"';
-                        jsonString = jsonString + ',"PAR_Father_MaritalStatus":"' + this.ddlFatherMaritalStatus + '"';
-                        jsonString = jsonString + ',"PAR_Father_Working":"' + this.ddlFatherWorking + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Race":"' + this.ddlMotherRace + '"';
-                        jsonString = jsonString + ',"PAR_Mother_MaritalStatus":"' + this.ddlMotherMaritalStatus + '"';
-                        jsonString = jsonString + ',"PAR_Mother_Working":"' + this.ddlMotherWorking + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Race":"' + this.ddlGuardianRace + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_MaritalStatus":"' + this.ddlGuardianMaritalStatus + '"';
-                        jsonString = jsonString + ',"PAR_Guardian_Working":"' + this.ddlGuardianWorking + '"';
-                        if (this.inputFatherWorkingCommencementDate !== undefined && this.inputFatherWorkingCommencementDate !== null) {
-                            jsonString = jsonString + ',"PAR_Father_WorkingCommencementDate":"' + this.inputFatherWorkingCommencementDate + '"';
-                        };
-                        if (this.inputMotherWorkingCommencementDate !== undefined && this.inputMotherWorkingCommencementDate !== null) {
-                            jsonString = jsonString + ',"PAR_Mother_WorkingCommencementDate":"' + this.inputMotherWorkingCommencementDate + '"';
-                        };
-                        if (this.inputGuardianWorkingCommencementDate !== undefined && this.inputGuardianWorkingCommencementDate !== null) {
-                            jsonString = jsonString + ',"PAR_Guardian_WorkingCommencementDate":"' + this.inputGuardianWorkingCommencementDate + '"';
-                        };
-                        
-                        jsonString = '{ ' + jsonString + ' }';
+                        // if (this.inputMotherWorkingCommencementDate !== undefined && this.inputMotherWorkingCommencementDate !== null) {
+                        //     jsonString = jsonString + ',"PAR_Mother_WorkingCommencementDate":"' + this.inputMotherWorkingCommencementDate + '"';
+                        // };
+                        // if (this.inputGuardianWorkingCommencementDate !== undefined && this.inputGuardianWorkingCommencementDate !== null) {
+                        //     jsonString = jsonString + ',"PAR_Guardian_WorkingCommencementDate":"' + this.inputGuardianWorkingCommencementDate + '"';
+                        // };
+                        //
+                        // jsonString = '{ ' + jsonString + ' }';
 
-                        const response = await DataSource.shared.updateParent(this.lblParentID, jsonString);
+                        let jsonParent = [];
+
+                        let jsonParentDetials = {
+                            PAR_Father_FirstName : this.$refs.inputFatherFirstName.value,
+                            PAR_Father_MiddleName : this.$refs.inputFatherMiddleName.value,
+                            PAR_Father_LastName : this.$refs.inputFatherLastName.value,
+                            PAR_Fat_Emp_Status : this.ddlFatherEmploymentStatus,
+                            PAR_Father_Occupation : this.$refs.inputFatherOccupation.value,
+                            PAR_Father_Designation : this.$refs.inputFatherDesignation.value,
+                            PAR_FatResContact : this.$refs.inputFatherHomeTelNo.value,
+                            PAR_FatOffContact : this.$refs.inputFatherOfficeTelNo.value,
+                            PAR_Father_Fax : this.$refs.inputFatherFax.value,
+                            PAR_Father_Phone : this.$refs.inputFatherMobileNo.value,
+                            PAR_Father_Email : this.inputFatherEmail,
+                            PAR_Fat_Nationality : this.$refs.ddlFatherNationality.value,
+                            PAR_FatReligion : this.ddlFatherReligion,
+                            PAR_FatRemarks : this.$refs.inputFatherRemarks.value,
+                            PAR_Father_IDType : this.ddlFatherIdentificationType,
+                            PAR_Father_UID : this.$refs.inputFatherIdentificationNo.value,
+                            PAR_Father_FK_CONid : this.ddlFatherEmployeeName,
+                            PAR_Mother_FK_CONid : this.ddlMotherEmployeeName,
+                            PAR_Guardian_FK_CONid : this.ddlGuardianEmployeeName,
+                            PAR_Father_Loc_Residence_No : this.$refs.inputFatherAddress1.value,
+                            PAR_Father_Loc_Address1 : this.$refs.inputFatherAddress2.value,
+                            PAR_Father_Loc_Address2 : this.$refs.inputFatherAddress3.value,
+                            PAR_Father_Loc_City : this.$refs.inputFatherCity.value,
+                            PAR_Father_Loc_Country : this.$refs.ddlFatherCountry.value,
+                            PAR_Father_Loc_Postalcode : this.$refs.inputFatherPostalCode.value,
+                            PAR_Father_CompanyName : this.$refs.inputFatherCompanyName.value,
+                            PAR_Fat_Comp_Addressee : this.$refs.inputFatherCompanyAddresseeName.value,
+                            PAR_Father_Residence_No : this.$refs.inputFatherCompanyAddress1.value,
+                            PAR_Father_Address1 : this.$refs.inputFatherCompanyAddress2.value,
+                            PAR_Father_Address2 : this.$refs.inputFatherCompanyAddress3.value,
+                            PAR_Father_City : this.$refs.inputFatherCompanyCity.value,
+                            PAR_Father_Country : this.$refs.ddlFatherCompanyCountry.value,
+                            PAR_Father_PostalCode : this.$refs.inputFatherCompanyPostalCode.value,
+                            PAR_FComp_Email : this.inputFatherCompanyEmail,
+                            PAR_Mother_FirstName : this.$refs.inputMotherFirstName.value,
+                            PAR_Mother_MiddleName : this.$refs.inputMotherMiddleName.value,
+                            PAR_Mother_LastName : this.$refs.inputMotherLastName.value,
+                            PAR_Mot_Emp_Status : this.ddlMotherEmploymentStatus,
+                            PAR_Mother_Occupation : this.$refs.inputMotherOccupation.value,
+                            PAR_Mother_Designation : this.$refs.inputMotherDesignation.value,
+                            PAR_MotResContact : this.$refs.inputMotherHomeTelNo.value,
+                            PAR_MotOffContact : this.$refs.inputMotherOfficeTelNo.value,
+                            PAR_Mother_Fax : this.$refs.inputMotherFax.value,
+                            PAR_Mother_Phone : this.$refs.inputMotherMobileNo.value,
+                            PAR_Mother_Email : this.inputMotherEmail,
+                            PAR_Mot_Nationality : this.$refs.ddlMotherNationality.value,
+                            PAR_MotReligion : this.ddlMotherReligion,
+                            PAR_MotRemarks : this.$refs.inputMotherRemarks.value,
+                            PAR_Mother_IDType : this.ddlMotherIdentificationType,
+                            PAR_Mother_UID : this.$refs.inputMotherIdentificationNo.value,
+                            PAR_Mother_Loc_Residence_No : this.$refs.inputMotherAddress1.value,
+                            PAR_Mother_Loc_Address1 : this.$refs.inputMotherAddress2.value,
+                            PAR_Mother_Loc_Address2 : this.$refs.inputMotherAddress3.value,
+                            PAR_Mother_Loc_City : this.$refs.inputMotherCity.value,
+                            PAR_Mother_Loc_Country : this.$refs.ddlMotherCountry.value,
+                            PAR_Mother_Loc_Postalcode : this.$refs.inputMotherPostalCode.value,
+                            PAR_Mother_CompanyName : this.$refs.inputMotherCompanyName.value,
+                            PAR_Mot_Comp_Addressee : this.$refs.inputMotherCompanyAddresseeName.value,
+                            PAR_Mother_Residence_No : this.$refs.inputMotherCompanyAddress1.value,
+                            PAR_Mother_Address1 : this.$refs.inputMotherCompanyAddress2.value,
+                            PAR_Mother_Address2 : this.$refs.inputMotherCompanyAddress3.value,
+                            PAR_Mother_City : this.$refs.inputMotherCompanyCity.value,
+                            PAR_Mother_Country : this.$refs.ddlMotherCompanyCountry.value,
+                            PAR_Mother_PostalCode : this.$refs.inputMotherCompanyPostalCode.value,
+                            PAR_MComp_Email : this.inputMotherCompanyEmail,
+                            PAR_Guardian_FirstName : this.$refs.inputGuardianFirstName.value,
+                            PAR_Guardian_MiddleName : this.$refs.inputGuardianMiddleName.value,
+                            PAR_Guardian_LastName : this.$refs.inputGuardianLastName.value,
+                            PAR_Gar_Emp_Status : this.ddlGuardianEmploymentStatus,
+                            PAR_Guardian_Occupation : this.$refs.inputGuardianOccupation.value,
+                            PAR_Guardian_Designation : this.$refs.inputGuardianDesignation.value,
+                            PAR_GarResContact : this.$refs.inputGuardianHomeTelNo.value,
+                            PAR_GarOffContact : this.$refs.inputGuardianOfficeTelNo.value,
+                            PAR_Guardian_Fax : this.$refs.inputGuardianFax.value,
+                            PAR_Guardian_Phone : this.$refs.inputGuardianMobileNo.value,
+                            PAR_Guardian_Email : this.inputGuardianEmail,
+                            PAR_Gar_Nationality : this.$refs.ddlGuardianNationality.value,
+                            PAR_GarReligion : this.ddlGuardianReligion,
+                            PAR_GarRemarks : this.$refs.inputGuardianRemarks.value,
+                            PAR_Guardian_IDType : this.ddlGuardianIdentificationType,
+                            PAR_Guardian_UID : this.$refs.inputGuardianIdentificationNo.value,
+                            PAR_Guardian_Loc_Residence_No : this.$refs.inputGuardianAddress1.value,
+                            PAR_Guardian_Loc_Address1 : this.$refs.inputGuardianAddress2.value,
+                            PAR_Guardian_Loc_Address2 : this.$refs.inputGuardianAddress3.value,
+                            PAR_Guardian_Loc_City : this.$refs.inputGuardianCity.value,
+                            PAR_Guardian_Loc_Country : this.$refs.ddlGuardianCountry.value,
+                            PAR_Guardian_Loc_PostalCode : this.$refs.inputGuardianPostalCode.value,
+                            PAR_Guardian_CompanyName : this.$refs.inputGuardianCompanyName.value,
+                            PAR_Gar_Comp_Addressee : this.$refs.inputGuardianCompanyAddresseeName.value,
+                            PAR_Guardian_Residence_No : this.$refs.inputGuardianCompanyAddress1.value,
+                            PAR_Guardian_Address1 : this.$refs.inputGuardianCompanyAddress2.value,
+                            PAR_Guardian_Address2 : this.$refs.inputGuardianCompanyAddress3.value,
+                            PAR_Guardian_City : this.$refs.inputGuardianCompanyCity.value,
+                            PAR_Guardian_Country : this.$refs.ddlGuardianCompanyCountry.value,
+                            PAR_Guardian_Postalcode : this.$refs.inputGuardianCompanyPostalCode.value,
+                            PAR_GComp_Email : this.inputGuardianCompanyEmail,
+                            PAR_TPComp : this.$refs.inputThirdPartyCompanyName.value,
+                            PAR_Fat_TP_Addressee : this.$refs.inputThirdPartyAddresseeName.value,
+                            PAR_TPAddr1 : this.$refs.inputThirdPartyAddress1.value,
+                            PAR_TPAddr2 : this.$refs.inputThirdPartyAddress2.value,
+                            PAR_TPAddr3 : this.$refs.inputThirdPartyAddress3.value,
+                            PAR_TPCity : this.$refs.inputThirdPartyCity.value,
+                            PAR_TPCountry : this.$refs.inputThirdPartyCountry.value,
+                            PAR_TPPin : this.$refs.inputThirdPartyPostalCode.value,
+                            PAR_TPComp_Email : this.inputThirdPartyCompanyEmail,
+                            PAR_Father_Race : this.ddlFatherRace,
+                            PAR_Father_MaritalStatus : this.ddlFatherMaritalStatus,
+                            PAR_Father_Working : this.ddlFatherWorking,
+                            PAR_Mother_Race : this.ddlMotherRace,
+                            PAR_Mother_MaritalStatus : this.ddlMotherMaritalStatus,
+                            PAR_Mother_Working : this.ddlMotherWorking,
+                            PAR_Guardian_Race : this.ddlGuardianRace,
+                            PAR_Guardian_MaritalStatus : this.ddlGuardianMaritalStatus,
+                            PAR_Guardian_Working : this.ddlGuardianWorking,
+                        };
+
+                        if (this.$refs.cbFatherShareMyEmail.checked === true) {
+                            Vue.set(jsonParentDetials, "PAR_ShareMyContact", "Yes");
+                        } else {
+                            Vue.set(jsonParentDetials, "PAR_ShareMyContact", "No");
+                        }
+
+                        if (this.$refs.cbFatherShareMyMobileNumber.checked === true) {
+                            Vue.set(jsonParentDetials, "PAR_ShareMyMobile", "Yes");
+                        } else {
+                            Vue.set(jsonParentDetials, "PAR_ShareMyMobile", "No");
+                        }
+
+                        if (this.$refs.cbFatherEtonStaff.checked === true) {
+                            Vue.set(jsonParentDetials, "PAR_Father_IsStaff", "True");
+                        } else {
+                            Vue.set(jsonParentDetials, "PAR_Father_IsStaff", "False");
+                        }
+
+                        if (this.$refs.cbMotherEtonStaff.checked === true) {
+                            Vue.set(jsonParentDetials, "PAR_Mother_IsStaff", "True");
+                        } else {
+                            Vue.set(jsonParentDetials, "PAR_Mother_IsStaff", "False");
+                        }
+
+                        if (this.$refs.cbGuardianEtonStaff.checked === true) {
+                            Vue.set(jsonParentDetials, "PAR_Guardian_IsStaff", "True");
+                        } else {
+                            Vue.set(jsonParentDetials, "PAR_Guardian_IsStaff", "False");
+                        }
+
+                        if (this.inputFatherIdentificationNoExpiryDate !== undefined && this.inputFatherIdentificationNoExpiryDate !== null) {
+                            Vue.set(jsonParentDetials, "PAR_Father_IDExpDate", this.inputFatherIdentificationNoExpiryDate);
+                        }
+
+                        if (this.inputMotherIdentificationNoExpiryDate !== undefined && this.inputMotherIdentificationNoExpiryDate !== null) {
+                            Vue.set(jsonParentDetials, "PAR_Mother_IDExpDate", this.inputMotherIdentificationNoExpiryDate);
+                        }
+
+                        if (this.inputFatherWorkingCommencementDate !== undefined && this.inputFatherWorkingCommencementDate !== null) {
+                            Vue.set(jsonParentDetials, "PAR_Father_WorkingCommencementDate", this.inputFatherWorkingCommencementDate);
+                        }
+
+                        if (this.inputMotherWorkingCommencementDate !== undefined && this.inputMotherWorkingCommencementDate !== null) {
+                            Vue.set(jsonParentDetials, "PAR_Mother_WorkingCommencementDate", this.inputMotherWorkingCommencementDate);
+                        }
+
+                        if (this.inputGuardianWorkingCommencementDate !== undefined && this.inputGuardianWorkingCommencementDate !== null) {
+                            Vue.set(jsonParentDetials, "PAR_Guardian_WorkingCommencementDate", this.inputGuardianWorkingCommencementDate);
+                        }
+
+                        jsonParent.push(jsonParentDetials);
+
+                        const response = await DataSource.shared.updateParent(this.lblParentID, JSON.stringify(jsonParent));
                         if (response) {
-                            if (response.code == "1") {
+                            if (response.code === "1") {
                                 alert('Records Successfully Edited');
                                 window.location.replace('/parent?id=' + this.lblParentID);
                             } else {
@@ -1878,6 +2126,7 @@
                     }
                 } catch (e) {
                     this.results = e;
+                    console.log(e);
                 }
             },
             async Validation() {
@@ -1961,6 +2210,14 @@
 
     .badge2 {
         left: 172px;
+    }
+
+    .badge3 {
+        left: 271px;
+    }
+
+    .badge4 {
+        left: 370px;
     }
 
     .parentPageBTabs{

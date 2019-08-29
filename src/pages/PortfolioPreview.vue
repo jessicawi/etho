@@ -9,19 +9,20 @@
                 <h2 v-if="!approverPortfolioAction && !savePortfolioAction && !btnDownloadPDF">Portfolio</h2>
                 <h2 v-if="btnDownloadPDF">Portfolio Download</h2>
                 <div class="row">
-                    <div class="pp-header-wrap col-lg-4">
+                    <div class="pp-header-wrap col-lg-4" :class="{'fix-box' :scrollPosition === true}">
                         <div class="pp-header">
                             <div class="ppTitle  mb-4">
                                 <label>Portfolio Name</label>
                                 <input type="text" class=" inputLearningStory" v-model="inputLearningStory"
                                        id="inputLearningStory">
                             </div>
-                            <div class=" ppEndduringThemes mb-4">
+                            <div class=" ppEndduringThemes mb-4" :class="{'comment-ActiveWrap' :!show3}">
                                 <div class="row ppCommentBtn">
                                     <div class="col-lg-8"><label class="ppEndduringThemesTitle">Enduring
                                         Themes: </label></div>
                                     <div class="col-lg-4">
-                                        <el-button @click="show3 = !show3" class="preview-comment__btn" size="mini"
+                                        <el-button @click="remarkHeader('Enduring Themes')" class="preview-comment__btn"
+                                                   size="mini"
                                                    v-if="commentField">
                                             <i class="material-icons">
                                                 chat_bubble_outline
@@ -45,15 +46,25 @@
                                 <div class="preview-comment">
                                     <el-collapse-transition>
                                         <div v-show="!show3" class="spanComment">
-                                            <h6 class="text-left">Remark:</h6>
-                                            <!--<textarea rows="1" class="textArea" v-model="inputEndduringThemesComment" @input="textareaResize($event)"></textarea>-->
-                                            <input type="text" class="form-control"
-                                                   v-model="inputEndduringThemesComment">
+                                            <div class="preview-comment_input" v-if="!btnDownloadPDF">
+                                                <span class="text-left">Remark:</span>
+                                                <!--<textarea rows="1" class="textArea" v-model="inputEndduringThemesComment" @input="textareaResize($event)"></textarea>-->
+                                                <input type="text" class="form-control"
+                                                       v-model="inputEndduringThemesComment">
+                                            </div>
+                                            <el-alert
+                                                    title="No Remark Yet..."
+                                                    type="warning"
+                                                    :closable="false"
+                                                    v-if="noEnduringRemark">
+                                            </el-alert>
                                             <div v-for="value in portfolioCommentHistoryList"
                                                  class="preview-comment__list"
                                                  v-if="value.AppComValue !== undefined && value.AppComDesc==='Enduring Themes' && value.AppComType === 'Portfolio Header'">
                                                 <label class="preview-comment__commenter">
-                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span>Date: {{ value.AppComCreatedDate_convert }}</span>
+                                                    Commenter:
+                                                    <span>{{ value.CONname }}</span>
+                                                    <span>Date: {{ value.AppComCreatedDate_convert }}</span>
                                                 </label>
                                                 <label>
                                                     {{ value.AppComValue }}
@@ -62,14 +73,16 @@
                                         </div>
                                     </el-collapse-transition>
                                 </div>
+                            </div>
+                            <div class="ppResearchQuestion" :class="{'comment-ActiveWrap' :!showResearch}">
                                 <div class="row ppCommentBtn">
                                     <div class="col-lg-8"><label class="ppResearchQuestionTitle">Research
                                         Question: </label>
                                     </div>
                                     <div class="col-lg-4">
-                                        <el-button @click="showResearch = !showResearch" class="preview-comment__btn"
+                                        <el-button class="preview-comment__btn"
                                                    size="mini"
-                                                   v-if="commentField">
+                                                   v-if="commentField" @click="remarkHeader('Research Question')">
                                             <i class="material-icons">
                                                 chat_bubble_outline
                                             </i> Remark
@@ -92,18 +105,24 @@
                                 <div class="preview-comment">
                                     <el-collapse-transition>
                                         <div v-show="!showResearch" class="spanComment">
-                                            <h6 class="text-left">Remark:</h6>
-                                            <!--<textarea rows="1" class="textArea" v-model="inputResearchQuestionComment" @input="textareaResize($event)"></textarea>-->
-                                            <input type="text" class="form-control"
-                                                   v-model="inputResearchQuestionComment">
+                                            <div class="preview-comment_input" v-if="!btnDownloadPDF">
+                                                <span class="text-left">Remark:</span>
+                                                <!--<textarea rows="1" class="textArea" v-model="inputEndduringThemesComment" @input="textareaResize($event)"></textarea>-->
+                                                <input type="text" class="form-control"
+                                                       v-model="inputResearchQuestionComment">
+                                            </div>
+                                            <el-alert
+                                                    title="No Remark Yet..."
+                                                    type="warning"
+                                                    :closable="false"
+                                                    v-if="noResearchRemark">
+                                            </el-alert>
                                             <div v-for="value in portfolioCommentHistoryList"
                                                  class="preview-comment__list"
                                                  v-if="value.AppComValue !== undefined && value.AppComDesc==='Research Question' && value.AppComType === 'Portfolio Header'">
                                                 <label class="preview-comment__commenter">
-                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date
-                                                    of
-                                                    Commenter:
-                                                    {{ value.AppComCreatedDate_convert }}
+                                                    Commenter: <span>{{ value.CONname }}</span>
+                                                    <span>Date of Commenter: {{ value.AppComCreatedDate_convert }}</span>
                                                 </label>
                                                 <label>
                                                     {{ value.AppComValue }}
@@ -113,25 +132,25 @@
                                     </el-collapse-transition>
                                 </div>
                             </div>
-                            <router-link :to="{name: 'Portfolio'}">
-                                <button class="btn btn-secondary float-left">Back</button>
-                            </router-link>
-                            <button v-on:click="savePortfolio()" v-if="savePortfolioAction"
-                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
-                                Submit
-                            </button>
-                            <button v-on:click="approvePortfolio('Approved')" v-if="approverPortfolioAction"
-                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
-                                Approve
-                            </button>
-                            <button v-on:click="approvePortfolio('Reject')" v-if="approverPortfolioAction"
-                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
-                                Reject
-                            </button>
-                            <button v-on:click="generatePortfolioPdf()" v-if="btnDownloadPDF"
-                                    class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
-                                Download PDF
-                            </button>
+                            <div class="pp-header-button">
+                                <button class="btn btn-secondary float-left" @click="$router.go(-1)">Back</button>
+                                <button v-on:click="savePortfolio()" v-if="savePortfolioAction"
+                                        class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                    Submit
+                                </button>
+                                <button v-on:click="approvePortfolio('Approved')" v-if="approverPortfolioAction"
+                                        class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                    Approve
+                                </button>
+                                <button v-on:click="approvePortfolio('Reject')" v-if="approverPortfolioAction"
+                                        class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                    Reject
+                                </button>
+                                <button v-on:click="generatePortfolioPdf()" v-if="btnDownloadPDF"
+                                        class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
+                                    Download PDF
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-8">
@@ -144,12 +163,13 @@
                                 <!--:value="item.PostCreatedDate_convert.trim()" readonly></span>-->
                                 <!--<span ref="postCreatedDate">{{item.PostCreatedDate_convert.trim()}}</span>-->
                             </div>
-                            <div class="preview-content-wrap">
+                            <div class="preview-content-wrap"
+                                 :class="{'comment-ActiveWrap' :item.showContent === false}">
                                 <div class="row ppCommentBtn">
                                     <div class="col-lg-8"><label class="ppEndduringThemesTitle">Post Content </label>
                                     </div>
                                     <div class="col-lg-4">
-                                        <el-button @click="showContent = !showContent" class="preview-comment__btn"
+                                        <el-button @click="showContent(item)" class="preview-comment__btn"
                                                    size="mini"
                                                    v-if="commentField">
                                             <i class="material-icons">
@@ -177,25 +197,33 @@
                                 <!--<input type="text" class="form-control" ref="postContentComment">-->
                                 <!--</span>-->
                                 <!--</i>-->
-                            </div>
-                            <div class="preview-comment">
-                                <el-collapse-transition>
-                                    <div v-show="!showContent" class="spanComment">
-                                        <h6 class="text-left">Remark:</h6>
-                                        <input type="text" class="form-control" ref="postContentComment">
-                                        <div v-for="value in portfolioCommentHistoryList" class="preview-comment__list"
-                                             v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Title'">
-                                            <label class="preview-comment__commenter">
-                                                Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date of
-                                                Commenter:
-                                                {{ value.AppComCreatedDate_convert }}
-                                            </label>
-                                            <label>
-                                                {{ value.AppComValue }}
-                                            </label>
+                                <div class="preview-comment">
+                                    <el-collapse-transition>
+                                        <div v-show="item.showContent === false" class="spanComment">
+                                            <div class="preview-comment_input" v-if="!btnDownloadPDF">
+                                                <span class="text-left">Remark:</span>
+                                                <input type="text" class="form-control" ref="postContentComment">
+                                            </div>
+                                            <el-alert
+                                                    title="No Remark Yet..."
+                                                    type="warning"
+                                                    :closable="false"
+                                                    v-if="item.noContentRemark">
+                                            </el-alert>
+                                            <div v-for="value in portfolioCommentHistoryList"
+                                                 class="preview-comment__list"
+                                                 v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Title'">
+                                                <label class="preview-comment__commenter">
+                                                    <span>Commenter: {{ value.CONname }}</span>
+                                                    <span>Date of Commenter: {{ value.AppComCreatedDate_convert }}</span>
+                                                </label>
+                                                <label>
+                                                    {{ value.AppComValue }}
+                                                </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                </el-collapse-transition>
+                                    </el-collapse-transition>
+                                </div>
                             </div>
                             <div class="carousel-wrap">
                                 <b-carousel id="carousel1"
@@ -217,14 +245,15 @@
                             <!--<img slot="img" class="card-img-top d-block img-fluid w-100"-->
                             <!--:src="getLowSource(media)"/>-->
                             <!--</div>-->
-                            <div class="ppGoals">
+                            <div class="ppGoals" :class="{'comment-ActiveWrap' :item.showConnection === false}">
                                 <div class="row ppCommentBtn">
                                     <div class="col-lg-8"><label class="ppEndduringThemesTitle">Connection with
                                         long-term goals </label></div>
                                     <div class="col-lg-4">
-                                        <el-button @click="showConnection = !showConnection"
+                                        <el-button @click="showConnection(item)"
                                                    class="preview-comment__btn"
-                                                   size="mini" v-if="commentField">
+                                                   size="mini"
+                                                   v-if="commentField">
                                             <i class="material-icons">
                                                 chat_bubble_outline
                                             </i> Remark
@@ -260,16 +289,23 @@
                                 </div>
                                 <div class="preview-comment">
                                     <el-collapse-transition>
-                                        <div v-show="!showConnection" class="spanComment">
-                                            <h6 class="text-left">Remark:</h6>
-                                            <input type="text" class="form-control" ref="postGoalComment">
+                                        <div v-show="item.showConnection === false" class="spanComment">
+                                            <div class="preview-comment_input" v-if="!btnDownloadPDF">
+                                                <span class="text-left" >Remark:</span>
+                                                <input type="text" class="form-control" ref="postGoalComment">
+                                            </div>
+                                            <el-alert
+                                                    title="No Remark Yet..."
+                                                    type="warning"
+                                                    :closable="false"
+                                                    v-if="item.noConnectionRemark">
+                                            </el-alert>
                                             <div v-for="value in portfolioCommentHistoryList"
                                                  class="preview-comment__list"
                                                  v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Goals'">
                                                 <label class="preview-comment__commenter">
-                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date
-                                                    of
-                                                    Commenter: {{ value.AppComCreatedDate_convert }}
+                                                    <span>Commenter: {{ value.CONname }}</span>
+                                                    <span>Date of Commenter: {{ value.AppComCreatedDate_convert }}</span>
                                                 </label>
                                                 <label>
                                                     {{ value.AppComValue }}
@@ -279,14 +315,15 @@
                                     </el-collapse-transition>
                                 </div>
                             </div>
-                            <div class="ppObservation">
+                            <div class="ppObservation" :class="{'comment-ActiveWrap' :item.showObservation === false}">
                                 <div class="row ppCommentBtn">
                                     <div class="col-lg-8"><label class="ppEndduringThemesTitle">Anecdotal
                                         Observations</label></div>
                                     <div class="col-lg-4">
-                                        <el-button @click="showObservation = !showObservation"
+                                        <el-button @click="showObservation(item)"
                                                    class="preview-comment__btn"
-                                                   size="mini" v-if="commentField">
+                                                   size="mini"
+                                                   v-if="commentField">
                                             <i class="material-icons">
                                                 chat_bubble_outline
                                             </i> Remark
@@ -322,16 +359,23 @@
                                 </div>
                                 <div class="preview-comment">
                                     <el-collapse-transition>
-                                        <div v-show="!showObservation" class="spanComment">
-                                            <h6 class="text-left">Remark:</h6>
-                                            <input type="text" class="form-control" ref="postObservationComment">
+                                        <div v-show="item.showObservation === false" class="spanComment">
+                                            <div class="preview-comment_input" v-if="!btnDownloadPDF">
+                                                <span class="text-left">Remark:</span>
+                                                <input type="text" class="form-control" ref="postObservationComment">
+                                            </div>
+                                            <el-alert
+                                                    title="No Remark Yet..."
+                                                    type="warning"
+                                                    :closable="false"
+                                                    v-if="item.noObservationRemark">
+                                            </el-alert>
                                             <div v-for="value in portfolioCommentHistoryList"
                                                  class="preview-comment__list"
                                                  v-if="value.AppComValue !== undefined && value.AppComApproverItemID === item.PostID && value.AppComType === 'Portfolio Details' && value.AppComDesc === 'Post Observations'">
                                                 <label class="preview-comment__commenter">
-                                                    Commenter: {{ value.CONname }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date
-                                                    of
-                                                    Commenter: {{ value.AppComCreatedDate_convert }}
+                                                    <span>Commenter: {{ value.CONname }}</span>
+                                                    <span>Date of Commenter: {{ value.AppComCreatedDate_convert }}</span>
                                                 </label>
                                                 <label>
                                                     {{ value.AppComValue }}
@@ -345,12 +389,10 @@
                     </div>
                 </div>
                 <!--<div class="portfolio-preview__submit row">-->
-                    <!--<div class="col-lg-6">-->
-
-                    <!--</div>-->
-                    <!--<div class="col-lg-6">-->
-
-                    <!--</div>-->
+                <!--<div class="col-lg-6">-->
+                <!--</div>-->
+                <!--<div class="col-lg-6">-->
+                <!--</div>-->
                 <!--</div>-->
             </div>
         </div>
@@ -388,10 +430,14 @@
                 analysis: '',
                 show3: true,
                 showResearch: true,
-                showContent: true,
-                showConnection: true,
-                showObservation: true,
                 btnDownloadPDF: false,
+
+                scrollPosition: false,
+                showEnduringButton: true,
+                showResearchButton: true,
+                noEnduringRemark: false,
+                noResearchRemark: false
+
             };
         },
         async created() {
@@ -401,9 +447,10 @@
                     //this.portfolioID = this.$route.query.id;
                     this.commentField = true;
 
-                    await this.deString(this.$route.query.id);
+                    await this.deString(this.$route.query.id.replace(' ', '+'));
                 } else {
-                    this.$router.push('/Portfolio');
+                    this.$router.go(-1);
+                    // this.$router.push('/Portfolio');
                 }
             } else {
                 if (this.$route.params.mode === 'NEW') {
@@ -418,8 +465,37 @@
                     await this.getPortfolioComment(this.$route.params.portfolioID);
                     await this.getPortfolioPost(this.$route.params.portfolioID);
 
+
+                    // this.postList = this.postList.map(m => {
+                    // m.showContentButton = true;
+                    //     m.showConnectionButton = true;
+                    //     m.showObservationButton = true;
+                    //     return m;
+                    // });
+
                     if (this.$route.params.status === 'Approved') {
                         this.btnDownloadPDF = true;
+                        this.commentField = true;
+                        // this.postList.map(x => {
+                        //     const exist = this.portfolioCommentHistoryList.find(p => {
+                        //         // console.log(`${p.AppComApproverItemID} - ${x.PostID} - ${p.AppComDesc} p.AppComValue: ${p.AppComValue}`);
+                        //         return p.AppComApproverItemID === x.PostID && p.AppComValue;
+                        //     });
+                        //     if (exist) {
+                        //         // console.log(`matched, ${x.PostID} ${exist.AppComApproverItemID} ${exist.AppComValue}`)
+                        //         if(exist.AppComDesc==="Post Title"){
+                        //             x.showContentButton = true;
+                        //         }
+                        //         if(exist.AppComDesc==="Post Goals"){
+                        //             x.showConnectionButton = true;
+                        //         }
+                        //         if(exist.AppComDesc==="Post Observations"){
+                        //             x.showObservationButton = true;
+                        //         }
+                        //
+                        //     }
+                        //     return x;
+                        // });
                     }
                 } else if (this.$route.params.mode === 'APPROVER') {
                     this.saveEditMode = 'APPROVER';
@@ -429,16 +505,109 @@
                     await this.getPortfolioComment(this.$route.params.portfolioID);
                     await this.getPortfolioPost(this.$route.params.portfolioID);
                     await this.checkApprover(this.$route.params.portfolioID);
+
+                    // this.postList = this.postList.map(m => {
+                    //     m.showContentButton = true;
+                    //     m.showConnectionButton = true;
+                    //     m.showObservationButton = true;
+                    //     return m;
+                    // });
                 }
             }
         },
         component: {
             CollapseTransition
         },
-        async mounted() {
-
+        mounted() {
+            window.addEventListener('scroll', this.updateScroll);
+        },
+        destroy() {
+            window.removeEventListener('scroll', this.updateScroll);
         },
         methods: {
+            remarkContent(item, AppComDesc) {
+                let filterResult = [];
+
+                filterResult = this.portfolioCommentHistoryList.filter(d => {
+                    if (AppComDesc === "Post Title") {
+                        return d.AppComApproverItemID === item.PostID && d.AppComDesc === "Post Title" && d.AppComValue !== undefined;
+                    } else if (AppComDesc === "Post Goals") {
+                        return d.AppComApproverItemID === item.PostID && d.AppComDesc === "Post Goals" && d.AppComValue !== undefined;
+                    } else if (AppComDesc === "Post Observations") {
+                        return d.AppComApproverItemID === item.PostID && d.AppComDesc === "Post Observations" && d.AppComValue !== undefined;
+                    }
+                });
+                if (filterResult && filterResult.length < 1) {
+                    if (AppComDesc === "Post Title") {
+                        item.noContentRemark = true;
+                    } else if (AppComDesc === "Post Goals") {
+                        item.noConnectionRemark = true;
+                    } else if (AppComDesc === "Post Observations") {
+                        item.noObservationRemark = true;
+                    }
+                }
+            },
+            remarkHeader(AppComDesc) {
+                console.log(AppComDesc)
+                if (AppComDesc === 'Enduring Themes') {
+                    this.show3 = !this.show3;
+                } else if (AppComDesc === 'Research Question') {
+                    this.showResearch = !this.showResearch;
+                }
+                let tempHeader = this.portfolioCommentHistoryList.filter(d => {
+                    if (AppComDesc === 'Enduring Themes') {
+                        return d.AppComDesc === "Enduring Themes" && d.AppComValue !== undefined;
+                    } else if (AppComDesc === 'Research Question') {
+                        return d.AppComDesc === "Research Question" && d.AppComValue !== undefined;
+                    }
+                });
+                console.log(tempHeader);
+                if (tempHeader && tempHeader.length < 1) {
+                    if (AppComDesc === 'Enduring Themes') {
+                        this.noEnduringRemark = true;
+                    } else if (AppComDesc === 'Research Question') {
+                        this.noResearchRemark = true;
+                    }
+                }
+            },
+            showContent(item) {
+                if (item.showContent === true) {
+                    item.showContent = false;
+                } else {
+                    item.showContent = true;
+                }
+                this.$forceUpdate();
+                let AppComDesc = "Post Title";
+                this.remarkContent(item, AppComDesc);
+            },
+            showConnection(item) {
+                if (item.showConnection === true) {
+                    item.showConnection = false;
+                } else {
+                    item.showConnection = true;
+                }
+                this.$forceUpdate();
+
+                let AppComDesc = "Post Goals";
+                this.remarkContent(item, AppComDesc);
+            },
+            showObservation(item) {
+                if (item.showObservation === true) {
+                    item.showObservation = false;
+                } else {
+                    item.showObservation = true;
+                }
+                this.$forceUpdate();
+                let AppComDesc = "Post Observations";
+                this.remarkContent(item, AppComDesc);
+            },
+            updateScroll() {
+                if (window.scrollY > 200) {
+                    this.scrollPosition = true;
+                } else {
+                    this.scrollPosition = false;
+                }
+            },
             isNull(obj) {
                 return (obj === null || obj === undefined || obj === "undefined" || obj.length === 0 || obj === "");
             },
@@ -505,6 +674,12 @@
                         this.getImage();
                         this.postList = this.postList.map(m => {
                             m.newAnalysis = m.PostPorDtlAnalysisReflection;
+                            m.showContent = true;
+                            m.showConnection = true;
+                            m.showObservation = true;
+                            m.noContentRemark = false;
+                            m.noConnectionRemark = false;
+                            m.noObservationRemark = false;
                             return m;
                         });
 
@@ -559,12 +734,10 @@
                             });
                         } else {
                             this.postList = response.Table;
-                            console.log(this.postList, "postList");
                             if (response.Table.length > 0) {
                                 let tempAnalysis = response.Table[0].PostPorDtlAnalysisReflection;
                                 let tempObservation = response.Table[0].PostPorDtlObservation;
                                 this.analysis = tempAnalysis + '\n' + tempObservation;
-                                console.log(this.analysis);
                                 let tempConnection = JSON.stringify(response.Table[0].PostPorDtlDevelopmentGoals);
                                 this.connection = JSON.parse(tempConnection);
 

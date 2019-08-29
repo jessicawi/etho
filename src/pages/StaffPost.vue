@@ -90,27 +90,27 @@
                             </div>
                             <div class="desc">
                                 <ul>
-                                    <li>22 DEC Christmas Party</li>
-                                    <li>24 DEC Half Day Closure</li>
-                                    <li>25 DEC Full Day Closure</li>
-                                    <li>30 DEC Celebration of learning</li>
-                                    <li>31 DEC Full Day Closure</li>
-                                    <li>01 JAN Full Day Closure</li>
-                                    <li>07 JAN Start of Term 1</li>
+                                    <li><i class="fa fa-bullhorn" aria-hidden="true"></i> 22 DEC Christmas Party</li>
+                                    <li><i class="fa fa-bullhorn" aria-hidden="true"></i> 24 DEC Half Day Closure</li>
+                                    <li><i class="fa fa-bullhorn" aria-hidden="true"></i> 25 DEC Full Day Closure</li>
+                                    <li><i class="fa fa-bullhorn" aria-hidden="true"></i> 30 DEC Celebration of learning</li>
+                                    <li><i class="fa fa-bullhorn" aria-hidden="true"></i> 31 DEC Full Day Closure</li>
+                                    <li><i class="fa fa-bullhorn" aria-hidden="true"></i> 01 JAN Full Day Closure</li>
+                                    <li><i class="fa fa-bullhorn" aria-hidden="true"></i> 07 JAN Start of Term 1</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </vs-col>
-                <div class="col-lg-8 col-md-12 col-12 mt-4 pb-4">
+                <div class="col-lg-8 col-md-12 col-12 pb-4">
                     <div class="notification">
                         <div class="row">
                             <div class="col-md-9">
                                 <h4 class="text-left mb-3">Broadcast</h4>
                             </div>
                             <div class="col-md-3">
-                                <button @click="showMoreBroadcastModal" class="btn btn-link">Show More <i
-                                        class="fa fa-ellipsis-h" aria-hidden="true"></i></button>
+                                <el-button @click="showMoreBroadcastModal" class="btn btn-link" round>Show More <i
+                                        class="fa fa-ellipsis-h" aria-hidden="true"></i></el-button>
                             </div>
                         </div>
                         <div class="row">
@@ -120,8 +120,8 @@
                                     <div class="desc">
                                         <span>{{obj_BroadcastPost.PostContent}}</span>
                                     </div>
-                                    <div class="notification-item__footer">
-                                        <div class="notification__footer-item">
+                                    <div class="notification-item__meta">
+                                        <div class="">
                                             {{obj_BroadcastPost.CONname}}<br/>
                                             {{obj_BroadcastPost.PostCreatedDate_convert}}
                                         </div>
@@ -200,43 +200,44 @@
                             </div>
                         </div>
                     </div>-->
-                    <div class="feed-header">
-                        <h5 class="text-left" v-if="isParent !=='Parent'">Activity</h5>
-                        <h5 class="text-left" v-else>Updates</h5>
-                        <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
+                    <div class="feed-wrap">
+                        <div class="feed-header">
+                            <h5 class="text-left" v-if="isParent !=='Parent'"><i class="fa fa-circle-o-notch" aria-hidden="true"></i> Activity</h5>
+                            <h5 class="text-left" v-else><i class="fa fa-circle-o-notch" aria-hidden="true"></i> Updates</h5>
+                            <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
                             <!--<b-btn v-b-modal.modal1 @click="showBroadcast"><i class="fa fa-bullhorn"-->
-                                                                              <!--aria-hidden="true"></i>-->
-                                <!--<span>Broadcast</span></b-btn>-->
-                        <!--</div>-->
-                        <!--div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
-                            <b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"
-                                                                            aria-hidden="true"></i> <span>Updates</span>
-                            </b-btn>
-                        </div-->
-                        <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
+                            <!--aria-hidden="true"></i>-->
+                            <!--<span>Broadcast</span></b-btn>-->
+                            <!--</div>-->
+                            <!--div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">
+                                <b-btn v-b-modal.modal1 @click="showUpdates"><i class="fa fa-newspaper-o"
+                                                                                aria-hidden="true"></i> <span>Updates</span>
+                                </b-btn>
+                            </div-->
+                            <!--<div class="addPost" :class="{'d-none' :userType==='Teacher'}" v-if="isParent !== 'Parent'">-->
                             <!--<b-btn v-b-modal.modal1 @click="showPortfolio"><i class="fa fa-book" aria-hidden="true"></i>-->
-                                <!--<span>Portfolio</span></b-btn>-->
-                        <!--</div>-->
+                            <!--<span>Portfolio</span></b-btn>-->
+                            <!--</div>-->
+                            <div class="success">{{success}}</div>
+                            <!--<div v-if="isLoading">Loading...</div>-->
+                        </div>
+                        <div class="feed-item" v-for="object of list"
+                             :key="`${object.PostID}${object.commentItems ? object.commentItems.length : ''}`">
+                            <PostComponent
+                                    :parent-post="object"
+                                    @commentitemSubmit="commentitemSubmit"
+                                    @commentEdit="commentEdit"
+                                    @commentDelete="commentDelete"
+                                    :commentPostContent="commentPostContent"
+                                    :PostID="commentPostID"
+                                    @loadPosts="loadPosts"
+                                    ref="pComponent"
+                                    @showDeleteModal="showDeleteModal"
+                                    @deletePost="deletePost"
+                            />
+                        </div>
+                        <div class="lds-ellipsis" v-if="feedLoader || isLoading"><div></div><div></div><div></div><div></div></div>
                     </div>
-                    <div class="success">{{success}}</div>
-                    <!--<div v-if="isLoading">Loading...</div>-->
-                    <div class="" v-for="object of list"
-                         :key="`${object.PostID}${object.commentItems ? object.commentItems.length : ''}`">
-                        <PostComponent
-                                :parent-post="object"
-                                @commentitemSubmit="commentitemSubmit"
-                                @commentEdit="commentEdit"
-                                @commentDelete="commentDelete"
-                                :commentPostContent="commentPostContent"
-                                :PostID="commentPostID"
-                                @loadPosts="loadPosts"
-                                ref="pComponent"
-                                @showDeleteModal="showDeleteModal"
-                                @deletePost="deletePost"
-                        />
-                        <hr/>
-                    </div>
-                    <div class="lds-ellipsis" v-if="feedLoader || isLoading"><div></div><div></div><div></div><div></div></div>
                 </div>
             </div>
         </div>
@@ -273,6 +274,7 @@
                     @result="displayResult"
                     :is="obj_SelectedComponent"
                     @loadPosts="loadPosts"
+                    @loadBroadcast="loadBroadcast"
             ></component>
         </b-modal>
         <b-modal id="modal_uploadProfile" title="Update Profile Picture" ref="modal_uploadProfile" centered
@@ -397,7 +399,9 @@
 
                 feedLoader: false,
                 deleteType:"",
-                deletePostID:""
+                deletePostID:"",
+
+
             };
         },
         filters: {
@@ -422,6 +426,7 @@
             }
         },
         mounted() {
+
             var $this = this;
 
             $this.connectServer();
@@ -911,7 +916,7 @@
             ,
             connectServer() {
                 var $this = this;
-                var conn = $.hubConnection("http://45.32.116.206/Kagami_dev/WS/ESS", {qs: "clientId=1232222"});
+                var conn = $.hubConnection(process.env.VUE_APP_ROOT_API, {qs: "clientId=1232222"});
                 $this.proxy = conn.createHubProxy("PostingHub");
                 conn.start({jsonp: true});
                 $this.getMsg();
@@ -1215,7 +1220,7 @@
                 try {
                     if (Cookies.get('userIDSession') !== null || Cookies.get('userIDSession') !== undefined) {
 
-                        const response = await DataSource.shared.getParent(Cookies.get('userIDSession'));
+                        const response = await DataSource.shared.getParentStudentsInfo(Cookies.get('userIDSession'));
                         if (response) {
                             if (response.code === "2") {
                                 this.$notify.error({

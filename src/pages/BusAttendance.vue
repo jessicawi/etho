@@ -32,6 +32,7 @@
                                 <th>Remarks</th>
                                 <th>Parents Mobile</th>
                                 <th>ECA</th>
+                                <th>Class (Level)</th>
                             </tr>
                             <tr v-for="(item,i) in attendanceList" ref="attendanceList_Update">
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
@@ -46,6 +47,12 @@
                                 </td>
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
                                     <input type="text" class="form-control" ref="studentRemark" v-model="item.remarks">
+                                    <div v-if="item.attClassRemarks !== ''">
+                                        <label class="lblClassAttRemark">
+                                            Attendance Remark: <br>
+                                            <span class="lblClassAttRemarkContent">{{item.attClassRemarks}}</span>
+                                        </label>
+                                    </div>
                                 </td>
                                 <td :class="{'attendanceListDisableTickRow' : (item.markingStatusDisable === 'Yes') }">
                                     <el-popover
@@ -80,6 +87,9 @@
                                 </td>
                                 <td>
                                     <label class="lblEcaName">{{ item.ecaName }}</label>
+                                </td>
+                                <td>
+                                    <label class="lblClassLevelName">{{ item.className }} ({{ item.levelName }})</label>
                                 </td>
                             </tr>
                         </table>
@@ -249,6 +259,7 @@
         },
     };
 </script>
+
 <style scoped>
     .attTable {
         width: 100%;
@@ -285,7 +296,15 @@
         color: #c0c4cc;
     }
 
-    .lblStudentName, .lblEcaName {
+    .lblStudentName, .lblEcaName, .lblClassLevelName {
         font-weight: normal !important;
+    }
+
+    .lblClassAttRemark {
+        text-align: left !important;
+    }
+
+    .lblClassAttRemarkContent {
+        font-weight: normal;
     }
 </style>

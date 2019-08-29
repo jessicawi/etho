@@ -26,8 +26,8 @@ import VueTour from 'vue-tour';
 import VueClipboard from 'vue-clipboard2';
 import XLSX from 'xlsx';
 import InfiniteLoading from 'vue-infinite-loading';
-
 Vue.component('file-upload', VueUploadComponent);
+
 
 require('vue-tour/dist/vue-tour.css');
 

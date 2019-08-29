@@ -104,17 +104,17 @@ export default class DataSource {
             // console.log(new Date(Number(extendTime)), "extendTime");
             // console.log(new Date(Number(expireTime)), "expireTime");
 
-
+            //expire date after login
             if (nowMs > extendTime && nowMs < expireTime) {
-                const newExtendDate = new Date(Number(extendTime) + (120 * 60 * 1000));
-                console.log('first extend check');
-                console.log(newExtendDate, "new extend");
-                console.log(newExtendDate.getTime() + " " + Number(expireTime));
+                const newExtendDate = new Date(Number(extendTime) + (180 * 60 * 1000));
+                // console.log('first extend check');
+                // console.log(newExtendDate, "new extend");
+                // console.log(newExtendDate.getTime() + " " + Number(expireTime));
                 if (newExtendDate.getTime() >= Number(expireTime)) {
-                    const newExpireDate = new Date(Number(expireTime) + (90 * 60 * 1000));
+                    const newExpireDate = new Date(Number(expireTime) + (150 * 60 * 1000));
                     this.extendCookies(newExpireDate, newExtendDate);
                     // alert('extend!');
-                    console.log(newExpireDate, "later");
+                    // console.log(newExpireDate, "later");
                 }
             }
         }
@@ -180,8 +180,9 @@ export default class DataSource {
 
         try {
             // Cookies.set('alert', alertExpireDate, {expires: expireDate});
-            let extendDate = new Date(new Date().getTime() + 120 * 60 * 1000);
-            let expireDate = new Date(new Date().getTime() + 90 * 60 * 1000);
+            //set expire date onlogin
+            let extendDate = new Date(new Date().getTime() + 180 * 60 * 1000);
+            let expireDate = new Date(new Date().getTime() + 150 * 60 * 1000);
             const extendMs = extendDate.getTime();
             const expiredMs = expireDate.getTime();
 
@@ -604,9 +605,10 @@ export default class DataSource {
         return response;
     }
 
-    async getStudentAvailableStatusAction(currentStatus) {
+    async getStudentAvailableStatusAction(currentStatus, currentIndexNo) {
         const data = {
             currentStatus: currentStatus,
+            currentIndexNo: currentIndexNo
         };
         const response = await this.callWebService("/controller/Students.asmx/getStudentAvailableStatusAction", data, "POST");
         return response;
@@ -642,7 +644,7 @@ export default class DataSource {
         return response;
     }
 
-    async getParent(parentID) {
+    async getParentStudentsInfo(parentID) {
         const data = {
             parentID: parentID
         };
@@ -1221,6 +1223,14 @@ export default class DataSource {
         return response;
     }
 
+    async getPostFileWithoutTokenCheckByEncryptedPostID(encryptedPostID) {
+        const data = {
+            encryptedPostID: encryptedPostID
+        };
+        const response = await this.callWebService("/controller/Posting.asmx/getPostFileWithoutTokenCheckByEncryptedPostID", data, "POST");
+        return response;
+    }
+
     async getPostAllTaggingStudentsByPostID(postID) {
         const data = {
             postID: postID
@@ -1560,7 +1570,7 @@ export default class DataSource {
 
     async getAcademicYearBySchoolID(customSchoolID) {
         const data = {
-            customSchoolID : customSchoolID
+            customSchoolID: customSchoolID
         };
         const response = await this.callWebService("/controller/Course.asmx/getAcademicYear", data, "POST");
         return response;
@@ -1902,6 +1912,16 @@ export default class DataSource {
         return response;
     }
 
+    async getClassBySemesterAndCourseID(semesterID, courseID) {
+        const data = {
+            semesterID: semesterID,
+            courseID: courseID
+        };
+
+        const response = await this.callWebService("/controller/Course.asmx/getClass", data, "POST");
+        return response;
+    }
+
     async getNextLevel(str_LevelID) {
         const data = {levelID: str_LevelID};
 
@@ -2136,12 +2156,13 @@ export default class DataSource {
         return response;
     }
 
-    async saveTransferSchool(studentID, toTransferSchoolID, remark, effectiveDate) {
+    async saveTransferSchool(studentID, toTransferSchoolID, remark, effectiveDate, referralTransfer) {
         const data = {
             studentID: studentID,
             toTransferSchoolID: toTransferSchoolID,
             remark: remark,
-            effectiveDate: effectiveDate
+            effectiveDate: effectiveDate,
+            referralTransfer: referralTransfer,
         };
         const response = await this.callWebService("/controller/Students.asmx/saveTransferSchool", data, "POST");
         return response;
@@ -2227,11 +2248,12 @@ export default class DataSource {
         return response;
     }
 
-    async getActiveStudentsByLevelSchool(levelID, classID, semID) {
+    async getActiveStudentsByLevelSchool(levelID, classID, semID, includePendingStatus) {
         const data = {
             levelID: levelID,
             classID: classID,
             semID: semID,
+            includePendingStatus: includePendingStatus,
         };
         const response = await this.callWebService("/controller/Students.asmx/getActiveStudentsByLevelSchool", data, "POST");
         return response;
@@ -2329,10 +2351,10 @@ export default class DataSource {
         return response;
     }
 
-    async getPaymentList(studentCourseID,studentID) {
+    async getPaymentList(studentCourseID, studentID) {
         const data = {
             studentCourseID: studentCourseID,
-            studentID:studentID,
+            studentID: studentID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentList", data, "POST");
         return response;
@@ -2349,7 +2371,7 @@ export default class DataSource {
     async saveEvent(obj, participantObj) {
         const data = {
             obj: obj,
-            participantObj: participantObj,
+            ParticipantObj: participantObj,
         };
         const response = await this.callWebService("/controller/Event.asmx/saveEvent", data, "POST");
         return response;
@@ -2362,15 +2384,16 @@ export default class DataSource {
         const response = await this.callWebService("/controller/Event.asmx/getEvent", data, "POST");
         return response;
     }
-    async getUpComingEvent(){
-        const data = {
-        };
+
+    async getUpComingEvent() {
+        const data = {};
         const response = await this.callWebService("/controller/Event.asmx/getUpComingEvent", data, "POST");
         return response;
     }
-    async getUpComingEventDetail(obj){
+
+    async getUpComingEventDetail(obj) {
         const data = {
-            obj:obj,
+            obj: obj,
         };
         const response = await this.callWebService("/controller/Event.asmx/getUpComingEventDetail", data, "POST");
         return response;
@@ -2388,14 +2411,14 @@ export default class DataSource {
         const data = {
             eventID: eventID,
         };
-        const response = await this.callWebService("/controller/Event.asmx/getEventParticipant", data, "POST");
+        const response = await this.callWebService("/controller/Event.asmx/getEventParticipantList", data, "POST");
         return response;
     }
 
     async updateEvent(obj, participantObj) {
         const data = {
-            obj: obj,
-            participantObj: participantObj,
+            Obj: obj,
+            ParticipantObj: participantObj,
         };
         const response = await this.callWebService("/controller/Event.asmx/updateEvent", data, "POST");
         return response;
@@ -2429,7 +2452,7 @@ export default class DataSource {
 
     async getStudentForecastByBranchMonthly() {
         try {
-            const data={}
+            const data = {};
             const response = await this.callWebService("/controller/Students.asmx/getStudentForecastByBranch_Monthly", data, "POST");
             return response;
         } catch (e) {
@@ -2439,7 +2462,7 @@ export default class DataSource {
 
     async getStudentMovementDetailNewEnroll() {
         try {
-            const data={}
+            const data = {};
             const response = await this.callWebService("/controller/Students.asmx/getStudentMovementDetail_NewEnroll", data, "POST");
             return response;
         } catch (e) {
@@ -2449,7 +2472,7 @@ export default class DataSource {
 
     async getStudentsMovementCurrentYearSummary() {
         try {
-            const data={}
+            const data = {};
             const response = await this.callWebService("/controller/Students.asmx/getStudentsMovementCurrentYearSummary", data, "POST");
             return response;
         } catch (e) {
@@ -2459,7 +2482,7 @@ export default class DataSource {
 
     async getBusMasterList() {
         try {
-            const data={}
+            const data = {};
             const response = await this.callWebService("/controller/Attendance.asmx/getBusMasterList", data, "POST");
             return response;
         } catch (e) {
@@ -2469,9 +2492,9 @@ export default class DataSource {
 
     async saveBusMasterList(busNo) {
         try {
-            const data={
+            const data = {
                 busNo: busNo,
-            }
+            };
             const response = await this.callWebService("/controller/Attendance.asmx/saveBusMasterList", data, "POST");
             return response;
         } catch (e) {
@@ -2481,10 +2504,10 @@ export default class DataSource {
 
     async updateBusMasterList(busID, busStatus) {
         try {
-            const data={
+            const data = {
                 busID: busID,
                 busStatus: busStatus,
-            }
+            };
             const response = await this.callWebService("/controller/Attendance.asmx/updateBusMasterList", data, "POST");
             return response;
         } catch (e) {
@@ -2494,9 +2517,9 @@ export default class DataSource {
 
     async getActiveStudentListBySchoolIDOfBusNo(busNo) {
         try {
-            const data={
+            const data = {
                 busNo: busNo,
-            }
+            };
 
             const response = await this.callWebService("/controller/Attendance.asmx/getActiveStudentListBySchoolIDOfBusNo", data, "POST");
             return response;
@@ -2507,10 +2530,10 @@ export default class DataSource {
 
     async updateStudentBusNo(jsonString, status) {
         try {
-            const data={
+            const data = {
                 jsonString: jsonString,
                 status: status,
-            }
+            };
 
             const response = await this.callWebService("/controller/Attendance.asmx/updateStudentBusNo", data, "POST");
             return response;
@@ -2521,9 +2544,9 @@ export default class DataSource {
 
     async LoadBusAttendanceList(busNo) {
         try {
-            const data={
+            const data = {
                 busNo: busNo,
-            }
+            };
 
             const response = await this.callWebService("/controller/Attendance.asmx/LoadBusAttendanceList", data, "POST");
             return response;
@@ -2534,9 +2557,9 @@ export default class DataSource {
 
     async updateBusAttendanceList(jsonString) {
         try {
-            const data={
+            const data = {
                 jsonString: jsonString,
-            }
+            };
 
             const response = await this.callWebService("/controller/Attendance.asmx/updateBusAttendanceList", data, "POST");
             return response;
@@ -2545,287 +2568,266 @@ export default class DataSource {
         }
     }
 
-    async deletePaymentItem(SPDID,paymentPlanDetailID,studentCourseID){
+    async deletePaymentItem(SPDID, paymentPlanDetailID, studentCourseID) {
         const data = {
-            SPDID:SPDID,
-            paymentPlanDetailID:paymentPlanDetailID,
-            studentCourseID:studentCourseID,
+            SPDID: SPDID,
+            paymentPlanDetailID: paymentPlanDetailID,
+            studentCourseID: studentCourseID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/deletePaymentItem", data, "POST");
         return response;
     }
 
-    async getCurrencyValueDropdownlist(){
-        const data = {
-        };
+    async getCurrencyValueDropdownlist() {
+        const data = {};
         const response = await this.callWebService("/controller/Billing.asmx/getCurrencyValueDropdownlist", data, "POST");
         return response;
     }
 
-    async saveItem(btnAddItemObject){
-        const data={
-            SPPD_FK_Student_Course_ID:btnAddItemObject.SPPD_FK_Student_Course_ID,
-            SPPD_PayerName:btnAddItemObject.SPPD_PayerName,
+    async saveItem(btnAddItemObject) {
+        const data = {
+            SPPD_FK_Student_Course_ID: btnAddItemObject.SPPD_FK_Student_Course_ID,
+            SPPD_PayerName: btnAddItemObject.SPPD_PayerName,
             SPPD_PaymentSchedule: btnAddItemObject.SPPD_PaymentSchedule,
             SPPD_PaymentItemType: btnAddItemObject.SPPD_PaymentItemType,
-            SPPD_Currency:btnAddItemObject.SPPD_Currency,
-            SPPD_PaymentAmount:btnAddItemObject.SPPD_PaymentAmount,
-            SPPD_PaymentDate:btnAddItemObject.SPPD_PaymentDate,
-            noOfRecurring:btnAddItemObject.noOfRecurring,
-            itemDescription:btnAddItemObject.itemDescription,
-            itemFromDate:btnAddItemObject.itemFromDate,
-            itemToDate:btnAddItemObject.itemToDate,
+            SPPD_Currency: btnAddItemObject.SPPD_Currency,
+            SPPD_PaymentAmount: btnAddItemObject.SPPD_PaymentAmount,
+            SPPD_PaymentDate: btnAddItemObject.SPPD_PaymentDate,
+            noOfRecurring: btnAddItemObject.noOfRecurring,
+            itemDescription: btnAddItemObject.itemDescription,
+            itemFromDate: btnAddItemObject.itemFromDate,
+            itemToDate: btnAddItemObject.itemToDate,
         };
         const response = await this.callWebService("/controller/Billing.asmx/saveItem", data, "POST");
         return response;
     }
 
-    async getPaymentPlanMasterList(studentCourseID){
-        const data= {
-            studentCourseID:studentCourseID,
+    async getPaymentPlanMasterList(studentCourseID) {
+        const data = {
+            studentCourseID: studentCourseID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentPlanMasterList", data, "POST");
         return response;
     }
 
-    async getPaymentPlanRules(studentCourseID, jsonString){
-        const data= {
-            studentCourseID:studentCourseID,
+    async getPaymentPlanRules(studentCourseID, jsonString) {
+        const data = {
+            studentCourseID: studentCourseID,
             jsonString: jsonString,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentPlanRules", data, "POST");
         return response;
     }
 
-    async checkRateFeeEligible(studentID, studentCourseID, rateFeeMode){
-        const data= {
-            studentID:studentID,
-            studentCourseID:studentCourseID,
-            rateFeeMode:rateFeeMode,
+    async checkRateFeeEligible(studentID, studentCourseID, rateFeeMode) {
+        const data = {
+            studentID: studentID,
+            studentCourseID: studentCourseID,
+            rateFeeMode: rateFeeMode,
         };
         const response = await this.callWebService("/controller/Billing.asmx/checkRateFeeEligible", data, "POST");
         return response;
     }
 
-    async getPaymentPlanLevelStartDate(studentCourseID){
-        const data= {
-            studentCourseID:studentCourseID,
+    async getPaymentPlanLevelStartDate(studentCourseID) {
+        const data = {
+            studentCourseID: studentCourseID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentPlanLevelStartDate", data, "POST");
         return response;
     }
 
-    async getPaymentPlanRuleDetails(paymentPlanRuleID){
-        const data= {
-            paymentPlanRuleID:paymentPlanRuleID,
+    async getPaymentPlanRuleDetails(paymentPlanRuleID) {
+        const data = {
+            paymentPlanRuleID: paymentPlanRuleID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentPlanRuleDetails", data, "POST");
         return response;
     }
 
-    async checkSiblingDiscountEligible(studentID){
-        const data= {
-            studentID:studentID,
+    async checkSiblingDiscountEligible(studentID) {
+        const data = {
+            studentID: studentID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/checkSiblingDiscountEligible", data, "POST");
         return response;
     }
 
-    async getSiblingList(studentID)
-    {
-        const data= {
-            studentID:studentID,
+    async getSiblingList(studentID) {
+        const data = {
+            studentID: studentID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getSiblingList", data, "POST");
         return response;
     }
 
-    async getPaymentPlanMasterDetails(courseFeeSchemeID)
-    {
-        const data= {
-            courseFeeSchemeID:courseFeeSchemeID,
+    async getPaymentPlanMasterDetails(courseFeeSchemeID) {
+        const data = {
+            courseFeeSchemeID: courseFeeSchemeID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentPlanMasterDetails", data, "POST");
         return response;
     }
 
-    async getPaymentPlanMasterDetailsList(courseFeeSchemeID)
-    {
-        const data= {
-            courseFeeSchemeID:courseFeeSchemeID,
+    async getPaymentPlanMasterDetailsList(courseFeeSchemeID) {
+        const data = {
+            courseFeeSchemeID: courseFeeSchemeID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentPlanMasterDetailsList", data, "POST");
         return response;
     }
 
-    async getStudentCourseSemesterInfo(studentID,studentCourseID)
-    {
-        const data= {
-            studentID:studentID,
-            studentCourseID:studentCourseID
+    async getStudentCourseSemesterInfo(studentID, studentCourseID) {
+        const data = {
+            studentID: studentID,
+            studentCourseID: studentCourseID
         };
         const response = await this.callWebService("/controller/Course.asmx/getStudentCourseSemesterInfo", data, "POST");
         return response;
     }
 
-    async savePaymentPlan(btnAddPaymentPlanObject)
-    {
-        const data= {
-            btnAddPaymentPlanObject:btnAddPaymentPlanObject,
+    async savePaymentPlan(btnAddPaymentPlanObject) {
+        const data = {
+            btnAddPaymentPlanObject: btnAddPaymentPlanObject,
         };
         const response = await this.callWebService("/controller/Billing.asmx/savePaymentPlan", data, "POST");
         return response;
     }
 
-    async checkStaffDiscountEligible(studentID)
-    {
-        const data= {
-            studentID:studentID,
+    async checkStaffDiscountEligible(studentID) {
+        const data = {
+            studentID: studentID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/checkStaffDiscountEligible", data, "POST");
         return response;
     }
 
-    async getPaymentPlanStaffRules(studentID)
-    {
-        const data= {
-            studentID:studentID,
+    async getPaymentPlanStaffRules(studentID) {
+        const data = {
+            studentID: studentID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getPaymentPlanStaffRules", data, "POST");
         return response;
     }
 
-    async getUserDetails(conID)
-    {
-        const data= {
-            conID:conID,
+    async getUserDetails(conID) {
+        const data = {
+            conID: conID,
         };
         const response = await this.callWebService("/controller/User.asmx/getUserDetails", data, "POST");
         return response;
     }
 
-    async checkStudentPaymentPlan(studentCourseID)
-    {
-        const data= {
-            studentCourseID:studentCourseID,
+    async checkStudentPaymentPlan(studentCourseID) {
+        const data = {
+            studentCourseID: studentCourseID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/checkStudentPaymentPlan", data, "POST");
         return response;
     }
 
-    async savePaymentPlanDiscount(obj)
-    {
-        const data= {
-            obj:obj,
+    async savePaymentPlanDiscount(obj) {
+        const data = {
+            obj: obj,
         };
         const response = await this.callWebService("/controller/Billing.asmx/savePaymentPlanDiscount", data, "POST");
         return response;
     }
 
-    async generateInvoice(obj, studentID, studentCourseID, inputPaymentDueDate, inputRemarks, action, invoiceName)
-    {
-        const data= {
-            obj:obj,
-            studentID:studentID,
-            studentCourseID:studentCourseID,
-            inputPaymentDueDate:inputPaymentDueDate,
-            inputRemarks:inputRemarks,
-            action:action,
-            invoiceName:invoiceName,
+    async generateInvoice(obj, studentID, studentCourseID, inputPaymentDueDate, inputRemarks, action, invoiceName) {
+        const data = {
+            obj: obj,
+            studentID: studentID,
+            studentCourseID: studentCourseID,
+            inputPaymentDueDate: inputPaymentDueDate,
+            inputRemarks: inputRemarks,
+            action: action,
+            invoiceName: invoiceName,
         };
         const response = await this.callWebService("/controller/Billing.asmx/generateInvoice", data, "POST");
         return response;
     }
 
-    async getReInvoice(studentID, studentCourseID, invoiceName)
-    {
-        const data= {
-            studentID:studentID,
-            studentCourseID:studentCourseID,
-            invoiceName:invoiceName,
+    async getReInvoice(studentID, studentCourseID, invoiceName) {
+        const data = {
+            studentID: studentID,
+            studentCourseID: studentCourseID,
+            invoiceName: invoiceName,
 
         };
         const response = await this.callWebService("/controller/Billing.asmx/getReinvoiceActiveList", data, "POST");
         return response;
     }
 
-    async generateReceipt(obj, studentID, studentCourseID, action)
-    {
-        const data= {
-            obj:obj,
-            studentID:studentID,
-            studentCourseID:studentCourseID,
-            action:action,
+    async generateReceipt(obj, studentID, studentCourseID, action) {
+        const data = {
+            obj: obj,
+            studentID: studentID,
+            studentCourseID: studentCourseID,
+            action: action,
         };
         const response = await this.callWebService("/controller/Billing.asmx/generateReceipt", data, "POST");
         return response;
     }
 
-    async getReceiptWithTransactionHistory(Obj,studentID,invoiceName)
-    {
-        const data= {
-            receiptNameListObj:Obj,
-            studentID:studentID,
-            invoiceName:invoiceName,
+    async getReceiptWithTransactionHistory(Obj, studentID, invoiceName) {
+        const data = {
+            receiptNameListObj: Obj,
+            studentID: studentID,
+            invoiceName: invoiceName,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getTransactionHistoryList", data, "POST");
         return response;
     }
 
-    async getLeftOverPaymentReceipt(Obj,studentID,invoiceName,studentCourseID)
-    {
-        const data= {
-            receiptNameListObj:Obj,
-            studentID:studentID,
-            invoiceName:invoiceName,
-            studentCourseID:studentCourseID,
+    async getLeftOverPaymentReceipt(Obj, studentID, invoiceName, studentCourseID) {
+        const data = {
+            receiptNameListObj: Obj,
+            studentID: studentID,
+            invoiceName: invoiceName,
+            studentCourseID: studentCourseID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getLeftoverPayment", data, "POST");
         return response;
     }
 
-    async getActivePaymentNoTransactionHistoryList(studentCourseID, value)
-    {
-        const data= {
-            studentCourseID:studentCourseID,
-            transType:value,
+    async getActivePaymentNoTransactionHistoryList(studentCourseID, value) {
+        const data = {
+            studentCourseID: studentCourseID,
+            transType: value,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getActivePaymentNoTransactionHistoryList", data, "POST");
         return response;
     }
 
-    async getInvoiceDetails(InvHeaderID)
-    {
-        const data= {
-            InvHeaderID:InvHeaderID,
+    async getInvoiceDetails(InvHeaderID) {
+        const data = {
+            InvHeaderID: InvHeaderID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getInvoiceDetails", data, "POST");
         return response;
     }
 
-    async getInvoiceDetailsList(InvHeaderID)
-    {
-        const data= {
-            InvHeaderID:InvHeaderID,
+    async getInvoiceDetailsList(InvHeaderID) {
+        const data = {
+            InvHeaderID: InvHeaderID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getInvoiceDetailsList", data, "POST");
         return response;
     }
 
-    async generateCN(obj)
-    {
-        const data= {
-            obj:obj,
+    async generateCN(obj) {
+        const data = {
+            obj: obj,
         };
         const response = await this.callWebService("/controller/Billing.asmx/generateCN", data, "POST");
         return response;
     }
 
-    async getTransactionDocumentPdf(documentType,invRecID)
-    {
-        const data= {
-            DocumentType:documentType,
-            InvRecID:invRecID,
+    async getTransactionDocumentPdf(documentType, invRecID) {
+        const data = {
+            DocumentType: documentType,
+            InvRecID: invRecID,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getTransactionDocument", data, "POST");
         return response;
@@ -2833,7 +2835,7 @@ export default class DataSource {
 
     async updateAttendanceListWithTemperature(deviceOutput) {
         try {
-            const data={
+            const data = {
                 deviceOutput: deviceOutput,
             };
 
@@ -2846,8 +2848,7 @@ export default class DataSource {
 
     async getNumberOfAttendanceAllClassBySchool() {
         try {
-            const data={
-            };
+            const data = {};
 
             const response = await this.callWebService("/controller/Attendance.asmx/getNumberOfAttendanceAllClassBySchool", data, "POST");
             return response;
@@ -2858,8 +2859,7 @@ export default class DataSource {
 
     async getEcaMasterList() {
         try {
-            const data={
-            };
+            const data = {};
 
             const response = await this.callWebService("/controller/Attendance.asmx/getEcaMasterList", data, "POST");
             return response;
@@ -2870,7 +2870,7 @@ export default class DataSource {
 
     async saveEcaMasterList(ecaName) {
         try {
-            const data={
+            const data = {
                 ecaName: ecaName,
             };
 
@@ -2883,7 +2883,7 @@ export default class DataSource {
 
     async updateEcaMasterList(ecaID, ecaStatus) {
         try {
-            const data={
+            const data = {
                 ecaID: ecaID,
                 ecaStatus: ecaStatus,
             };
@@ -2897,7 +2897,7 @@ export default class DataSource {
 
     async getEcaDetails(ecaID, EcaDtlDateAttend) {
         try {
-            const data={
+            const data = {
                 ecaID: ecaID,
                 EcaDtlDateAttend: EcaDtlDateAttend,
             };
@@ -2911,7 +2911,7 @@ export default class DataSource {
 
     async getEcaDetailsUnAssignStudent(ecaID, ecaDtlDateAttend) {
         try {
-            const data={
+            const data = {
                 ecaID: ecaID,
                 ecaDtlDateAttend: ecaDtlDateAttend,
             };
@@ -2925,7 +2925,7 @@ export default class DataSource {
 
     async getEcaSummaryGroupByEcaID(ecaID) {
         try {
-            const data={
+            const data = {
                 ecaID: ecaID
             };
 
@@ -2938,7 +2938,7 @@ export default class DataSource {
 
     async saveEcaDetails(jsonString, mode) {
         try {
-            const data={
+            const data = {
                 jsonString: jsonString,
                 mode: mode
             };
@@ -2952,7 +2952,7 @@ export default class DataSource {
 
     async updateEcaDetails(ecaDtlID, ecaDtlStatus) {
         try {
-            const data={
+            const data = {
                 ecaDtlID: ecaDtlID,
                 ecaDtlStatus: ecaDtlStatus
             };
@@ -2966,7 +2966,7 @@ export default class DataSource {
 
     async getEcaBySchoolIDDate(dateAttend) {
         try {
-            const data={
+            const data = {
                 dateAttend: dateAttend
             };
 
@@ -2979,7 +2979,7 @@ export default class DataSource {
 
     async LoadEcaAttendanceList(ecaID) {
         try {
-            const data={
+            const data = {
                 ecaID: ecaID
             };
 
@@ -2992,7 +2992,7 @@ export default class DataSource {
 
     async updateEcaAttendanceList(jsonString) {
         try {
-            const data={
+            const data = {
                 jsonString: jsonString
             };
 
@@ -3005,7 +3005,7 @@ export default class DataSource {
 
     async generateEcaAttendanceReport(jsonString) {
         try {
-            const data={
+            const data = {
                 jsonString: jsonString
             };
 
@@ -3016,88 +3016,83 @@ export default class DataSource {
         }
     }
 
-    async getReceiptList(invoiceName,receiptName){
-        try{
-            const data={
-                receiptName:receiptName,
-                invoiceName:invoiceName,
+    async getReceiptList(invoiceName, receiptName) {
+        try {
+            const data = {
+                receiptName: receiptName,
+                invoiceName: invoiceName,
             };
             const response = await this.callWebService("/controller/Billing.asmx/getReceiptList", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async getPayee(studentID_Index){
-        try{
-            const data={
-                studentID_Index:studentID_Index,
+    async getPayee(studentID_Index) {
+        try {
+            const data = {
+                studentID_Index: studentID_Index,
             };
             const response = await this.callWebService("/controller/Students.asmx/getPayee", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async getReceiptDetails(receiptID){
-        try{
-            const data={
-                receiptID:receiptID,
+    async getReceiptDetails(receiptID) {
+        try {
+            const data = {
+                receiptID: receiptID,
             };
             const response = await this.callWebService("/controller/Billing.asmx/getReceiptDetails", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async getUnbilledBatchPaymentList(schoolID,courseID,classID,fromDate,toDate){
-        try{
-            const data={
-                schoolID:schoolID,
-                // academicYearID:academicYearID,
-                courseID:courseID,
-                classID:classID,
-                fromDate:fromDate,
-                toDate:toDate,
+    async getUnbilledBatchPaymentList(schoolID, semesterID, courseID, classID, fromDate, toDate) {
+        try {
+            const data = {
+                schoolID: schoolID,
+                semesterID: semesterID,
+                courseID: courseID,
+                classID: classID,
+                fromDate: fromDate,
+                toDate: toDate,
             };
             const response = await this.callWebService("/controller/Billing.asmx/getUnbilledBatchPaymentList", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async cancelReceipt(receiptID){
-        try{
-            const data={
-                receiptID:receiptID,
+    async cancelReceipt(receiptID) {
+        try {
+            const data = {
+                receiptID: receiptID,
             };
             const response = await this.callWebService("/controller/Billing.asmx/cancelReceipt", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async generateBatchInvoice(obj,inputPaymentDueDate, action){
-        try{
-            const data={
-                obj:obj,
-                inputPaymentDueDate:inputPaymentDueDate,
-                action:action,
+    async generateBatchInvoice(obj, inputPaymentDueDate, action, breakdownFlag) {
+        try {
+            const data = {
+                obj: obj,
+                inputPaymentDueDate: inputPaymentDueDate,
+                action: action,
+                breakdownFlag:breakdownFlag,
             };
             const response = await this.callWebService("/controller/Billing.asmx/generateBatchInvoice", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
@@ -3149,114 +3144,280 @@ export default class DataSource {
         return response;
     }
 
-    async getValueFromGeneralSearch(searchValueInput){
-        try{
-            const data={
-                searchValueInput:searchValueInput,
+    async getValueFromGeneralSearch(searchValueInput) {
+        try {
+            const data = {
+                searchValueInput: searchValueInput,
             };
             const response = await this.callWebService("/controller/General.asmx/getValueFromGeneralSearch", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async generatePortfolioPDF(portfolioID){
-        try{
-            const data={
+    async generatePortfolioPDF(portfolioID) {
+        try {
+            const data = {
                 portfolioID: portfolioID,
             };
             const response = await this.callWebService("/controller/Portfolio.asmx/generatePortfolioPDF", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async getTransferPendingScheduleList(){
-        try{
-            const data={
-
-            };
+    async getTransferPendingScheduleList() {
+        try {
+            const data = {};
             const response = await this.callWebService("/controller/Operations.asmx/getTransferPendingScheduleList", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async updateTransferPendingScheduleList(studentSchoolID, status){
-        try{
-            const data={
+    async updateTransferPendingScheduleList(studentSchoolID, status) {
+        try {
+            const data = {
                 studentSchoolID: studentSchoolID,
                 status: status
             };
             const response = await this.callWebService("/controller/Operations.asmx/updateTransferPendingScheduleList", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async getWithdrawGraduatePendingScheduleList(changeType){
-        try{
-            const data={
+    async getWithdrawGraduatePendingScheduleList(changeType) {
+        try {
+            const data = {
                 changeType: changeType
             };
             const response = await this.callWebService("/controller/Operations.asmx/getWithdrawGraduatePendingScheduleList", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async updateWithdrawGraduatePendingScheduleList(studentGraduationDatesID, status){
-        try{
-            const data={
+    async updateWithdrawGraduatePendingScheduleList(studentGraduationDatesID, status) {
+        try {
+            const data = {
                 studentGraduationDatesID: studentGraduationDatesID,
                 status: status
             };
             const response = await this.callWebService("/controller/Operations.asmx/updateWithdrawGraduatePendingScheduleList", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async getReminderEmail(noOfReminder,invoiceNo,studentCourseID,studentID){
-        try{
-            const data={
+    async getReminderEmail(noOfReminder, invoiceNo, studentCourseID, studentID) {
+        try {
+            const data = {
                 noOfReminder: noOfReminder,
                 invoiceNo: invoiceNo,
-                studentCourseID:studentCourseID,
-                studentID:studentID
+                studentCourseID: studentCourseID,
+                studentID: studentID
             };
             const response = await this.callWebService("/controller/Billing.asmx/getReminderEmail", data, "POST");
             return response;
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
-    async sendReminderEmail(emailTo,emailSubject,emailMessage,invoiceNo){
-        try{
-            const data={
+    async sendReminderEmail(emailTo, emailSubject, emailMessage, invoiceNo) {
+        try {
+            const data = {
                 emailTo: emailTo,
                 emailSubject: emailSubject,
-                emailMessage:emailMessage,
-                invoiceNo:invoiceNo
+                emailMessage: emailMessage,
+                invoiceNo: invoiceNo
             };
             const response = await this.callWebService("/controller/Billing.asmx/sendReminderEmail", data, "POST");
             return response;
+        } catch (e) {
+            console.log(e);
         }
-        catch (e) {
+    }
+
+
+    async getCourseBySemesterID(schoolID, semesterID) {
+        try {
+            const data = {
+                schoolID: schoolID,
+                semesterID: semesterID,
+            };
+            const response = await this.callWebService("/controller/Course.asmx/getCourseBySemesterID", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+
+    async getClassByMonthYear(month, year, filterByStaffInCharge) {
+        try {
+            const data = {
+                month: month,
+                year: year,
+                filterByStaffInCharge: filterByStaffInCharge,
+            };
+            const response = await this.callWebService("/controller/Class.asmx/getClassByMonthYear", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getClassAttendanceReportByMonthYear(month, year, classID) {
+        try {
+            const data = {
+                month: month,
+                year: year,
+                classID: classID,
+            };
+            const response = await this.callWebService("/controller/Attendance.asmx/getClassAttendanceReportByMonthYear", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getInvoiceList(invoiceDateFrom, invoiceDateTo, invoiceDueDateFrom, invoiceDueDateTo) {
+        try {
+            const data = {
+                invoiceDateFrom: invoiceDateFrom,
+                invoiceDateTo: invoiceDateTo,
+                invoiceDueDateFrom: invoiceDueDateFrom,
+                invoiceDueDateTo: invoiceDueDateTo
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/getInvoiceList", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getItemTotalReceipt(receiptNameListObj) {
+        try {
+            const data = {
+                receiptNameListObj: receiptNameListObj
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/getItemTotalReceipt", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async advanceAttendanceMarking(jsonString) {
+        try {
+            const data = {
+                jsonString: jsonString
+            };
+            const response = await this.callWebService("/controller/Attendance.asmx/advanceAttendanceMarking", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async generateRefund(obj) {
+        try {
+            const data = {
+                obj: obj
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/generateRefund", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getadvanceAttendanceMarkingList() {
+        try {
+            const data = {};
+            const response = await this.callWebService("/controller/Attendance.asmx/getAdvanceAttendanceMarkingList", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updateAdvanceAttendanceMarking(mode, attendanceID) {
+        try {
+            const data = {
+                mode: mode,
+                attendanceID: attendanceID,
+            };
+            const response = await this.callWebService("/controller/Attendance.asmx/updateAdvanceAttendanceMarking", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getClassStudentByClassName(classValue) {
+
+        const data = {
+            classValue: classValue,
+        };
+        const response = await this.callWebService("/controller/Class.asmx/getClassStudentByClassName", data, "POST");
+        return response;
+    }
+
+    async checkDeferActionValid(studentID) {
+        try {
+            const data = {
+                studentID: studentID,
+            };
+            const response = await this.callWebService("/controller/Students.asmx/checkDeferActionValid", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async setDeferDate(studentID, deferDate) {
+        try {
+            const data = {
+                studentID: studentID,
+                deferDate: deferDate,
+            };
+            const response = await this.callWebService("/controller/Students.asmx/setDeferDate", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async sendEmailInvoice(obj) {
+        try {
+            const data = {
+                obj: obj,
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/sendEmailInvoice", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async checkCourseOrderByLevelIDStudentID(levelID, studentID) {
+        try {
+            const data = {
+                levelID: levelID,
+                studentID: studentID,
+            };
+            const response = await this.callWebService("/controller/Course.asmx/checkCourseOrderByLevelIDStudentID", data, "POST");
+            return response;
+        } catch (e) {
             console.log(e);
         }
     }

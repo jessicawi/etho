@@ -413,19 +413,18 @@
                     const response = await DataSource.shared.saveStudentGraduation(JSON.stringify(this.arrobj_SelectedStudents));
 
                     if(response.code==='88'){
-                        this.$notify.error({
-                            title: 'Error',
-                            message: 'Graduation record founded! new graduation record insert, old record status set to Void'
-                        });
-                        this.unselectAll();
-                        // window.location.replace('/studentgraduation');
-                        console.log('88');
+                        window.location.replace('/');
                     }
                     else if(response.code==="99"){
-                        console.log('99');
                         this.$notify.error({
                             title: 'Error',
-                            message: 'Please try again'
+                            message: 'Student Graduate Submit Error!!'
+                        });
+                    }
+                    else if(response.code==="2"){
+                        this.$notify({
+                            title: 'Invalid Action',
+                            message: 'Selected students have contain student that cannot graduate due to other pending action'
                         });
                     }
                     else if(response.code==='1'){
@@ -437,7 +436,6 @@
                         this.obj_SelectedClass = this.tempCurrentClass;
                         this.loadStudents();
                         this.hideGraduationModal();
-                        // window.location.replace('/studentgraduation');
                     }
                 }
                 catch (e) {

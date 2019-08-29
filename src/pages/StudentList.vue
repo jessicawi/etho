@@ -150,6 +150,9 @@
                 }, {
                     prop: "Father_Name",
                     label: "Father_Name"
+                }, {
+                    prop: "levelAndClassName",
+                    label: "Class (Level)"
                 }],
                 actionCol: {
                     label: 'Edit',

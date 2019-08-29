@@ -12,19 +12,18 @@
                             class="fa fa-folder-open-o"></i>
                         <span class="ml-2">Create new folder</span>
                     </button>
-
                     <button class="upload-item btn btn-secondary" title="Upload">
                         <i class="fa fa-upload"></i>
                         <span class="ml-2">Upload</span>
                     </button>
                 </div>
                 <div class="col-md-8">
-
                     <el-button-group>
                         <el-button id="btn_SelectAll" type="primary" icon="el-icon-arrow-left"
                                    :class="{'d-none':selectall===true}">Select All
                         </el-button>
-                        <el-button id="btn_UnselectAll" type="primary" :class="{'d-none':arrobj_SelectedItem.length === 0}">Unselect
+                        <el-button id="btn_UnselectAll" type="primary"
+                                   :class="{'d-none':arrobj_SelectedItem.length === 0}">Unselect
                             All<i class="el-icon-arrow-right el-icon-right"></i></el-button>
                     </el-button-group>
                     <el-button-group class="gallery-action__item">
@@ -53,13 +52,12 @@
                 <div class="col-md-9 text-left">
                     <el-breadcrumb separator-class="el-icon-arrow-right">
                         <i class="fa fa-home" aria-hidden="true"></i>
-                        <el-breadcrumb-item :to="{ path: '/' }" v-for="obj_Folder of arrobj_FolderPath"
-                                            :key="obj_Folder.GalID"> {{obj_Folder.GalFolder}}
+                        <el-breadcrumb-item v-for="(obj_Folder,i) of arrobj_FolderPath"
+                                            :key="obj_Folder.GalID"><span @click="backSpecificDirectory(obj_Folder,i)">{{obj_Folder.GalFolder}}</span>
                         </el-breadcrumb-item>
                     </el-breadcrumb>
                 </div>
                 <div class="col-md-3">
-
                     <el-button type="primary" size="mini" icon="el-icon-download" class="float-right" id="btn_Previous">
                         Back
                     </el-button>
@@ -114,7 +112,6 @@
                 </div>
             </div>
             <input type="file" id="fileUpload" multiple/>
-
             <div id="div_ContextMenu" class="border border-secondary bg-white rounded-right rounded-bottom text-left">
                 <ul id="ul_ContextMenuOptions">
                     <li class="li_MenuOption" @click="showCreateModal"><i class="fa fa-folder-open-o"></i><span
@@ -152,7 +149,6 @@
                     </li>
                 </ul>
             </div>
-
         </div>
         <b-modal id="modal_ViewItem" title="View" ref="modal_ViewItem" centered ok-only ok-title="Close">
             <b-carousel id="carousel1"
@@ -242,7 +238,6 @@
         </div>
     </div>
 </template>
-
 <script>
     "use strict";
     import DataSource from "../data/datasource";
@@ -256,7 +251,7 @@
             return {
                 arrobj_Folders: [],
                 arrobj_Files: [],
-                arrobj_FolderPath: [{GalFolder: "Home", GalID: "PRIMARY", GalType: "Folder"}],
+                arrobj_FolderPath: [{GalFolder: "Gallery", GalID: "PRIMARY", GalType: "Folder"}],
                 arrobj_SelectedItem: [],
                 arrobj_MoveModalFolders: [],
                 arrobj_MoveModalFolderPath: [],
@@ -274,7 +269,7 @@
                 systemmsgError: false,
                 int_SelectLimit: 30,
                 selectall: false,
-            }
+            };
         },
         methods: {
             loadWhitelist() {
@@ -305,7 +300,15 @@
             changeDirectory(obj_Folder) {
                 this.arrobj_FolderPath.push(obj_Folder);
 
-                this.initFolder(obj_Folder)
+                this.initFolder(obj_Folder);
+            },
+            backSpecificDirectory(obj_Folder, i) {
+                let checkPop = i + 1;
+                let obj_PreviousFolder = this.arrobj_FolderPath[i];
+                this.initFolder(obj_PreviousFolder);
+                if (this.arrobj_FolderPath.length !== checkPop){
+                    this.arrobj_FolderPath.pop();
+                }
             },
             getFolders(obj_Folder) {
                 this.showLoading();
@@ -334,7 +337,7 @@
                 this.showLoading();
                 return new Promise((resolve, reject) => {
                     DataSource.shared.getFiles(obj_Folder.GalID, this.int_StartRowNo, this.int_EndRowNo).then((result) => {
-                        let arr_Result
+                        let arr_Result;
 
                         if (result.code != 2 && result.code != 99) {
                             arr_Result = result.Table;
@@ -633,7 +636,7 @@
             MoveModalChangeDirectory(obj_Folder) {
                 this.arrobj_MoveModalFolderPath.push(obj_Folder);
 
-                this.MoveModalInitFolder(obj_Folder)
+                this.MoveModalInitFolder(obj_Folder);
             }
             ,
 
@@ -686,7 +689,7 @@
                     arrstr_IDToRemove.push(obj_SelectedItem.GalID);
 
                 for (let str_IDToRemove of arrstr_IDToRemove) {
-                    arr_Promises.push(DataSource.shared.removeFile(str_IDToRemove))
+                    arr_Promises.push(DataSource.shared.removeFile(str_IDToRemove));
                 }
 
                 Promise.all(arr_Promises).then(() => {
@@ -708,17 +711,17 @@
 
                 div_ContextMenu.css("display", "block");
 
-                console.log(e.clientY)
-                console.log(e)
-                console.log(e.screenY)
-                console.log(div_ContextMenu.outerHeight())
+                console.log(e.clientY);
+                console.log(e);
+                console.log(e.screenY);
+                console.log(div_ContextMenu.outerHeight());
 
-                if((e.clientX + div_ContextMenu.outerWidth()) >= $(document).innerWidth())
+                if ((e.clientX + div_ContextMenu.outerWidth()) >= $(document).innerWidth())
                     div_ContextMenu.css("left", (e.clientX - div_ContextMenu.outerWidth()) + "px");
                 else
                     div_ContextMenu.css("left", e.clientX + "px");
 
-                if((e.screenY + div_ContextMenu.outerHeight()) >= $(document).innerHeight())
+                if ((e.screenY + div_ContextMenu.outerHeight()) >= $(document).innerHeight())
                     div_ContextMenu.css("top", (e.clientY - div_ContextMenu.outerHeight()) + "px");
                 else if (e.screenY < div_ContextMenu.outerHeight())
                     div_ContextMenu.css("top", 0 + "px");
@@ -748,11 +751,11 @@
 
             /*#region Carousel Slider*/
             onSlideStart(slide) {
-                this.sliding = true
+                this.sliding = true;
             }
             ,
             onSlideEnd(slide) {
-                this.sliding = false
+                this.sliding = false;
             }
             ,
             /*endregion*/
@@ -826,9 +829,9 @@
                  * // => Logs 'later' after one second.
                  */
                 if (typeof func != 'function') {
-                    throw new TypeError('Expected a function')
+                    throw new TypeError('Expected a function');
                 }
-                return setTimeout(func, +wait || 0, ...args)
+                return setTimeout(func, +wait || 0, ...args);
             }
             ,
             restArguments(func, startIndex) {
@@ -967,7 +970,7 @@
 
                     let obj_CurrentFolder = this.arrobj_FolderPath[this.arrobj_FolderPath.length - 1];
                     self.getFiles(obj_CurrentFolder).then((result) => {
-                        this.arrobj_Files.push.apply(this.arrobj_Files, result)
+                        this.arrobj_Files.push.apply(this.arrobj_Files, result);
                     }).then(() => {
                         this.hideLoading();
                     });
@@ -977,7 +980,7 @@
                 let obj_CurrentFolder = this.arrobj_FolderPath[this.arrobj_FolderPath.length - 1];
                 if (!self.isScrollable)
                     self.getFiles(obj_CurrentFolder).then((result) => {
-                        this.arrobj_Files.push.apply(this.arrobj_Files, result)
+                        this.arrobj_Files.push.apply(this.arrobj_Files, result);
                     }).then(() => {
                         this.hideLoading();
                     });
@@ -1027,9 +1030,8 @@
             portfolio,
             updates
         },
-    }
+    };
 </script>
-
 <style scoped>
     /*#region Full page drop area */
     #div_DropZone {

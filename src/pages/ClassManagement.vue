@@ -701,11 +701,13 @@
                 }, {
                     prop: "Last_name",
                     label: "Last Name"
+                }, {
+                    prop: "CLS_ClassName",
+                    label: "Current Class"
+                }, {
+                    prop: "CLS_Batch",
+                    label: "Batch"
                 },
-                    //     {
-                    //     prop: "assignToCurrentClass",
-                    //     label: "Assigned Current Class"
-                    // }
                 ],
                 ClassFilters: [
                     {
@@ -1137,7 +1139,7 @@
                     }
 
                     this.$vs.loading();
-                    const response = await DataSource.shared.getActiveStudentsByLevelSchool(this.assignClassLevelID, this.assignClassID, this.assignClassSemID);
+                    const response = await DataSource.shared.getActiveStudentsByLevelSchool(this.assignClassLevelID, this.assignClassID, this.assignClassSemID, 'YES');
                     if (response) {
                         this.$vs.loading.close();
                         if (response.code === '88') {
@@ -1267,9 +1269,9 @@
             assignStudentsListChangePageSize(currentPageSize) {
                 this.assignStudentsListPageSize = currentPageSize;
             },
-            removeClassProgramme(classID) {
+            async removeClassProgramme(classID) {
                 try {
-                    const response = DataSource.shared.updateClassProgramme(classID, 'CLOSED');
+                    const response = await DataSource.shared.updateClassProgramme(classID, 'VOID');
                     if (response) {
                         if (response.code === '88') {
                             window.location.replace('/');

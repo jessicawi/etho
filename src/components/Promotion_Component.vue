@@ -121,6 +121,12 @@
                             message: 'Number of students assign to this class have excceded max number of class',
                             type: 'success'
                         });
+                    } else if (!this.isNull(result) && result.code === "3") {
+                        this.$notify({
+                            title: 'Invalid Action',
+                            message: 'Selected students have contain student that cannot promote due to other pending action',
+                            type: 'success'
+                        });
                     }
                     this.$emit("result", true);
                 });

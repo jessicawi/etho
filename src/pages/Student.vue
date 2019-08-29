@@ -38,9 +38,13 @@
                         forward
                     </i> Withdraw
                     </el-button>
-                    <el-button v-b-modal.transferModal type="primary" class="btnTransfer"><i class="material-icons">
+                    <el-button v-on:click="showTransferModal('No')" type="primary" class="btnTransfer"><i class="material-icons">
                         import_export
                     </i> Transfer
+                    </el-button>
+                    <el-button style="display:none !important;" v-if="highestLevel" v-on:click="showTransferModal('Yes')" type="primary" class="btnTransfer">
+                        <i class="material-icons">import_export</i>
+                        Referral Transfer
                     </el-button>
                     <el-button type="primary" class="btnUploadDocument" v-on:click="showStudentDocumentModal()"><i
                             class="material-icons">
@@ -126,9 +130,11 @@
         </div>
         <div class="mt-3 container">
             <el-tabs v-model="activeTab" class="studentPageBTabs" stretch @tab-click="activeTabHappen">
-                <el-tab-pane name="Student" label="Student">
+                <el-tab-pane name="Student">
                     <span slot="label">
-                        <span v-if="!$v.$error">Student</span>
+                        <!--<span v-if="!$v.$error">Student</span>-->
+
+                        <span v-if="!$v.inputStudentFirstName.$error && !$v.inputStudentLastName.$error && !$v.ddlStudentNationality.$error && !$v.inputStudentDateOfBirth.$error && !$v.inputStudentIdentificationNo.$error && !$v.inputStudentIdentificationExpiryDate.$error && !$v.inputStudentBirthCertificate.$error && !$v.inputStudentIC.$error && !$v.inputStudentPassport.$error && !$v.inputStudentPassportExpiryDate.$error && !$v.inputFirstCommencementDate.$error && !$v.ddlStudentPayer.$error && !$v.inputStudentEnrolledCenterName.$error && !$v.ddlStudentEnrolledCenterType.$error">Student</span>
 
                         <el-badge value="!" class="item"
                                   v-if="$v.inputStudentFirstName.$error || $v.inputStudentLastName.$error || $v.ddlStudentNationality.$error || $v.inputStudentDateOfBirth.$error || $v.inputStudentIdentificationNo.$error || $v.inputStudentIdentificationExpiryDate.$error || $v.inputStudentBirthCertificate.$error || $v.inputStudentIC.$error || $v.inputStudentPassport.$error || $v.inputStudentPassportExpiryDate.$error || $v.inputFirstCommencementDate.$error || $v.ddlStudentPayer.$error || $v.inputStudentEnrolledCenterName.$error || $v.ddlStudentEnrolledCenterType.$error">
@@ -276,14 +282,16 @@
                                 </div>
                                 <div v-if="icShowHide" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>** IC</label>
+                                    <!--<input type="text" class="form-control" v-model="inputStudentIC"-->
+                                           <!--:disabled="disableIC"-->
+                                           <!--:class="{ 'requiredFields': $v.inputStudentIC.$error }">-->
                                     <input type="text" class="form-control" v-model="inputStudentIC"
-                                           :disabled="disableIC"
                                            :class="{ 'requiredFields': $v.inputStudentIC.$error }">
                                     <div class="requiredFieldsMsg" v-if="$v.inputStudentIC.$error">
                                         IC required
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="isIntSchool">
+                                <div v-if="passportShowHide" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>** Passport</label>
                                     <input type="text" class="form-control" v-model="inputStudentPassport"
                                            :class="{ 'requiredFields': $v.inputStudentPassport.$error }">
@@ -291,7 +299,7 @@
                                         Passport required
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="isIntSchool">
+                                <div v-if="passportShowHide" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>** Passport Expiry Date</label>
                                     <div class="date">
                                         <el-date-picker v-model="inputStudentPassportExpiryDate" format="dd/MM/yyyy"
@@ -351,6 +359,16 @@
                                         </option>
                                     </select>
                                 </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>Comment</label>
+                                    <!--<input type="text" class="form-control" v-model="inputStudentComment">-->
+                                    <textarea rows="3" class="textArea"
+                                              v-model="inputStudentComment"></textarea>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>House</label>
+                                    <input type="text" class="form-control" v-model="inputStudentHouse">
+                                </div>
                             </div>
                         </div>
                         <div class="studentAreaDiv">
@@ -361,12 +379,29 @@
                             <div class="row form-group__wrapper">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <label>* Commencement Date</label>
-                                    <div class="date">
+                                    <div class="date" :class="{ 'inputFirstCommencementDateDiv': deferValid }">
                                         <el-date-picker v-model="inputFirstCommencementDate" type="date"
-                                                        format="dd/MM/yyyy"
+                                                        format="dd/MM/yyyy" class="inputFirstCommencementDate"
                                                         value-format="dd/MM/yyyy" placeholder="Pick a day"
                                                         :class="{ 'requiredFields': $v.inputFirstCommencementDate.$error }"
                                                         v-bind:disabled="editModeDisable" :picker-options="firstCommencementDatePickerOptions"></el-date-picker>
+
+                                        <span v-if="deferValid" class="gallery-action__item">
+                                            <el-popover
+                                                    placement="bottom"
+                                                    width="400"
+                                                    trigger="click"
+                                                    popper-class="student-status-popover">
+                                                <label class="lblSelectDeferDate">Select Defer Date</label>
+                                                <el-date-picker v-model="inputDeferDate" type="date"
+                                                                format="dd/MM/yyyy" class="inputDeferDate"
+                                                                value-format="dd/MM/yyyy" placeholder="Select Defer Date"
+                                                                :picker-options="deferDatePickerOptions"></el-date-picker>
+                                                <el-button type="primary" class="btnDeferSave" v-on:click="SaveDefer">Save</el-button>
+
+                                                <el-button type="primary" icon="el-icon-date" slot="reference">Defer</el-button>
+                                            </el-popover>
+                                        </span>
                                     </div>
                                     <div class="requiredFieldsMsg" v-if="$v.inputFirstCommencementDate.$error">
                                         First commencement date required
@@ -490,10 +525,10 @@
 
                     <span slot="label" id="v-step-ParentsTab">
 
-                        <span v-if="!$v.ddlParentMode.$error || !$v.inputFatherFirstName.$error || !$v.inputFatherLastName.$error || !$v.inputFatherOccupation.$error || !$v.inputMotherFirstName.$error || !$v.inputMotherLastName.$error">Parents</span>
+                        <span v-if="!$v.ddlParentMode.$error && !$v.inputFatherFirstName.$error && !$v.inputFatherLastName.$error && !$v.inputFatherOccupation.$error && !$v.inputMotherFirstName.$error && !$v.inputMotherLastName.$error && !$v.inputFatherEmail.$error && !$v.inputFatherCompanyEmail.$error && !$v.inputMotherEmail.$error && !$v.inputMotherCompanyEmail.$error">Parents</span>
 
                         <el-badge value="!" class="item"
-                                  v-if="$v.ddlParentMode.$error || $v.inputFatherFirstName.$error || $v.inputFatherLastName.$error || $v.inputFatherOccupation.$error || $v.inputMotherFirstName.$error || $v.inputMotherLastName.$error">
+                                  v-if="$v.ddlParentMode.$error || $v.inputFatherFirstName.$error || $v.inputFatherLastName.$error || $v.inputFatherOccupation.$error || $v.inputMotherFirstName.$error || $v.inputMotherLastName.$error || $v.inputFatherEmail.$error || $v.inputFatherCompanyEmail.$error || $v.inputMotherEmail.$error || $v.inputMotherCompanyEmail.$error">Parents
                             </el-badge>
                     </span>
                     <div class="review-content-section">
@@ -586,6 +621,9 @@
                                         <label>Email</label>
                                         <input type="text" class="form-control" v-model="inputFatherEmail"
                                                v-bind:disabled="editModeDisable">
+                                        <div class="requiredFieldsMsg" v-if="$v.inputFatherEmail.$error">
+                                            Invalid email format
+                                        </div>
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"
                                          v-if="isLocalSchool || isIntPreSchool">
@@ -679,6 +717,9 @@
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Email</label>
                                         <input type="text" class="form-control" v-model="inputFatherCompanyEmail">
+                                        <div class="requiredFieldsMsg" v-if="$v.inputFatherCompanyEmail.$error">
+                                            Invalid email format
+                                        </div>
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Working Commencement Date</label>
@@ -765,6 +806,9 @@
                                         <label>Email</label>
                                         <input type="text" class="form-control" v-model="inputMotherEmail"
                                                v-bind:disabled="editModeDisable">
+                                        <div class="requiredFieldsMsg" v-if="$v.inputMotherEmail.$error">
+                                            Invalid email format
+                                        </div>
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"
                                          v-if="isLocalSchool || isIntPreSchool">
@@ -859,6 +903,9 @@
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Company Email</label>
                                         <input type="text" class="form-control" v-model="inputMotherCompanyEmail">
+                                        <div class="requiredFieldsMsg" v-if="$v.inputMotherCompanyEmail.$error">
+                                            Invalid email format
+                                        </div>
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                         <label>Working Commencement Date</label>
@@ -923,7 +970,7 @@
                 </el-tab-pane>
                 <el-tab-pane name="Addresses">
                     <span slot="label" id="v-step-AddressesTab">
-                        <span v-if="!$v.inputStudentPostalCode.$error || !$v.inputStudentAddress1.$error || !$v.inputStudentCorrespondancePostalCode.$error || !$v.inputStudentCorrespondanceAddress1.$error">Addresses</span>
+                        <span v-if="!$v.inputStudentPostalCode.$error && !$v.inputStudentAddress1.$error && !$v.inputStudentCorrespondancePostalCode.$error && !$v.inputStudentCorrespondanceAddress1.$error">Addresses</span>
                         <!--<span class="alert-badge2"-->
                         <!--v-if="$v.inputStudentPostalCode.$error || $v.inputStudentAddress1.$error || $v.inputStudentCorrespondancePostalCode.$error || $v.inputStudentCorrespondanceAddress1.$error">-->
                         <!--!-->
@@ -1409,11 +1456,11 @@
                 </div>
             </div>
         </b-modal>
-        <b-modal id="transferModal" v-model="transferModal" class="studentPageBModal" title="Transfer" ok-only
+        <b-modal id="transferModal" v-model="transferModal" class="studentPageBModal" :title="referralTransferModeTitle" ok-only
                  ok-variant="secondary" ok-title="Cancel" ref="transferShowModal" hide-footer>
             <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <label>Transfer to School</label>
+                    <label>{{referralTransferModeTitle}} to School</label>
                     <select v-model="ddlTransferSchool" class="form-control pro-edt-select form-control-primary">
                         <option v-for="item in transferSchoolList" v-bind:value="item.PK_SCH_ID">
                             {{ item.SCH_Name }}
@@ -1688,7 +1735,7 @@
 <script>
     import DataSource from "../data/datasource";
     import ProfileImg from "../assets/boy.png";
-    import {required, requiredIf, requiredUnless} from "vuelidate/lib/validators";
+    import {required, requiredIf, requiredUnless, email} from "vuelidate/lib/validators";
     import promotionComponent from "../components/Promotion_Component";
     import Cookies from "js-cookie";
     import axios from 'axios';
@@ -1872,6 +1919,7 @@
                 finShowHide: '',
                 birthcertShowHide: '',
                 icShowHide: '',
+                passportShowHide: '',
                 stuCorAddCopy: '',
                 resBilAddCopy: '',
                 siblingTab: '',
@@ -2298,6 +2346,20 @@
                         return time.getDay() === 0 || time.getDay() === 6;
                     },
                 },
+
+                deferValid: false,
+                inputDeferDate: '',
+                deferDatePickerOptions: {
+                    disabledDate(time) {
+                        return time <= new Date();
+                    },
+                },
+
+                inputStudentComment: '',
+                inputStudentHouse: '',
+                highestLevel: false,
+                referralTransferMode: '',
+                referralTransferModeTitle: '',
             };
         },
         computed: {
@@ -2390,6 +2452,11 @@
 
             inputStudentEnrolledCenterName: {requiredIf: requiredIf('isdivEnrolledinOtherCenter')},
             ddlStudentEnrolledCenterType: {requiredIf: requiredIf('isdivEnrolledinOtherCenter')},
+
+            inputFatherEmail: {email},
+            inputFatherCompanyEmail: {email},
+            inputMotherEmail: {email},
+            inputMotherCompanyEmail: {email},
         },
         components: {promotionComponent},
         methods: {
@@ -2725,9 +2792,9 @@
                     this.results = e;
                 }
             },
-            async BindStudentAvailableStatusAction(currentStatus) {
+            async BindStudentAvailableStatusAction(currentStatus, currentIndexNo) {
                 try {
-                    const response = await DataSource.shared.getStudentAvailableStatusAction(currentStatus);
+                    const response = await DataSource.shared.getStudentAvailableStatusAction(currentStatus, currentIndexNo);
                     if (response) {
                         if (response.code === '88') {
                             window.location.replace('/');
@@ -2746,7 +2813,9 @@
             async BindStudentFields(resultTable) {
                 try {
                     resultTable.forEach(m => {
-                        this.BindStudentAvailableStatusAction(m.Status);
+                        this.BindStudentAvailableStatusAction(m.Status, m.Index_No);
+                        this.checkDeferValid(m.Student_ID);
+                        this.checkLevelOrder(m.Student_ID);
                         this.lblCurrentStatus = m.Status;
                         this.lblStudentIndexNo = m.Index_No;
                         this.inputStudentID = m.Index_No;
@@ -2820,6 +2889,8 @@
                             this.ddlStudentEnrolledCenterType = m.St_OtherCenterType;
                         }
                         ;
+                        this.inputStudentComment = m.St_Comment;
+                        this.inputStudentHouse = m.St_House;
                     });
                 } catch (e) {
                     this.results = e;
@@ -2892,133 +2963,270 @@
             },
             async Save() {
                 try {
-                    //students
-                    let jsonString = '"Full_Name":"' + this.inputStudentFirstName + '"';
-                    jsonString = jsonString + ',"Middle_name":"' + this.inputStudentMiddleName + '"';
-                    jsonString = jsonString + ',"Last_name":"' + this.inputStudentLastName + '"';
-                    jsonString = jsonString + ',"Sex":"' + this.ddlStudentGender + '"';
-                    jsonString = jsonString + ',"st_corr_add_blkNo":"' + this.inputStudentCorrespondanceAddress1 + '"';
-                    jsonString = jsonString + ',"st_corr_add_flrNo":"' + this.inputStudentCorrespondanceAddress2 + '"';
-                    jsonString = jsonString + ',"st_corr_add_stName":"' + this.inputStudentCorrespondanceCity + '"';
-                    jsonString = jsonString + ',"st_corr_add_pstcode":"' + this.inputStudentCorrespondancePostalCode + '"';
-                    jsonString = jsonString + ',"st_prm_add_pstcode":"' + this.inputStudentPostalCode + '"';
-                    jsonString = jsonString + ',"st_prm_add_blkNo":"' + this.inputStudentAddress1 + '"';
-                    jsonString = jsonString + ',"st_prm_add_flrNo":"' + this.inputStudentAddress2 + '"';
-                    jsonString = jsonString + ',"st_prm_add_BlgName":"' + this.inputStudentAddress3 + '"';
-                    jsonString = jsonString + ',"DOB":"' + this.inputStudentDateOfBirth + '"';
-                    jsonString = jsonString + ',"Nationality":"' + this.ddlStudentNationality + '"';
-                    jsonString = jsonString + ',"Regst_date":"' + this.inputFirstCommencementDate + '"';
-                    jsonString = jsonString + ',"st_prm_add_country":"' + this.ddlStudentAddressCountry + '"';
-                    jsonString = jsonString + ',"Handphone":"' + this.inputStudentMobileNo + '"';
-                    jsonString = jsonString + ',"st_corr_add_BlgName":"' + this.inputStudentCorrespondanceAddress3 + '"';
-                    jsonString = jsonString + ',"student_type":"' + this.ddlStudentResidencyStatus + '"';
-                    jsonString = jsonString + ',"sponsor_type":"' + this.ddlStudentPayer + '"';
-                    jsonString = jsonString + ',"ID_Number":"' + this.inputStudentIdentificationNo + '"';
-                    jsonString = jsonString + ',"st_prm_add_stName":"' + this.inputStudentCity + '"';
-                    jsonString = jsonString + ',"st_corr_add_country":"' + this.ddlStudentAddressCorrespondanceCountry + '"';
-                    jsonString = jsonString + ',"Fax":"' + this.inputStudent2ndEmergencyContactNo + '"';
-                    jsonString = jsonString + ',"email":"' + this.inputStudentEmail + '"';
-                    jsonString = jsonString + ',"Telephone":"' + this.inputStudent1stEmergencyContactNo + '"';
-                    jsonString = jsonString + ',"Offphone":"' + this.inputStudentOfficeTelNo + '"';
-                    //jsonString = jsonString + ',"Course_Type":"' + this.ddlStudentSelectLevel + '"';
-                    jsonString = jsonString + ',"Family_Doctor":"' + this.inputNameofFamilyDoctor + '"';
-                    jsonString = jsonString + ',"Ailments":"' + this.taMajorAilmentsList + '"';
-                    jsonString = jsonString + ',"clinic_add":"' + this.inputClinicAddress + '"';
-                    jsonString = jsonString + ',"clinic_ph_no":"' + this.inputClinicPhoneNo + '"';
-                    //jsonString = jsonString + ',"Semester":"' + this.ddlStudentFirstAcademicYear + '"';
-                    jsonString = jsonString + ',"St_Preferred_Name":"' + this.inputStudentPreferredName + '"';
-                    jsonString = jsonString + ',"St_Mother_Tongue":"' + this.ddlStudentAdditionalLanguage + '"';
-                    jsonString = jsonString + ',"St_Meal_Preferences":"' + this.ddlStudentMealPreferences + '"';
-                    jsonString = jsonString + ',"St_Birth_Place":"' + this.ddlStudentBirthPlace + '"';
-                    jsonString = jsonString + ',"St_AdditionalLanguage":"' + this.inputStudentFirstLanguageSpoken + '"';
-                    jsonString = jsonString + ',"St_SecondLanguageSpoken":"' + this.inputSecondLanguageSpoken + '"';
-                    jsonString = jsonString + ',"ST_StudentMemership":"' + this.ddlStudentMembership + '"';
-                    jsonString = jsonString + ',"ID_ExpDate":"' + this.inputStudentIdentificationExpiryDate + '"';
-                    jsonString = jsonString + ',"St_BirthCer_Number":"' + this.inputStudentBirthCertificate + '"';
-                    jsonString = jsonString + ',"St_IC_ID_Number":"' + this.inputStudentIC + '"';
-                    jsonString = jsonString + ',"St_Passport_Number":"' + this.inputStudentPassport + '"';
-                    jsonString = jsonString + ',"St_Passport_ExpDate":"' + this.inputStudentPassportExpiryDate + '"';
-                    jsonString = jsonString + ',"St_EmergencyContact":"' + this.inputStudent1stEmergencyContact + '"';
-                    jsonString = jsonString + ',"St_EmergencyContactRelation":"' + this.inputStudent1stEmergencyContactRelation + '"';
-                    jsonString = jsonString + ',"St_2ndEmergencyContact":"' + this.inputStudent2ndEmergencyContact + '"';
-                    jsonString = jsonString + ',"St_2ndEmergencyContactRelation":"' + this.inputStudent2ndEmergencyContactRelation + '"';
-                    jsonString = jsonString + ',"St_Dietary":"' + this.inputStudentDietaryRequirement + '"';
-                    jsonString = jsonString + ',"Race":"' + this.ddlStudentRace + '"';
-                    jsonString = jsonString + ',"St_OtherCenter":"' + this.ddlStudentEnrolledinOtherCenter + '"';
+                    // //students
+                    // let jsonString = '"Full_Name":"' + this.inputStudentFirstName + '"';
+                    // jsonString = jsonString + ',"Middle_name":"' + this.inputStudentMiddleName + '"';
+                    // jsonString = jsonString + ',"Last_name":"' + this.inputStudentLastName + '"';
+                    // jsonString = jsonString + ',"Sex":"' + this.ddlStudentGender + '"';
+                    // jsonString = jsonString + ',"st_corr_add_blkNo":"' + this.inputStudentCorrespondanceAddress1 + '"';
+                    // jsonString = jsonString + ',"st_corr_add_flrNo":"' + this.inputStudentCorrespondanceAddress2 + '"';
+                    // jsonString = jsonString + ',"st_corr_add_stName":"' + this.inputStudentCorrespondanceCity + '"';
+                    // jsonString = jsonString + ',"st_corr_add_pstcode":"' + this.inputStudentCorrespondancePostalCode + '"';
+                    // jsonString = jsonString + ',"st_prm_add_pstcode":"' + this.inputStudentPostalCode + '"';
+                    // jsonString = jsonString + ',"st_prm_add_blkNo":"' + this.inputStudentAddress1 + '"';
+                    // jsonString = jsonString + ',"st_prm_add_flrNo":"' + this.inputStudentAddress2 + '"';
+                    // jsonString = jsonString + ',"st_prm_add_BlgName":"' + this.inputStudentAddress3 + '"';
+                    // jsonString = jsonString + ',"DOB":"' + this.inputStudentDateOfBirth + '"';
+                    // jsonString = jsonString + ',"Nationality":"' + this.ddlStudentNationality + '"';
+                    // jsonString = jsonString + ',"Regst_date":"' + this.inputFirstCommencementDate + '"';
+                    // jsonString = jsonString + ',"st_prm_add_country":"' + this.ddlStudentAddressCountry + '"';
+                    // jsonString = jsonString + ',"Handphone":"' + this.inputStudentMobileNo + '"';
+                    // jsonString = jsonString + ',"st_corr_add_BlgName":"' + this.inputStudentCorrespondanceAddress3 + '"';
+                    // jsonString = jsonString + ',"student_type":"' + this.ddlStudentResidencyStatus + '"';
+                    // jsonString = jsonString + ',"sponsor_type":"' + this.ddlStudentPayer + '"';
+                    // jsonString = jsonString + ',"ID_Number":"' + this.inputStudentIdentificationNo + '"';
+                    // jsonString = jsonString + ',"st_prm_add_stName":"' + this.inputStudentCity + '"';
+                    // jsonString = jsonString + ',"st_corr_add_country":"' + this.ddlStudentAddressCorrespondanceCountry + '"';
+                    // jsonString = jsonString + ',"Fax":"' + this.inputStudent2ndEmergencyContactNo + '"';
+                    // jsonString = jsonString + ',"email":"' + this.inputStudentEmail + '"';
+                    // jsonString = jsonString + ',"Telephone":"' + this.inputStudent1stEmergencyContactNo + '"';
+                    // jsonString = jsonString + ',"Offphone":"' + this.inputStudentOfficeTelNo + '"';
+                    // //jsonString = jsonString + ',"Course_Type":"' + this.ddlStudentSelectLevel + '"';
+                    // jsonString = jsonString + ',"Family_Doctor":"' + this.inputNameofFamilyDoctor + '"';
+                    // jsonString = jsonString + ',"Ailments":"' + this.taMajorAilmentsList + '"';
+                    // jsonString = jsonString + ',"clinic_add":"' + this.inputClinicAddress + '"';
+                    // jsonString = jsonString + ',"clinic_ph_no":"' + this.inputClinicPhoneNo + '"';
+                    // //jsonString = jsonString + ',"Semester":"' + this.ddlStudentFirstAcademicYear + '"';
+                    // jsonString = jsonString + ',"St_Preferred_Name":"' + this.inputStudentPreferredName + '"';
+                    // jsonString = jsonString + ',"St_Mother_Tongue":"' + this.ddlStudentAdditionalLanguage + '"';
+                    // jsonString = jsonString + ',"St_Meal_Preferences":"' + this.ddlStudentMealPreferences + '"';
+                    // jsonString = jsonString + ',"St_Birth_Place":"' + this.ddlStudentBirthPlace + '"';
+                    // jsonString = jsonString + ',"St_AdditionalLanguage":"' + this.inputStudentFirstLanguageSpoken + '"';
+                    // jsonString = jsonString + ',"St_SecondLanguageSpoken":"' + this.inputSecondLanguageSpoken + '"';
+                    // jsonString = jsonString + ',"ST_StudentMemership":"' + this.ddlStudentMembership + '"';
+                    // jsonString = jsonString + ',"ID_ExpDate":"' + this.inputStudentIdentificationExpiryDate + '"';
+                    // jsonString = jsonString + ',"St_BirthCer_Number":"' + this.inputStudentBirthCertificate + '"';
+                    // jsonString = jsonString + ',"St_IC_ID_Number":"' + this.inputStudentIC + '"';
+                    // jsonString = jsonString + ',"St_Passport_Number":"' + this.inputStudentPassport + '"';
+                    // jsonString = jsonString + ',"St_Passport_ExpDate":"' + this.inputStudentPassportExpiryDate + '"';
+                    // jsonString = jsonString + ',"St_EmergencyContact":"' + this.inputStudent1stEmergencyContact + '"';
+                    // jsonString = jsonString + ',"St_EmergencyContactRelation":"' + this.inputStudent1stEmergencyContactRelation + '"';
+                    // jsonString = jsonString + ',"St_2ndEmergencyContact":"' + this.inputStudent2ndEmergencyContact + '"';
+                    // jsonString = jsonString + ',"St_2ndEmergencyContactRelation":"' + this.inputStudent2ndEmergencyContactRelation + '"';
+                    // jsonString = jsonString + ',"St_Dietary":"' + this.inputStudentDietaryRequirement + '"';
+                    // jsonString = jsonString + ',"Race":"' + this.ddlStudentRace + '"';
+                    // jsonString = jsonString + ',"St_OtherCenter":"' + this.ddlStudentEnrolledinOtherCenter + '"';
+                    // if (this.ddlStudentEnrolledinOtherCenter === 'Yes') {
+                    //     jsonString = jsonString + ',"St_OtherCenterName":"' + this.inputStudentEnrolledCenterName + '"';
+                    //     jsonString = jsonString + ',"St_OtherCenterType":"' + this.ddlStudentEnrolledCenterType + '"';
+                    // }
+                    // jsonString = jsonString + ',"St_Comment":"' + this.inputStudentComment + '"';
+                    // jsonString = jsonString + ',"St_House":"' + this.inputStudentHouse + '"';
+
+                    let jsonStudent = [];
+
+                    let jsonStudentDetials = {
+                        Full_Name : this.inputStudentFirstName,
+                        Middle_name : this.inputStudentMiddleName,
+                        Last_name : this.inputStudentLastName,
+                        Sex : this.ddlStudentGender,
+                        st_corr_add_blkNo : this.inputStudentCorrespondanceAddress1,
+                        st_corr_add_flrNo : this.inputStudentCorrespondanceAddress2,
+                        st_corr_add_stName : this.inputStudentCorrespondanceCity,
+                        st_corr_add_pstcode : this.inputStudentCorrespondancePostalCode,
+                        st_prm_add_pstcode : this.inputStudentPostalCode,
+                        st_prm_add_blkNo : this.inputStudentAddress1,
+                        st_prm_add_flrNo : this.inputStudentAddress2,
+                        st_prm_add_BlgName : this.inputStudentAddress3,
+                        DOB : this.inputStudentDateOfBirth,
+                        Nationality : this.ddlStudentNationality,
+                        Regst_date : this.inputFirstCommencementDate,
+                        st_prm_add_country : this.ddlStudentAddressCountry,
+                        Handphone : this.inputStudentMobileNo,
+                        st_corr_add_BlgName : this.inputStudentCorrespondanceAddress3,
+                        student_type : this.ddlStudentResidencyStatus,
+                        sponsor_type : this.ddlStudentPayer,
+                        ID_Number : this.inputStudentIdentificationNo,
+                        st_prm_add_stName : this.inputStudentCity,
+                        st_corr_add_country : this.ddlStudentAddressCorrespondanceCountry,
+                        Fax : this.inputStudent2ndEmergencyContactNo,
+                        email : this.inputStudentEmail,
+                        Telephone : this.inputStudent1stEmergencyContactNo,
+                        Offphone : this.inputStudentOfficeTelNo,
+                        Family_Doctor : this.inputNameofFamilyDoctor,
+                        Ailments : this.taMajorAilmentsList,
+                        clinic_add : this.inputClinicAddress,
+                        clinic_ph_no : this.inputClinicPhoneNo,
+                        St_Preferred_Name : this.inputStudentPreferredName,
+                        St_Mother_Tongue : this.ddlStudentAdditionalLanguage,
+                        St_Meal_Preferences : this.ddlStudentMealPreferences,
+                        St_Birth_Place : this.ddlStudentBirthPlace,
+                        St_AdditionalLanguage : this.inputStudentFirstLanguageSpoken,
+                        St_SecondLanguageSpoken : this.inputSecondLanguageSpoken,
+                        ST_StudentMemership : this.ddlStudentMembership,
+                        ID_ExpDate : this.inputStudentIdentificationExpiryDate,
+                        St_BirthCer_Number : this.inputStudentBirthCertificate,
+                        St_IC_ID_Number : this.inputStudentIC,
+                        St_Passport_Number : this.inputStudentPassport,
+                        St_Passport_ExpDate : this.inputStudentPassportExpiryDate,
+                        St_EmergencyContact : this.inputStudent1stEmergencyContact,
+                        St_EmergencyContactRelation : this.inputStudent1stEmergencyContactRelation,
+                        St_2ndEmergencyContact : this.inputStudent2ndEmergencyContact,
+                        St_2ndEmergencyContactRelation : this.inputStudent2ndEmergencyContactRelation,
+                        St_Dietary : this.inputStudentDietaryRequirement,
+                        Race : this.ddlStudentRace,
+                        St_OtherCenter : this.ddlStudentEnrolledinOtherCenter,
+                        St_Comment : this.inputStudentComment,
+                        St_House : this.inputStudentHouse,
+                    };
+
                     if (this.ddlStudentEnrolledinOtherCenter === 'Yes') {
-                        jsonString = jsonString + ',"St_OtherCenterName":"' + this.inputStudentEnrolledCenterName + '"';
-                        jsonString = jsonString + ',"St_OtherCenterType":"' + this.ddlStudentEnrolledCenterType + '"';
+                        Vue.set(jsonStudentDetials, "St_OtherCenterName", this.inputStudentEnrolledCenterName);
+                        Vue.set(jsonStudentDetials, "St_OtherCenterType", this.ddlStudentEnrolledCenterType);
                     }
+
+                    jsonStudent.push(jsonStudentDetials);
                     //students
 
                     //parent
-                    let jsonString2 = '"PAR_Mode":"' + this.ddlParentMode + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_FirstName":"' + this.inputFatherFirstName + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_MiddleName":"' + this.inputFatherMiddleName + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_LastName":"' + this.inputFatherLastName + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_DOB":"' + this.inputFatherDateofBirth + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Occupation":"' + this.inputFatherOccupation + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Phone":"' + this.inputFatherMobileNo + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Email":"' + this.inputFatherEmail + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_IDType":"' + this.ddlFatherIdentificationType + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_UID":"' + this.inputFatherIdentificationNo + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_FirstName":"' + this.inputMotherFirstName + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_MiddleName":"' + this.inputMotherMiddleName + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_LastName":"' + this.inputMotherLastName + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_DOB":"' + this.inputMotherDateofBirth + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Occupation":"' + this.inputMotherOccupation + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Phone":"' + this.inputMotherMobileNo + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Email":"' + this.inputMotherEmail + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_IDType":"' + this.ddlMotherIdentificationType + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_UID":"' + this.inputMotherIdentificationNo + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_IDExpDate":"' + this.inputFatherIdentificationNoExpiryDate + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_IDExpDate":"' + this.inputMotherIdentificationNoExpiryDate + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Loc_Residence_No":"' + this.inputStudentAddress1 + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Loc_Address1":"' + this.inputStudentAddress2 + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Loc_Address2":"' + this.inputStudentAddress3 + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Loc_Postalcode":"' + this.inputStudentPostalCode + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Loc_City":"' + this.inputStudentCity + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Loc_Country":"' + this.ddlStudentAddressCountry + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Residence_No":"' + this.inputStudentAddress1 + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Address1":"' + this.inputStudentAddress2 + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Address2":"' + this.inputStudentAddress3 + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Loc_City":"' + this.inputStudentCity + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Country":"' + this.ddlStudentAddressCountry + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Postalcode":"' + this.inputStudentPostalCode + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Race":"' + this.ddlFatherRace + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Race":"' + this.ddlMotherRace + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_MaritalStatus":"' + this.ddlFatherMaritalStatus + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_MaritalStatus":"' + this.ddlMotherMaritalStatus + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Father_Working":"' + this.ddlFatherWorking + '"';
-                    jsonString2 = jsonString2 + ',"PAR_Mother_Working":"' + this.ddlMotherWorking + '"';
+                    // let jsonString2 = '"PAR_Mode":"' + this.ddlParentMode + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_FirstName":"' + this.inputFatherFirstName + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_MiddleName":"' + this.inputFatherMiddleName + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_LastName":"' + this.inputFatherLastName + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_DOB":"' + this.inputFatherDateofBirth + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Occupation":"' + this.inputFatherOccupation + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Phone":"' + this.inputFatherMobileNo + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Email":"' + this.inputFatherEmail + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_IDType":"' + this.ddlFatherIdentificationType + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_UID":"' + this.inputFatherIdentificationNo + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_FirstName":"' + this.inputMotherFirstName + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_MiddleName":"' + this.inputMotherMiddleName + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_LastName":"' + this.inputMotherLastName + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_DOB":"' + this.inputMotherDateofBirth + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Occupation":"' + this.inputMotherOccupation + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Phone":"' + this.inputMotherMobileNo + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Email":"' + this.inputMotherEmail + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_IDType":"' + this.ddlMotherIdentificationType + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_UID":"' + this.inputMotherIdentificationNo + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_IDExpDate":"' + this.inputFatherIdentificationNoExpiryDate + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_IDExpDate":"' + this.inputMotherIdentificationNoExpiryDate + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Loc_Residence_No":"' + this.inputStudentAddress1 + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Loc_Address1":"' + this.inputStudentAddress2 + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Loc_Address2":"' + this.inputStudentAddress3 + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Loc_Postalcode":"' + this.inputStudentPostalCode + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Loc_City":"' + this.inputStudentCity + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Loc_Country":"' + this.ddlStudentAddressCountry + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Residence_No":"' + this.inputStudentAddress1 + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Address1":"' + this.inputStudentAddress2 + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Address2":"' + this.inputStudentAddress3 + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Loc_City":"' + this.inputStudentCity + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Country":"' + this.ddlStudentAddressCountry + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Loc_Postalcode":"' + this.inputStudentPostalCode + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Race":"' + this.ddlFatherRace + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Race":"' + this.ddlMotherRace + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_MaritalStatus":"' + this.ddlFatherMaritalStatus + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_MaritalStatus":"' + this.ddlMotherMaritalStatus + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Father_Working":"' + this.ddlFatherWorking + '"';
+                    // jsonString2 = jsonString2 + ',"PAR_Mother_Working":"' + this.ddlMotherWorking + '"';
+                    // if (this.ddlFatherWorking === 'Yes') {
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_CompanyName":"' + this.inputFatherCompanyName + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Fat_Comp_Addressee":"' + this.inputFatherCompanyAddresseeName + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_Residence_No":"' + this.inputFatherCompanyAddress1 + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_Address1":"' + this.inputFatherCompanyAddress2 + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_Address2":"' + this.inputFatherCompanyAddress3 + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_City":"' + this.inputFatherCompanyCity + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_Country":"' + this.ddlFatherCompanyCountry + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_PostalCode":"' + this.inputFatherCompanyPostalCode + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_FComp_Email":"' + this.inputFatherCompanyEmail + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Father_WorkingCommencementDate":"' + this.inputFatherWorkingCommencementDate + '"';
+                    // }
+                    // if (this.ddlMotherWorking === 'Yes') {
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_CompanyName":"' + this.inputMotherCompanyName + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mot_Comp_Addressee":"' + this.inputMotherCompanyAddresseeName + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_Residence_No":"' + this.inputMotherCompanyAddress1 + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_Address1":"' + this.inputMotherCompanyAddress2 + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_Address2":"' + this.inputMotherCompanyAddress3 + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_City":"' + this.inputMotherCompanyCity + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_Country":"' + this.ddlMotherCompanyCountry + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_PostalCode":"' + this.inputMotherCompanyPostalCode + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_MComp_Email":"' + this.inputMotherCompanyEmail + '"';
+                    //     jsonString2 = jsonString2 + ',"PAR_Mother_WorkingCommencementDate":"' + this.inputMotherWorkingCommencementDate + '"';
+                    // }
+
+                    let jsonParent = [];
+
+                    let jsonParentDetials = {
+                        PAR_Mode : this.ddlParentMode,
+                        PAR_Father_FirstName : this.inputFatherFirstName,
+                        PAR_Father_MiddleName : this.inputFatherMiddleName,
+                        PAR_Father_LastName : this.inputFatherLastName,
+                        PAR_Father_DOB : this.inputFatherDateofBirth,
+                        PAR_Father_Occupation : this.inputFatherOccupation,
+                        PAR_Father_Phone : this.inputFatherMobileNo,
+                        PAR_Father_Email : this.inputFatherEmail,
+                        PAR_Father_IDType : this.ddlFatherIdentificationType,
+                        PAR_Father_UID : this.inputFatherIdentificationNo,
+                        PAR_Mother_FirstName : this.inputMotherFirstName,
+                        PAR_Mother_MiddleName : this.inputMotherMiddleName,
+                        PAR_Mother_LastName : this.inputMotherLastName,
+                        PAR_Mother_DOB : this.inputMotherDateofBirth,
+                        PAR_Mother_Occupation : this.inputMotherOccupation,
+                        PAR_Mother_Phone : this.inputMotherMobileNo,
+                        PAR_Mother_Email : this.inputMotherEmail,
+                        PAR_Mother_IDType : this.ddlMotherIdentificationType,
+                        PAR_Mother_UID : this.inputMotherIdentificationNo,
+                        PAR_Father_IDExpDate : this.inputFatherIdentificationNoExpiryDate,
+                        PAR_Mother_IDExpDate : this.inputMotherIdentificationNoExpiryDate,
+                        PAR_Father_Loc_Residence_No : this.inputStudentAddress1,
+                        PAR_Father_Loc_Address1 : this.inputStudentAddress2,
+                        PAR_Father_Loc_Address2 : this.inputStudentAddress3,
+                        PAR_Father_Loc_Postalcode : this.inputStudentPostalCode,
+                        PAR_Father_Loc_City : this.inputStudentCity,
+                        PAR_Father_Loc_Country : this.ddlStudentAddressCountry,
+                        PAR_Mother_Loc_Residence_No : this.inputStudentAddress1,
+                        PAR_Mother_Loc_Address1 : this.inputStudentAddress2,
+                        PAR_Mother_Loc_Address2 : this.inputStudentAddress3,
+                        PAR_Mother_Loc_City : this.inputStudentCity,
+                        PAR_Mother_Loc_Country : this.ddlStudentAddressCountry,
+                        PAR_Mother_Loc_Postalcode : this.inputStudentPostalCode,
+                        PAR_Father_Race : this.ddlFatherRace,
+                        PAR_Mother_Race : this.ddlMotherRace,
+                        PAR_Father_MaritalStatus : this.ddlFatherMaritalStatus,
+                        PAR_Mother_MaritalStatus : this.ddlMotherMaritalStatus,
+                        PAR_Father_Working : this.ddlFatherWorking,
+                        PAR_Mother_Working : this.ddlMotherWorking,
+                    };
+
                     if (this.ddlFatherWorking === 'Yes') {
-                        jsonString2 = jsonString2 + ',"PAR_Father_CompanyName":"' + this.inputFatherCompanyName + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Fat_Comp_Addressee":"' + this.inputFatherCompanyAddresseeName + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Father_Residence_No":"' + this.inputFatherCompanyAddress1 + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Father_Address1":"' + this.inputFatherCompanyAddress2 + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Father_Address2":"' + this.inputFatherCompanyAddress3 + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Father_City":"' + this.inputFatherCompanyCity + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Father_Country":"' + this.ddlFatherCompanyCountry + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Father_PostalCode":"' + this.inputFatherCompanyPostalCode + '"';
-                        jsonString2 = jsonString2 + ',"PAR_FComp_Email":"' + this.inputFatherCompanyEmail + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Father_WorkingCommencementDate":"' + this.inputFatherWorkingCommencementDate + '"';
+                        Vue.set(jsonParentDetials, "PAR_Father_CompanyName", this.inputFatherCompanyName);
+                        Vue.set(jsonParentDetials, "PAR_Fat_Comp_Addressee", this.inputFatherCompanyAddresseeName);
+                        Vue.set(jsonParentDetials, "PAR_Father_Residence_No", this.inputFatherCompanyAddress1);
+                        Vue.set(jsonParentDetials, "PAR_Father_Address1", this.inputFatherCompanyAddress2);
+                        Vue.set(jsonParentDetials, "PAR_Father_Address2", this.inputFatherCompanyAddress3);
+                        Vue.set(jsonParentDetials, "PAR_Father_City", this.inputFatherCompanyCity);
+                        Vue.set(jsonParentDetials, "PAR_Father_Country", this.ddlFatherCompanyCountry);
+                        Vue.set(jsonParentDetials, "PAR_Father_PostalCode", this.inputFatherCompanyPostalCode);
+                        Vue.set(jsonParentDetials, "PAR_FComp_Email", this.inputFatherCompanyEmail);
+                        Vue.set(jsonParentDetials, "PAR_Father_WorkingCommencementDate", this.inputFatherWorkingCommencementDate);
                     }
                     if (this.ddlMotherWorking === 'Yes') {
-                        jsonString2 = jsonString2 + ',"PAR_Mother_CompanyName":"' + this.inputMotherCompanyName + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mot_Comp_Addressee":"' + this.inputMotherCompanyAddresseeName + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mother_Residence_No":"' + this.inputMotherCompanyAddress1 + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mother_Address1":"' + this.inputMotherCompanyAddress2 + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mother_Address2":"' + this.inputMotherCompanyAddress3 + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mother_City":"' + this.inputMotherCompanyCity + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mother_Country":"' + this.ddlMotherCompanyCountry + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mother_PostalCode":"' + this.inputMotherCompanyPostalCode + '"';
-                        jsonString2 = jsonString2 + ',"PAR_MComp_Email":"' + this.inputMotherCompanyEmail + '"';
-                        jsonString2 = jsonString2 + ',"PAR_Mother_WorkingCommencementDate":"' + this.inputMotherWorkingCommencementDate + '"';
+                        Vue.set(jsonParentDetials, "PAR_Mother_CompanyName", this.inputMotherCompanyName);
+                        Vue.set(jsonParentDetials, "PAR_Mot_Comp_Addressee", this.inputMotherCompanyAddresseeName);
+                        Vue.set(jsonParentDetials, "PAR_Mother_Residence_No", this.inputMotherCompanyAddress1);
+                        Vue.set(jsonParentDetials, "PAR_Mother_Address1", this.inputMotherCompanyAddress2);
+                        Vue.set(jsonParentDetials, "PAR_Mother_Address2", this.inputMotherCompanyAddress3);
+                        Vue.set(jsonParentDetials, "PAR_Mother_City", this.inputMotherCompanyCity);
+                        Vue.set(jsonParentDetials, "PAR_Mother_Country", this.ddlMotherCompanyCountry);
+                        Vue.set(jsonParentDetials, "PAR_Mother_PostalCode", this.inputMotherCompanyPostalCode);
+                        Vue.set(jsonParentDetials, "PAR_MComp_Email", this.inputMotherCompanyEmail);
+                        Vue.set(jsonParentDetials, "PAR_Mother_WorkingCommencementDate", this.inputMotherWorkingCommencementDate);
                     }
+
+                    jsonParent.push(jsonParentDetials);
                     //parent
 
-                    jsonString = '{ ' + jsonString + ' }';
-                    jsonString2 = '{ ' + jsonString2 + ' }';
+                    // jsonString = '{ ' + jsonString + ' }';
+                    // jsonString2 = '{ ' + jsonString2 + ' }';
 
                     //allergies list combining into one whole list//
                     let allergiesList = [];
@@ -3052,7 +3260,7 @@
                             if (chkStuRes.code === '88') {
                                 window.location.replace('/');
                             } else if (chkStuRes.code === "1") {
-                                const saveStuRes = await DataSource.shared.saveStudent(this.selectedFile, jsonString, jsonString2, this.inputFamilyID, this.inputFamilyParentID, JSON.stringify(allergiesList));
+                                const saveStuRes = await DataSource.shared.saveStudent(this.selectedFile, JSON.stringify(jsonStudent), JSON.stringify(jsonParent), this.inputFamilyID, this.inputFamilyParentID, JSON.stringify(allergiesList));
                                 if (saveStuRes) {
                                     if (saveStuRes.code === '88') {
                                         window.location.replace('/');
@@ -3089,7 +3297,7 @@
                         }
                     } else if (this.lblCreateOrEdit === "Edit") {
                         try {
-                            const response = await DataSource.shared.updateStudent(this.selectedFile, this.lblStudentID, jsonString, JSON.stringify(allergiesList));
+                            const response = await DataSource.shared.updateStudent(this.selectedFile, this.lblStudentID, JSON.stringify(jsonStudent), JSON.stringify(allergiesList));
                             if (response) {
                                 if (response.code === '88') {
                                     window.location.replace('/');
@@ -3119,6 +3327,7 @@
                     }
                 } catch (e) {
                     this.results = e;
+                    console.log(e);
                 }
             },
             async SearchFamilyID() {
@@ -3252,9 +3461,7 @@
             },
             async Validation() {
                 try {
-                    console.log("11");
                     this.$v.$touch();
-                    console.log("22");
                     this.activeTab = "Student";
                     if (this.$v.$error) {
                         //this.$nextTick(() => this.$refs.studentPageMain.focus())
@@ -3264,7 +3471,6 @@
                         });
                         return;
                     }
-                    console.log("33");
 
                     const firstCommencementDate_array = this.inputFirstCommencementDate.split("/");
                     const studentDateOfBirth_array = this.inputStudentDateOfBirth.split("/");
@@ -3277,10 +3483,8 @@
                         });
                         return;
                     }
-                    console.log("44");
 
                     this.Save();
-                    console.log("55");
 
                     this.promoteStudents();
 
@@ -3359,6 +3563,7 @@
                         this.finShowHide = false;
                         this.birthcertShowHide = false;
                         this.icShowHide = false;
+                        this.passportShowHide = false;
                     } else if ((this.ddlStudentNationality === 'Singaporean' && this.ddlStudentBirthPlace === '') || (this.ddlStudentNationality === '' && this.ddlStudentBirthPlace === 'Singapore') || (this.ddlStudentNationality === 'Singaporean' && this.ddlStudentBirthPlace === 'Singapore')) {
                         this.finShowHide = false;
                         this.inputStudentIdentificationNo = '';
@@ -3367,6 +3572,14 @@
                         this.birthcertShowHide = true;
 
                         this.icShowHide = true;
+
+                        if (this.ddlStudentNationality === 'Singaporean') {
+                            this.passportShowHide = false;
+                            this.inputStudentPassport = '';
+                            this.inputStudentPassportExpiryDate = '';
+                        } else {
+                            this.passportShowHide = true;
+                        }
                     } else if (this.ddlStudentNationality !== 'Singaporean' && this.ddlStudentBirthPlace === 'Singapore') {
                         this.finShowHide = true;
 
@@ -3374,6 +3587,8 @@
 
                         this.icShowHide = false;
                         this.inputStudentIC = '';
+
+                        this.passportShowHide = true;
                     } else if (this.ddlStudentNationality === 'Singaporean' && this.ddlStudentBirthPlace !== 'Singapore') {
                         this.finShowHide = false;
                         this.inputStudentIdentificationNo = '';
@@ -3382,15 +3597,21 @@
                         this.birthcertShowHide = false;
                         this.inputStudentBirthCertificate = '',
 
-                            this.icShowHide = true;
+                        this.icShowHide = true;
+
+                        this.passportShowHide = false;
+                        this.inputStudentPassport = '';
+                        this.inputStudentPassportExpiryDate = '';
                     } else if (this.ddlStudentNationality !== 'Singaporean' && this.ddlStudentBirthPlace !== 'Singapore') {
                         this.finShowHide = true;
 
                         this.birthcertShowHide = false;
                         this.inputStudentBirthCertificate = '',
 
-                            this.icShowHide = false;
+                        this.icShowHide = false;
                         this.inputStudentIC = '';
+
+                        this.passportShowHide = true;
                     }
                 } catch (e) {
                     this.results = e;
@@ -3621,7 +3842,7 @@
                 try {
                     if (this.ddlTransferSchool !== '' && this.ddlTransferSchool !== undefined) {
                         this.$vs.loading();
-                        const response = await DataSource.shared.saveTransferSchool(this.lblStudentID, this.ddlTransferSchool, this.inputTransferSchoolRemark, this.inputTransferSchoolEffDate);
+                        const response = await DataSource.shared.saveTransferSchool(this.lblStudentID, this.ddlTransferSchool, this.inputTransferSchoolRemark, this.inputTransferSchoolEffDate, this.referralTransferMode);
                         if (response) {
                             if (response.code === '88') {
                                 window.location.replace('/');
@@ -3637,8 +3858,8 @@
                                 });
                             } else if (response.code === '3') {
                                 this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Duplicated transfer action!'
+                                    title: 'Invalid Action',
+                                    message: 'Student cannot transfer due to other pending action'
                                 });
                             } else if (response.code === '4') {
                                 this.$notify.error({
@@ -3698,15 +3919,20 @@
                             message: 'Please select datetime'
                         });
                     } else {
-
                         const response = await DataSource.shared.saveStudentWithdraw(JSON.stringify(withdrawObj));
 
-                        console.log(response.code);
-
                         if (response.code === '88') {
-                            console.log('88');
+                            window.location.replace('/');
                         } else if (response.code === "99") {
-                            console.log('99');
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Student Withdraw Error!',
+                            });
+                        } else if (response.code === "2") {
+                            this.$notify.error({
+                                title: 'Invalid Action',
+                                message: 'Student cannot withdraw due to other pending action',
+                            });
                         } else if (response.code === '1') {
                             this.$notify({
                                 title: 'Success',
@@ -4261,6 +4487,95 @@
             ViewParent () {
                 window.open('/parent?id=' + this.inputFamilyParentID, '_blank');
             },
+            async checkDeferValid(studentID) {
+                try {
+                    const response = await DataSource.shared.checkDeferActionValid(studentID);
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '1') {
+                            this.deferValid = true;
+                        } else {
+                            this.deferValid = false;
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async SaveDefer () {
+                try {
+                    if (this.inputDeferDate === '' || this.inputDeferDate === null) {
+                        this.$notify({
+                            title: 'Error',
+                            message: 'Please select defer date'
+                        });
+                    } else {
+                        this.$vs.loading();
+
+                        const response = await DataSource.shared.setDeferDate(this.lblStudentID, this.inputDeferDate);
+                        if (response) {
+                            if (response.code === '88') {
+                                window.location.replace('/');
+                            } else if (response.code === '99') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Save Deffer Error!'
+                                });
+                            } else if (response.code === '2') {
+                                this.$notify({
+                                    title: 'Error',
+                                    message: 'Defer date out of academic year date range...'
+                                });
+                            } else if (response.code === '3') {
+                                this.$notify({
+                                    title: 'Error',
+                                    message: 'Student current academic year is not active...'
+                                });
+                            } else if (response.code === '1') {
+                                this.$notify({
+                                    title: 'Done',
+                                    message: 'Successfully Saved!'
+                                });
+
+                                this.inputFirstCommencementDate = response.newCommencementDate;
+                            }
+                        }
+
+                        this.$vs.loading.close();
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async checkLevelOrder(studentID) {
+                try {
+                    const response = await DataSource.shared.checkCourseOrderByLevelIDStudentID('', studentID);
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else {
+                            if (response.Table[0].HighestLevel === 'Yes') {
+                                this.highestLevel = true;
+                            } else {
+                                this.highestLevel = false;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            showTransferModal(value) {
+                if (value === 'Yes') {
+                    this.referralTransferModeTitle = 'Referral Transfer';
+                } else {
+                    this.referralTransferModeTitle = 'Transfer';
+                }
+
+                this.referralTransferMode = value;
+                this.$refs.transferShowModal.show();
+            },
         },
     };
 </script>
@@ -4309,10 +4624,6 @@
 
     .btnFamilyIDSearch {
         margin-top: 10px;
-    }
-
-    .el-date-editor, .el-input {
-        width: 100% !important;
     }
 
     .requiredFields {
@@ -4460,6 +4771,18 @@
     .btnFamilyIDViewParent {
         margin-left: 10px;
         margin-top: 10px;
+    }
+
+    .lblSelectDeferDate, .inputDeferDate {
+        margin-bottom: 5px;
+    }
+
+    .btnDeferSave {
+        width: auto !important;
+    }
+
+    .inputFirstCommencementDateDiv .el-date-editor.el-input {
+        width: 80% !important;
     }
 </style>
 <style>

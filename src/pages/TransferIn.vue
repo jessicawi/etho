@@ -1,6 +1,6 @@
 <template>
     <div id="transferin">
-        <div class="container">
+        <div class="container" style="margin-top: 10px;">
             <div class="row header mb-2">
                 <div class="col-lg-3 ">
                     <h3 class="text-left mb-3">
@@ -21,36 +21,50 @@
                     <!--</router-link>-->
                 </div>
             </div>
-            <div class="empty-list_image" v-if="transferInListInt&&transferInListInt.length<1 || showEmpty === true">
-                <strong>No Data Found...</strong>
-                <img src="../assets/notfound.png"/>
-            </div>
-            <!--<div class="row">-->
-            <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
-            <!--<div>-->
-            <!--&lt;!&ndash;<div v-if="transferInListInt.length>0">&ndash;&gt;-->
-            <!--<data-tables :data="transferInListInt" :action-col="transferListAction">-->
-            <!--<el-table-column v-for="transferInListInfo in transferInList"-->
-            <!--:prop="transferInListInfo.prop"-->
-            <!--:label="transferInListInfo.label" :key="transferInListInfo.prop"-->
-            <!--sortable="custom">-->
-            <!--</el-table-column>-->
-            <!--</data-tables>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <div class="row transfer_card mt-3">
-                <div class="transfer_card-item" v-for="item in filteredList">
-                    <span class="top-colorBar">{{item.SchoolNameToDisplay}}</span>
-                    <small>{{item.Index_No}}</small>
-                    <hr/>
-                    <h4>{{item.Full_Name}}</h4>
-                    <div style="color:#999;">
-                        {{item.Last_name}}
+            <div class="pb-5">
+                <div class="empty-list_image" v-if="showEmpty === true || (!filterTransferSearch && !filterReferralTransferSearch)">
+                    <strong>No Data Found...</strong>
+                    <img src="../assets/notfound.png"/>
+                </div>
+
+                <div class="col-lg-12" v-if="transferInListInt&&transferInListInt.length>0 && filterTransferSearch">
+                    <div>
+                        <label class="transferModeTitle">Transfer</label>
                     </div>
-                    <el-button type="primary" icon="el-icon-edit" circle size="small"
-                               @click="getTransferAction(item.Student_ID,item.PK_STUSCH_ID,item.STUSCH_EffectiveDate_convert)"
-                               class="mt-2 mb-2"></el-button>
+                    <div class="row transfer_card mt-3">
+                        <div class="transfer_card-item" v-for="item in filteredList">
+                            <span class="top-colorBar">{{item.SchoolNameToDisplay}}</span>
+                            <small>{{item.Index_No}}</small>
+                            <hr/>
+                            <h4>{{item.Full_Name}}</h4>
+                            <div style="color:#999;">
+                                {{item.Last_name}}
+                            </div>
+                            <el-button type="primary" icon="el-icon-edit" circle size="small"
+                                       @click="getTransferAction(item.Student_ID,item.PK_STUSCH_ID,item.STUSCH_EffectiveDate_convert,item.STUSCH_Referral_Transfer)"
+                                       class="mt-2 mb-2"></el-button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12" v-if="referraltransferInList&&referraltransferInList.length>0 && filterReferralTransferSearch">
+                    <div>
+                        <label class="transferModeTitle">Referral Transfer</label>
+                    </div>
+                    <div class="row transfer_card mt-3">
+                        <div class="transfer_card-item" v-for="item in filteredListForReferral">
+                            <span class="top-colorBar">{{item.SchoolNameToDisplay}}</span>
+                            <small>{{item.Index_No}}</small>
+                            <hr/>
+                            <h4>{{item.Full_Name}}</h4>
+                            <div style="color:#999;">
+                                {{item.Last_name}}
+                            </div>
+                            <el-button type="primary" icon="el-icon-edit" circle size="small"
+                                       @click="getTransferAction(item.Student_ID,item.PK_STUSCH_ID,item.STUSCH_EffectiveDate_convert,item.STUSCH_Referral_Transfer)"
+                                       class="mt-2 mb-2"></el-button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,6 +72,10 @@
                  ref="transferShowModal" hide-footer>
             <div style="display: none;">{{ transferStudentID }} - {{ studentSchoolID }}</div>
             <div class="row ">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label v-if="referralTransfer === 'Yes'">Transfer Mode: Referral Transfer</label>
+                    <label v-if="referralTransfer === 'No'">Transfer Mode: Transfer</label>
+                </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Select Level</label>
                     <select ref="ddlStudentSelectLevel" class="form-control pro-edt-select form-control-primary">
@@ -78,7 +96,7 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Intake Year</label>
                     <select ref="ddlStudentIntakeYear" class="form-control pro-edt-select form-control-primary">
-                        <option v-for="item in studentIntakeYearList" v-bind:value="item.PK_PAI_ID.trim()">{{
+                        <option v-for="item in studentIntakeYearList" v-bind:value="item.PAI_Intake_No.trim()">{{
                             item.PAI_Intake_No.trim() }}
                         </option>
                     </select>
@@ -170,7 +188,10 @@
                     }]
                 },
                 showEmpty: false,
-                search: ""
+                search: "",
+
+                referraltransferInList: [],
+                referralTransfer: '',
             };
         },
         computed: {
@@ -179,6 +200,43 @@
                     return this.transferInListInt.filter(d => {
                         return d.Full_Name.toLowerCase().includes(this.search.toLowerCase());
                     });
+                }
+            },
+
+            filteredListForReferral() {
+                if (this.referraltransferInList && Array.isArray(this.referraltransferInList)) {
+                    return this.referraltransferInList.filter(d => {
+                        return d.Full_Name.toLowerCase().includes(this.search.toLowerCase());
+                    });
+                }
+            },
+
+            filterTransferSearch() {
+                if (this.transferInListInt && Array.isArray(this.transferInListInt)) {
+                    const tempTransferInListInt = this.transferInListInt.filter(d => {
+                        return d.Full_Name.toLowerCase().includes(this.search.toLowerCase());
+                    });
+
+                    if (tempTransferInListInt.length>0) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            },
+
+            filterReferralTransferSearch() {
+                if (this.referraltransferInList && Array.isArray(this.referraltransferInList)) {
+                    const tempReferraltransferInList =  this.referraltransferInList.filter(d => {
+                        return d.Full_Name.toLowerCase().includes(this.search.toLowerCase());
+
+                    });
+
+                    if (tempReferraltransferInList.length > 0) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
         },
@@ -194,12 +252,11 @@
             searchInputChange(e) {
                 console.log(e.target.value);
             },
-
-            getTransferAction(Student_ID, PK_STUSCH_ID, STUSCH_EffectiveDate_convert) {
+            getTransferAction(Student_ID, PK_STUSCH_ID, STUSCH_EffectiveDate_convert, STUSCH_Referral_Transfer) {
                 this.transferStudentID = Student_ID;
                 this.studentSchoolID = PK_STUSCH_ID;
                 this.inputDateOfCommencement = STUSCH_EffectiveDate_convert;
-                console.log(this.transferStudentID, this.studentSchoolID, this.inputDateOfCommencement);
+                this.referralTransfer = STUSCH_Referral_Transfer;
                 this.$refs.transferShowModal.show();
             },
             async getPendingAcceptTransferSchoolList() {
@@ -222,7 +279,16 @@
                                 break;
                         }
 
-                        this.transferInListInt = response.Table;
+                        this.transferInListInt = [];
+                        this.referraltransferInList = [];
+
+                        response.Table.forEach(m => {
+                            if (m.STUSCH_Referral_Transfer === 'No') {
+                                this.transferInListInt.push(m);
+                            } else {
+                                this.referraltransferInList.push(m);
+                            }
+                        });
                     }
                 } catch (e) {
                     this.results = e;
@@ -269,13 +335,10 @@
                 }
             },
             async ApproveReject(value) {
-                this.$vs.loading();
                 try {
-
-
                     if (this.transferStudentID !== "" && this.studentSchoolID !== "") {
                         if (value === 'APPROVE') {
-                            if (this.$refs.ddlStudentSelectLevel.value !== "" && this.$refs.ddlStudentFirstAcademicYear.value !== "" && this.$refs.ddlStudentIntakeYear.value !== "") {
+                            if (this.$refs.ddlStudentSelectLevel.value !== "" && this.$refs.ddlStudentFirstAcademicYear.value !== "" && this.$refs.ddlStudentIntakeYear.value !== "" && this.inputDateOfCommencement !== "" && this.inputDateOfCommencement !== null) {
                                 const getAcaYearRes = await DataSource.shared.getAcademicYearDateRange(this.$refs.ddlStudentFirstAcademicYear.value);
 
                                 if (getAcaYearRes) {
@@ -298,15 +361,13 @@
                                 }
                             } else {
                                 this.$notify.error({
-                                    title: 'Error',
+                                    title: 'Require',
                                     message: 'Please fill in all the information'
                                 });
                             }
                         } else if (value === 'REJECT') {
                             this.academicYearToDate(value, 'NO DATA', 'NO DATA', 'NO DATA', 'NO DATA', 'NO DATA');
                         }
-
-
                     } else {
                         this.$notify.error({
                             title: 'Error',
@@ -318,6 +379,7 @@
                 }
             },
             async academicYearToDate(value, academicYearFromDate, academicYearToDate, level, adYear, intakeYear) {
+                this.$vs.loading();
                 try {
                     const getSetLvlRes = await DataSource.shared.setLevelForAcceptScool(this.transferStudentID, level, academicYearFromDate, academicYearToDate, adYear, intakeYear, value, this.studentSchoolID, this.inputDateOfCommencement);
 
@@ -336,6 +398,11 @@
                                 title: 'Error',
                                 message: 'Date of Commencement Cannot today or less than today'
                             });
+                        } else if (getSetLvlRes.code === "3") {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Date of Commencement out of range'
+                            });
                         } else {
                             this.$notify.error({
                                 title: 'Error',
@@ -347,9 +414,12 @@
                     this.results = e;
                 }
                 this.$vs.loading.close();
-            }
+            },
         },
     };
 </script>
 <style scoped>
+    .transferModeTitle {
+        font-size: 1.75rem;
+    }
 </style>

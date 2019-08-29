@@ -155,6 +155,7 @@
                     type: 'success'
                 });
                 this.$vs.loading.close();
+                this.$emit("loadBroadcast");
             },
             isNull(obj) {
                 return (obj === null || obj === undefined || obj === "undefined" || obj.length === 0);

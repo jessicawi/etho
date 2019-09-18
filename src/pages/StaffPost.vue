@@ -79,6 +79,7 @@
                                         <ul>
                                             <li>Level: {{student.StudentLevel}}</li>
                                             <li>Class: {{student.StudentClass}}</li>
+                                            <li>School: {{student.StudentSchool}}</li>
                                         </ul>
                                     </el-collapse-item>
                                 </el-collapse>

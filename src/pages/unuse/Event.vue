@@ -8,39 +8,27 @@
                             <h3 class="text-left ">EVENT OVERVIEW</h3>
                         </div>
                         <div class="col-lg-7">
-                            <div class="event_viewby">
-                                <span class="event_viewby-title">VIEW BY</span>
-                                <el-switch
-                                        v-model="showLatest"
-                                        active-text="Latest Event"
-                                        inactive-text='Calendar'>
-                                </el-switch>
-                            </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-12" v-if="showLatest">
-                            <div class="event-calendar_header">
-                                <div class="ec-header-left">
-                                    <span class="render-range">Upcoming Event </span>
-                                </div>
-                                <div class="ec-header-middle">
-                                </div>
-                                <div class="ec-header-right">
-                                    <el-button type="primary" class="btnCreateEvent " round
-                                               v-on:click="eventNewEdit('New')" v-if="checkedUser !== 'Parent'">
-                                        Add Events
-                                    </el-button>
-                                </div>
-                            </div>
-                            <div class="latestEventList">
-                                <data-tables :data="upComingEventList">
-                                    <el-table-column v-for="item in eventListTable" min-width="50px"
-                                                     :prop="item.prop"
-                                                     :label="item.label" :key="item.prop"
-                                                     sortable="custom">
-                                    </el-table-column>
-                                </data-tables>
+                            <h5>Upcoming Event </h5>
+                            <div style="overflow-x:scroll; height:800px;background:whitesmoke;scrollbar-color:rebeccapurple green">
+                                <ul class='eventUI'>
+                                    <li v-for="item in eventList" v-bind:key="item.EventID">
+                                        <b>{{item.EventTitle}}</b><br>
+                                        {{convertToDate(item.EventStartTime)}}<br>
+                                        {{getEventTime(item.EventStartTime,item.EventEndTime)}}<br>
+                                        {{item.EventLocation}}<br>
+                                        <b>Created By:{{item.CONname}}</b><br>
+                                        <b-btn v-if="item.EventCreatedBy === sessionID" @click="editEvent(item)">Edit
+                                        </b-btn>&nbsp;
+                                        <b-btn v-if="item.EventCreatedBy === sessionID"
+                                               @click="deleteEvent(item.EventID)">Delete
+                                        </b-btn>
+                                        <hr>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div class="col-sm-12" v-if="!showLatest">
@@ -89,48 +77,141 @@
                                               :isReadOnly="true"
                                               @beforeCreateSchedule="beforeCreateSchedule"
                                               @clickSchedule="onClickSchedule"
+                                              @beforeCreateSchedulecalendar="beforeCreateSchedulecalendar"
+                                              @clickMore="onclickMore"
+                                              @clickDayname="onClickDayname"
+                                              @beforeDeleteSchedule="onBeforeDeleteSchedule"
+                                              @afterRenderSchedule="onAfterRenderSchedule"
+                                              @clickTimezonesCollapseBtn="onClickTimezonesCollapseBtn"
+                                              @beforeUpdateSchedule="onBeforeUpdateSchedule"
                                     />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <b-modal id="create_event_modal_nonStaff" size="xl" title='Join Event' ref="EventShowModalNonStaff"
+                <b-modal id="create_event_modal_nonStaff" size="xl" title='Event' ref="EventShowModalNonStaff"
                          hide-footer
                          ok-variant="secondary">
-                    <div class="event-join">
-                        <h4>{{joinEventDetails.EventTitle}}</h4>
-                        <div class="event-join_item">
-                            <i class="fa fa-user-circle" aria-hidden="true"></i>
-                            <span>Hosted By: {{joinEventDetails.CONname}}</span>
+                    <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12" title="Event Type">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>{{ lblNewEditCalendar }} Event</label> <br>
+                            <label><h1>Calendar Title</h1></label>
+                            <input type="text" class="form-control" v-model="inputEventTitle"
+                                   :disabled="this.isDisabled">
+                            <b-form-group label="Event Type" align="left" :disabled="this.isDisabled">
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="Event" checked>Event
+                                </b-form-radio>
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="SchoolClosure">School
+                                    Closure
+                                </b-form-radio>
+                                <b-form-radio v-model="rdEventType" name="some-radios" value="PublicHoliday">Public
+                                    Holiday
+                                </b-form-radio>
+                            </b-form-group>
                         </div>
-                        <div class="event-join_item">
-                            <i class="fa fa-clock-o" aria-hidden="true"></i>
-                            <span>Event Duration: {{joinEventDetails.EventDuration}}</span>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <el-button v-on:click="showClassModal()">Class</el-button>
+                            <el-input v-if=""></el-input>
                         </div>
-                        <div class="event-join_item">
-                            <i class="fa fa-calendar" aria-hidden="true"></i>
-                            <span>Date: {{joinEventDetails.EventStartTime_Convert}} - {{joinEventDetails.EventEndTime_Convert}}</span>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label><b>Participant Email</b></label>
+                            <div v-if="(ParticipantNameListInt.length>0)&& this.isDisabled==false">
+                                <data-tables :data="ParticipantNameListInt" :action-col="ParticipantNameListAction">
+                                    <el-table-column v-for="item in ParticipantNameList"
+                                                     :prop="item.prop"
+                                                     :label="item.label"
+                                                     :key="item.prop"
+                                                     sortable="custom">
+                                    </el-table-column>
+                                </data-tables>
+                            </div>
+                            <div v-else-if="(ParticipantNameListInt.length>0)&& this.isDisabled==true">
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody v-for="item in ParticipantNameListInt" v-bind:key="item.CONid">
+                                    <tr>
+                                        <td>{{item.StAllItem}}</td>
+                                        <td>{{item.SelectedConEmail}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="event-join_item">
-                            <i class="fa fa-map-marker" aria-hidden="true"></i>
-                            <span>Location: {{joinEventDetails.EventLocation}}</span>
+                        <!--                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
+                        <!--                            <label>From-->
+                        <!--                                <el-date-picker v-model="inputEventStartTime" format="dd-MM-yyyy HH:mm:ss"-->
+                        <!--                                                value-format="dd-MM-yyyy HH:mm:ss" type="datetime"-->
+                        <!--                                                class="form-control"-->
+                        <!--                                                placeholder="Pick a day" :picker-options="datePicker" :disabled="this.isDisabled"></el-date-picker></label>-->
+                        <!--                            <label> To-->
+                        <!--                                <el-date-picker v-model="inputEventEndTime" format="dd-MM-yyyy HH:mm:ss"-->
+                        <!--                                                value-format="dd-MM-yyyy HH:mm:ss" type="datetime"-->
+                        <!--                                                class="form-control"-->
+                        <!--                                                placeholder="Pick a day" :picker-options="datePicker" :disabled="this.isDisabled"></el-date-picker></label>-->
+                        <!--                            <br>-->
+                        <!--                        </div>-->
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <b-form-checkbox :disabled="this.isDisabled"
+                                             v-model="optParentSignUp" name="btnParentSignUp" switch>Parent sign up?
+                                <h6 v-if="this.optParentSignUp==true">Yes</h6>
+                                <h6 v-else>No</h6>
+                            </b-form-checkbox>
                         </div>
-                        <div class="event-join_item">
-                            <i class="fa fa-users" aria-hidden="true"></i>
-                            <span>Number of Guest : <el-input-number size="small" v-model="num" @change="handleChange"
-                                                                     :min="1" :max="10" label="描述文字"></el-input-number></span>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Registration Limit</label>
+                            <b-form-input id="RegLimitNonStaff" :disabled="this.isDisabled"
+                                          type="text" class="form-control" v-model="inputEventRegLimit" value="0"
+                                          min="0" max="99"></b-form-input>
                         </div>
-                        <div class="event-join_btn" v-if="this.lblNewEditCalendar==='New'">
-                            <el-button type="primary" class="btnCreateEvent" v-on:click="btnRejectEvent()">
-                                Reject Event
-                            </el-button>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Registration cutoff(days)</label>
+                            <b-form-input id="range-1NonStaff" v-model="inputEventRegCutOffDay"
+                                          :disabled="this.isDisabled" type="range" value="0" min="0" max="5"
+                                          step="1"></b-form-input>
+                            <div class="mt-2">Days: {{ inputEventRegCutOffDay }}</div>
                         </div>
-                        <div class="event-join_btn" v-else>
-                            <el-button type="primary" class="btnCreateEvent" v-on:click="btnJoinEvent()">
-                                Join Event
-                            </el-button>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <el-select v-model="ddlClassLevel" placeholder="Select" class="fullwidth"
+                                       :disabled="this.isDisabled">
+                                <el-option
+                                        v-for="item in levelList"
+                                        :key="item.PK_Course_ID"
+                                        :label="item.CRS_Course_Name"
+                                        :value="item.PK_Course_ID">
+                                </el-option>
+                            </el-select>
+                            <button v-on:click="btnAddClasses()" :disabled="this.isDisabled">Add Classes</button>
                         </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Location</label>
+                            <input type="text" class="form-control" v-model="inputEventLocation"
+                                   :disabled="this.isDisabled">
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <el-select v-model="ddlParticipant" placeholder="Select One" class="fullwidth"
+                                       :disabled="this.isDisabled"
+                                       filterable :filter-method="filterSelectedParticipant">
+                                <el-option v-for="item in CurrentParticipantList"
+                                           :value=item.CONid
+                                           :label="item.CONname"
+                                           :key="item.ID">
+                                </el-option>
+                            </el-select>
+                            <button v-on:click="AddParticipantList()" :disabled="this.isDisabled">Add Participant
+                            </button>
+                        </div>
+                    </div>
+                    <div v-if="this.lblNewEditCalendar==='New'">
+                        <button v-on:click="btnRejectEvent()">Reject Event</button>
+                    </div>
+                    <div v-else>
+                        <button v-on:click="btnJoinEvent()">Join Event</button>
                     </div>
                 </b-modal>
             </div>
@@ -140,6 +221,7 @@
                 <b-modal id="create_event_modal" size="xl" :title="lblNewEditCalendar + ' Event'" ref="EventShowModal"
                          hide-footer
                          ok-variant="secondary">
+                    <!--<label>{{ lblNewEditCalendar }} Event</label> <br>-->
                     <Event_Modal_Component
                             :isDisable="isDisabled"
                             :lblNewEditEvent="lblNewEditCalendar"
@@ -159,10 +241,6 @@
                             :eventInputEventRegCutOffDay="inputEventRegCutOffDay"
                             :eventInputEventRegistrationStartTime="inputEventRegistrationStartTime"
                             :eventInputEventLocation="inputEventLocation"
-                            :eventGuestInt="guestInt"
-                            :eventDurationHour="EventDurationHour"
-                            :eventID="selectedEventID"
-                            :eventFiles="arrobj_SelectedFiles"
                     />
                 </b-modal>
                 <b-modal id="addClassModal" hide-footer size="lg"
@@ -217,7 +295,7 @@
                                         <hr>
                                     </li>
                                 </ul-->
-                                <data-tables :data="upComingEventList" :action-col="eventListAction">
+                                <data-tables :data="latestEventList" :action-col="eventListAction">
                                     <el-table-column v-for="item in eventListTable" min-width="50px"
                                                      :prop="item.prop"
                                                      :label="item.label" :key="item.prop"
@@ -226,6 +304,27 @@
                                 </data-tables>
                             </div>
                         </div>
+                        <!--div class="col-sm-2">
+                            <h5>Upcoming Event</h5>
+                            <div>
+                                <ul class='upComingEventUI'>
+                                    <li v-for="item in upComingEventList" v-bind:key="item.EventID">
+                                        {{convertToDate((item.EventDate))}}&nbsp;
+                                        <a href="#" v-on:click="showMore(item.EventDate)" id="upComingEvent1"><b>{{(item.EventCount)}}</b></a><br>
+                                        <hr>
+                                    </li>
+                                    <ul v-if="this.upComingDetailClicked==true" id="upComingDetail">
+                                        <li v-for="item in upComingEventDetailList" v-bind:key="item.EventID">
+                                            <a href="#" v-on:click="editEvent(item)">{{item.EventTitle}}</a><br>
+                                            {{item.EventType}}<br>
+                                            Venue:{{item.EventLocation}}<br>
+                                            NoOfParticipant:{{item.NumberOfParticipant}}<br>
+                                            <hr>
+                                        </li>
+                                    </ul>
+                                </ul>
+                            </div>
+                        </div-->
                         <div class="col-sm-12" v-if="!showLatest">
                             <div class="event-calendar">
                                 <!--full-calendar
@@ -286,6 +385,13 @@
                                               :isReadOnly="false"
                                               @beforeCreateSchedule="beforeCreateSchedule"
                                               @clickSchedule="onClickSchedule"
+                                              @beforeCreateSchedulecalendar="beforeCreateSchedulecalendar"
+                                              @clickMore="onclickMore"
+                                              @clickDayname="onClickDayname"
+                                              @beforeDeleteSchedule="onBeforeDeleteSchedule"
+                                              @afterRenderSchedule="onAfterRenderSchedule"
+                                              @clickTimezonesCollapseBtn="onClickTimezonesCollapseBtn"
+                                              @beforeUpdateSchedule="onBeforeUpdateSchedule"
                                     />
                                 </div>
                             </div>
@@ -307,6 +413,7 @@
     import moment from 'moment';
 
     const today = new Date();
+    console.log(today);
     const getDate = (type, start, value, operator) => {
         start = new Date(start);
         type = type.charAt(0).toUpperCase() + type.slice(1);
@@ -322,16 +429,19 @@
     export default {
         name: "Event",
         components: {
+            // 'full-calendar': require('vue-fullcalendar'),
             EventTagsComponent,
             'calendar': Calendar,
             Event_Modal_Component
         },
         props: ["images", "post"],
         async created() {
+            // this.imgStaffProfile = ProfileImg;
+
             if (Cookies.get('userTypeSession') === 'Parent') {
                 this.isStaff = false;
-                await this.LoadEventDetails();
                 await this.LoadUpComingEvent();
+
             } else {
                 this.isStaff = true;
                 // await this.LoadProfileImg();
@@ -344,6 +454,7 @@
         async mounted() {
             this.userType = Cookies.get('userTypeSession');
             this.sessionID = Cookies.get('userIDSession');
+            console.log(this.userType);
             this.init();
             this.checkUser();
 
@@ -373,12 +484,16 @@
                         label: "Event"
                     },
                     {
-                        prop: "EventStartTimeConvert",
+                        prop: "EventStartTime_Convert",
                         label: "Start"
                     },
                     {
-                        prop: "EventEndTimeConvert",
-                        label: "End"
+                        prop: "EventTime",
+                        label: "Time"
+                    },
+                    {
+                        prop: "CONname",
+                        label: "Add By"
                     }
                 ],
                 eventListAction: {
@@ -415,22 +530,33 @@
                         label: 'Delete'
                     }]
                 },
+                // arrobj_Levels: [],
+                // arrobj_Classes: [],
+                // arrobj_SelectedStudents: [],
+                //End: class component
+
                 userType: "",
                 isStaff: '',
                 imgStaffProfile: '',
+
                 //
                 obj_SelectedComponent: "",
                 str_PostComponentTitle: "",
                 arrobj_SelectedItem: [],
                 obj_ComponentProperties: {},
                 //
+
                 upComingDetailClicked: false,
                 isDisabled: false,
                 datePicker: {
                     disabledDate(date) {
+
                         return date < (new Date().getTime() - (1 * 24 * 60 * 60 * 1000));
+                        //  Without using the second variable, you can replace 7 for with your back x days:
+                        //e.g return date< Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000));
                     }
                 },
+
                 ddlParticipant: '',
                 selectedParticipantList: [],
                 upComingEventList: [],
@@ -453,7 +579,6 @@
                 levelList: [],
                 inputEventTime: [],
                 inputEventRegistrationStartTime: '',
-                EventDurationHour: '',
                 optParentSignUp: false,
                 inputEventRegCutOffDay: 0,
                 inputEventRegLimit: 0,
@@ -541,12 +666,6 @@
                         name: 'SchoolClosure',
                         bgColor: '#ffc900',
                         borderColor: '#ffc900'
-                    },
-                    {
-                        id: 'PTC',
-                        name: 'PTC',
-                        bgColor: '#69d5a1',
-                        borderColor: '#69d5a1'
                     }
                 ],
                 scheduleList: [],
@@ -593,8 +712,6 @@
                 theme: {
                     'month.dayname.height': '42px',
                 },
-                joinEventDetails: [],
-                arrobj_SelectedFiles: [],
             };
         },
         watch: {
@@ -604,16 +721,14 @@
             }
         },
         methods: {
-            sleep(milliseconds) {
-                return new Promise(resolve => setTimeout(resolve, milliseconds));
-            },
             hideEventShowModal() {
                 this.$refs['EventShowModal'].hide();
-                // this.$refs['EventShowModalNonStaff'].hide();
+                this.$refs['EventShowModalNonStaff'].hide();
             },
             async changeSelection(val) {
                 this.spdSelection = val;
             },
+
             setTags(value) {
                 try {
                     this.tags = value;
@@ -622,9 +737,11 @@
                     this.results = e;
                 }
             },
+
             AddComponentValue() {
                 try {
                     if (this.tags) {
+                        console.log(this.tags, 'tags value');
                         this.$notify({
                             title: 'Success',
                             message: 'Successfully!',
@@ -638,6 +755,7 @@
                                 uniqueTags.push(object);
                             }
                         });
+                        console.log(uniqueTags, "uniqueTags");
                         uniqueTags.forEach(m => {
                             let my_object = {
                                 Type: "Student",
@@ -646,6 +764,7 @@
                             };
                             this.studentInt.push(my_object);
                         });
+                        console.log(this.studentInt, "uniqueTags");
                     } else {
                         this.$notify.error({
                             title: 'Error, please try again',
@@ -665,17 +784,19 @@
             isNull(obj) {
                 return (obj === null || obj === undefined || obj === "undefined" || obj.length === 0 || obj === "");
             },
+
             showMore(obj) {
                 this.upComingDetailClicked = true;
                 this.LoadUpComingEventDetail(obj);
             },
+
             async BindEventFields(resultTable) {
                 try {
                     this.ParticipantNameListIntTemp = [];
                     this.ParticipantNameListInt = [];
                     this.CurrentParticipantList = [];
 
-                    resultTable.forEach(async m => {
+                    resultTable.forEach(m => {
                         this.inputEventTitle = m.EventTitle;
                         this.rdEventType = m.EventType;
                         this.inputEventTime[0] = new Date(m.EventStartTime);
@@ -684,18 +805,14 @@
                         this.inputEventRegCutOffDay = m.EventRegCutOffDay;
                         this.inputEventLocation = m.EventLocation;
                         this.inputEventRegistrationStartTime = new Date(m.EventRegistrationStartTime);
-                        this.EventDurationHour = m.EventDuration;
 
 
-                        const resp = await DataSource.shared.getEventParticipantByEventID(m.EventID);
-                        if (resp){
-                            console.log("resp")
+                        const resp = DataSource.shared.getEventParticipantByEventID(m.EventID);
+                        resp.then((resp) => {
                             if (resp.code === '2') {
                                 this.MasterParticipantList.forEach(m => {
                                     this.CurrentParticipantList.push(m);
                                 });
-                                this.guestInt = [];
-                                this.studentInt = [];
                             } else {
                                 const participantResponse = resp.Table;
 
@@ -714,55 +831,74 @@
                                 let studentIntFilter = participantResponse.filter(d => {
                                     return d.EventParType === "Student";
                                 });
-                                console.log('studentIntFilter', studentIntFilter);
-                                if (this.isStaff === false) {
-                                    this.studentInt = studentIntFilter;
-                                } else {
-                                    let tempStudentInt = [];
-                                    studentIntFilter.forEach(m => {
-                                        let my_object = {
-                                            Type: m.EventParType,
-                                            value: m.EventParPaxID,
-                                            label: m.PaxName
-                                        };
-                                        tempStudentInt.push(my_object);
-                                    });
-                                    this.studentInt = tempStudentInt;
-                                    console.log('studentInt', this.studentInt);
-                                }
+                                let tempStudentInt = [];
+                                studentIntFilter.forEach(m => {
+                                    let my_object = {
+                                        Type: m.EventParType,
+                                        value: m.EventParPaxID,
+                                        label: m.PaxName
+                                    };
+                                    tempStudentInt.push(my_object);
+                                });
+                                this.studentInt = tempStudentInt;
+                                console.log(this.studentInt, "fromedit");
 
+                                // this.ParticipantNameListIntTemp.forEach(n => {
+                                //     let tempList = {
+                                //         StAllItem: n.CONname,
+                                //         SelectedConID: n.CONid,
+                                //         SelectedConEmail: n.CONEmail,
+                                //         SelectedEventParID: n.EventParID,
+                                //     };
+                                //     this.ParticipantNameListInt.push(tempList);
+                                //
+                                //     this.MasterParticipantList.forEach(p => {
+                                //         if (n.CONid === p.CONid) {
+                                //             // this.CurrentParticipantList.splice(this.CurrentParticipantList.indexOf(m), 1);
+                                //         } else {
+                                //             let tempCurrentList = {
+                                //                 CONname: p.CONname,
+                                //                 CONid: p.CONid,
+                                //                 CONEmail: p.CONEmail,
+                                //                 SelectedEventParID: p.EventParID,
+                                //             };
+                                //             this.CurrentParticipantList.push(tempCurrentList);
+                                //         }
+                                //     });
+                                //
+                                // });
 
+                                // this.selectedParticipantList = (resp.Table) ? resp.Table : [];
                             }
-                        }
+                        });
                         if (m.EventParentSignUp === 'Yes') {
                             this.optParentSignUp = true;
                         }
+                        ;
                     });
-
-
-
                 } catch (e) {
                     this.results = e;
                 }
             },
+
             async editEvent(objValue) {
                 try {
-                    this.$vs.loading();
+                    console.log(objValue);
                     //capture EventID
                     var obj = {
                         eventID: objValue.EventID,
                         eventCreatedBy: objValue.EventCreatedBy,
                     };
+
+                    //Disable user to editEvent if
+                    // if (Cookies.get('userIDSession') == obj.eventCreatedBy || Cookies.get('userIDSession') == null) {
+                    //     this.isDisabled = false;
+                    // } else {
+                    //     this.isDisabled = true;
+                    // }
+
                     this.selectedEventID = obj.eventID;
-                    const response = await DataSource.shared.getEventDetails(this.selectedEventID);
-                    this.BindEventFields(response.Table);
-                    await this.sleep(800);
-                    let promise_GetPostFile = await DataSource.shared.getEventFile(this.selectedEventID);
-                    console.log("promise_GetPostFile", promise_GetPostFile);
-
-                    this.arrobj_SelectedFiles = promise_GetPostFile;
-
-
+                    const response = await DataSource.shared.getEvent(this.selectedEventID);
                     if (response === '88') {
                         window.location.replace('/');
                     } else if (response === '99') {
@@ -773,17 +909,19 @@
                     }
 
                     if (this.isStaff === false) {
-                        this.joinEventDetails = response.Table[0];
+                        this.BindEventFields(response.Table);
                         this.$refs['EventShowModalNonStaff'].show();
                     } else if (this.isDisabled === true) {
+                        this.BindEventFields(response.Table);
                         this.$refs['EventShowModal'].show();
                     } else {
                         this.isEditEvent = true;
                         this.editEventID = objValue.EventID;
+                        console.log(this.editEventID);
+                        this.BindEventFields(response.Table);
                         this.$refs['EventShowModal'].show();
                     }
                     this.eventNewEdit('Edit');
-                    this.$vs.loading.close();
 
                 } catch (e) {
                     alert(e);
@@ -791,8 +929,10 @@
                 }
 
             },
+
             async deleteEvent(eventID) {
                 try {
+                    console.log(eventID);
                     //capture EventID
                     this.selectedEventID = eventID;
 
@@ -825,6 +965,7 @@
                     console.log(e);
                 }
             },
+
             async getLevelSpecificSchool() {
                 try {
                     const response = await DataSource.shared.getLevelSpecificSchool(Cookies.get('schoolSession'));
@@ -839,6 +980,7 @@
                     this.results = e;
                 }
             },
+
             getEventTime(startValue, endValue) {
                 try {
                     let startTime = new Date(startValue);
@@ -860,6 +1002,7 @@
                     alert(e);
                 }
             },
+
             convertToDate(startTime) {
                 let day = new Date(startTime).getDate();
                 let month = new Date(startTime).getMonth() + 1;
@@ -884,13 +1027,15 @@
                 date = day + "th " + m + " " + year;
                 return date;
             },
+
+
             async LoadEventDetails() {
                 try {
                     this.scheduleList = [];
                     const response = DataSource.shared.getEvent();
                     response.then((response) => {
 
-                        if (response && response.Table.length < 1) {
+                        if (response.Table.length < 1) {
                             alert('No record found');
                             console.log('No record found');
                         } else if (response.code === '99') {
@@ -904,20 +1049,22 @@
                                 });
 
                             }
+                            console.log("eventList", this.eventList);
 
-                            // this.eventList.forEach((m) => {
-                            //     let items = {
-                            //         EventTitle: m.EventTitle,
-                            //         EventStartTime_Convert: m.EventStartTime_Convert,
-                            //         EventTime: moment(m.EventStartTime).format("hh:mm A") + " - " + moment(m.EventEndTime).format("hh:mm A"),
-                            //         EventLocation: m.EventLocation,
-                            //         CONname: m.CONname,
-                            //         EventEndTime_Convert: m.EventEndTime_Convert,
-                            //         EventID: m.EventID,
-                            //     };
-                            //     this.latestEventList.push(items);
-                            //
-                            // });
+                            this.eventList.forEach((m) => {
+                                let items = {
+                                    EventTitle: m.EventTitle,
+                                    EventStartTime_Convert: m.EventStartTime_Convert,
+                                    EventTime: moment(m.EventStartTime).format("hh:mm A") + " - " + moment(m.EventEndTime).format("hh:mm A"),
+                                    EventLocation: m.EventLocation,
+                                    CONname: m.CONname,
+                                    EventEndTime_Convert: m.EventEndTime_Convert,
+                                    EventID: m.EventID,
+                                };
+                                this.latestEventList.push(items);
+                                console.log(this.latestEventList);
+
+                            });
 
                             this.eventList.forEach((m) => {
                                 // m.start = m.EventCreatedOn_Convert;
@@ -947,6 +1094,7 @@
                     console.log(e);
                 }
             },
+
             async LoadUpComingEvent() {
                 try {
                     const response = DataSource.shared.getUpComingEvent();
@@ -964,6 +1112,7 @@
                     console.log(e);
                 }
             },
+
             async LoadUpComingEventDetail(value) {
                 try {
                     var obj = {
@@ -996,14 +1145,21 @@
                 if (this.isStaff === false) {
                     this.$refs.EventShowModalNonStaff.show();
                 } else {
+                    // this.obj_SelectedComponent = updates;
+                    // this.str_PostComponentTitle = "Updates";
                     this.$refs.EventShowModal.show();
                 }
+
+                // if (this.userType === "Teacher") {
+                //     this.rdEventType = "PTC";
+                // }
             },
             refreshBModalValue() {
                 let getCurrentDateTime = new Date();
                 this.isDisabled = false;
                 this.inputEventTitle = '';
                 this.rdEventType = '';
+                // this.rdEventType = 'Event';
                 this.inputEventTime = getCurrentDateTime;
                 this.inputEventRegLimit = 0;
                 this.inputEventRegCutOffDay = 0;
@@ -1018,8 +1174,6 @@
                 this.MasterParticipantList.forEach(m => {
                     this.CurrentParticipantList.push(m);
                 });
-                this.EventDurationHour = '';
-                this.arrobj_SelectedFiles = [];
             },
             async filterSelectedParticipant(filterValue, allOptions) {
                 return allOptions.filter(option => option.includes(filterValue));
@@ -1037,6 +1191,7 @@
             removeParticipantList(guest) {
                 // this.inputEventParticipantList.splice(this.inputEventParticipantList.indexOf(guest), 1);
                 this.guestInt.splice(this.guestInt.indexOf(guest), 1);
+                console.log(this.guestInt, "remove");
             },
             async btnJoinEvent() {
                 console.log('btnJoinEvent');

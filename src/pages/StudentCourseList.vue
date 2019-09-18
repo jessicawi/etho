@@ -4,32 +4,6 @@
             <h5 class="text-left payment-title" id="StudentInformation">
                 Student Information</h5>
         </div>
-        <!--div class="row form-group__wrapper">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label>Student Name</label>
-                <input type="text" class="form-control form__input" v-model="inputStudentName" disabled>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label>Student NO</label>
-                <input type="text" class="form-control form__input" v-model="inputStudentNO" disabled>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label>Commencement Date</label>
-                <input type="text" class="form-control" v-model="inputCommencementDate" disabled>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label>Status</label>
-                <input type="text" class="form-control" v-model="inputStudentStatus" disabled>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label>Meal Preferences</label>
-                <input type="text" class="form-control" v-model="inputMealPreferences" disabled>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label>Payee Name</label>
-                <input type="text" class="form-control" v-model="inputPayeeName" disabled>
-            </div>
-        </div-->
         <div class="payment-header">
             <div class="container">
                 <div class="payment-student-info">
@@ -60,13 +34,6 @@
                 </div>
             </div>
         </div>
-        <!--div v-if="StudentCourseListInt.length>0" class="datatable_group">
-            <data-tables :data="StudentCourseListInt" :action-col="StudentCourseListAction">
-                <el-table-column v-for="item in StudentCourseList" :prop="item.prop"
-                                 :label="item.label" :key="item.prop">
-                </el-table-column>
-            </data-tables>
-        </div-->
         <div class="student-course-list container mt-5">
             <h5 class="text-left payment-title">Student Course List</h5>
             <div class="empty-list_icon" v-if="StudentCourseListInt&&StudentCourseListInt.length<1">
@@ -77,9 +44,19 @@
             </div>
             <div v-if="StudentCourseListInt.length>0" class="datatable_group">
                 <data-tables :data="StudentCourseListInt" :action-col="StudentCourseListAction">
-                    <el-table-column label="Level">
+                    <el-table-column label="Level" :min-width="55">
                         <template slot-scope="scope">
                             <span>{{ scope.row.CRS_Course_Name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="Class" :min-width="50">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.ClassName }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="Batch" :min-width="50">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.Batch}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="School">
@@ -92,27 +69,22 @@
                             <span>{{ scope.row.SMT_Code }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="Level Start Date">
+                    <el-table-column label="Start Date" :min-width="55">
                         <template slot-scope="scope">
                             <span>{{ scope.row.SCRS_From_Date_convert }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="Level End Date">
+                    <el-table-column label="End Date" :min-width="55">
                         <template slot-scope="scope">
                             <span>{{ scope.row.SCRS_To_Date_convert }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="Status">
+                    <el-table-column label="Status" :min-width="50">
                         <template slot-scope="scope">
                             <span :class="scope.row.SCRS_Status">{{ scope.row.SCRS_Status }}</span>
                             <!--<span :class="`${scope.row.SCRS_Status==='Active' ? 'active' :''}`">{{ scope.row.SCRS_Status }}</span>-->
                         </template>
                     </el-table-column>
-                    <!--<el-table-column v-for="item in StudentCourseList" :prop="item.prop"-->
-                    <!--:label="item.label" :key="item.prop"-->
-                    <!--:class-name="`${item.prop} ${item.SCRS_Status==='Active' ? 'active' :''}`"-->
-                    <!--:ref="item.prop">-->
-                    <!--</el-table-column>-->
                 </data-tables>
             </div>
         </div>
@@ -188,7 +160,7 @@
                                 });
                             }
                         },
-                        label: 'Payment Detail'
+                        label: 'Detail'
                     }]
                 },
             };
@@ -205,14 +177,6 @@
         },
 
         methods: {
-            // findStudentActive() {
-            //     let StatusClass = "";
-            //     this.StudentCourseListInt = this.StudentCourseListInt.map(m => {
-            //         m.statusClass = StatusClass;
-            //         return m;
-            //     });
-            //
-            // },
             async BindStudentInfo() {
                 try {
                     const resp = await DataSource.shared.getStudent(this.$route.query.id, '', '', '', '');

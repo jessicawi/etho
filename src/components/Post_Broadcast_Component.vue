@@ -20,6 +20,9 @@
                     </b-carousel>
                 </div>-->
                 <div>
+                    eiei
+                    {{arrobj_SelectedFiles}}
+eoei
                     <input type="file" multiple class="inputfile"
                            id="FU_Portfolio"/>
                     <label for="FU_Portfolio">Choose a file</label>
@@ -181,6 +184,8 @@
             },
             onFileChanged(event) {
                 this.arrobj_SelectedFiles = event.target.files;
+                console.log(this.arrobj_SelectedFiles)
+
                 this.getImagePreviews();
             },
             getImagePreviews() {
@@ -204,7 +209,6 @@
                         reader.addEventListener("load", function () {
                             this.$refs['image' + parseInt(i)][0].src = reader.result;
                         }.bind(this), false);
-
                         /*
                           Read the data for the file in through the reader. When it has
                           been loaded, we listen to the event propagated and set the image

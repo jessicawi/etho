@@ -6,7 +6,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         isLoading: false,
-        portfolioID: ""
+        portfolioID: "",
+        eventID:""
     },
     mutations: {
         setLoading(state, boolean) {
@@ -14,6 +15,9 @@ export default new Vuex.Store({
         },
         setPortfolioID(state, ID) {
             state.portfolioID = ID;
+        },
+        setEventID(state, data) {
+            state.eventID = data;
         }
     },
 });

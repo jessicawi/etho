@@ -118,6 +118,42 @@ mobile
     .payment-icon {
         margin: 3px 0px;
     }
+
+    /*
+    event
+     */
+    .event-calendar_header {
+        display: table;
+        width: 100%;
+    }
+
+    .event-calendar_header div {
+        width: 100%;
+    }
+
+    .ec-header-right {
+        display: block;
+    }
+
+    .ec-header-middle {
+        margin: 5px 0;
+    }
+
+    .ec-header-right button {
+        margin: 5px 0;
+    }
+
+    .event_viewby {
+        float: none;
+    }
+
+    #event_Email .action-list {
+        display: block;
+    }
+
+    #event_Email .action-list span {
+        margin: 0;
+    }
 }
 
 @media (max-width: 769px) {

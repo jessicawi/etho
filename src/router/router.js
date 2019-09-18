@@ -33,6 +33,7 @@ import studentgraduation from "../pages/StudentGraduation";
 import classManagement from "../pages/ClassManagement";
 import studentPaymentPlan from "../pages/StudentPaymentPlan";
 import event from "../pages/Event";
+import eventEmail from "../pages/EventBlastEmail";
 import busMaster from "../pages/BusMaster";
 import dailyRoutineMassUpdate from "../pages/DailyRoutineMassUpdate";
 import busAttendance from "../pages/BusAttendance";
@@ -50,6 +51,9 @@ import attendanceMaster from "../pages/AttendanceMaster";
 import classOverview from "../pages/ClassOverview";
 import portfolioMedia from "../pages/PortfolioMedia";
 import printClassStudent from "../pages/PrintClassStudent";
+import plannerMaster from "../pages/PlannerMaster";
+import plannerAssignSchool from "../pages/PlannerAssignSchool";
+import plannerAssignStudent from "../pages/PlannerAssignStudent";
 
 Vue.use(VueRouter);
 
@@ -175,13 +179,13 @@ const router = new VueRouter({
             component: notFound
         },
         {
-            path: '/DailyRoutineSingleUpdate',
+            path: '/DailyRoutine',
             name: 'Daily Routine',
             component: dailyRoutine
         },
         {
-            path: '/DailyRoutine',
-            name: 'Daily Routine Update By Class',
+            path: '/DailyRoutineMassUpdate',
+            name: 'Daily Routine Mass Update',
             component: dailyRoutineMassUpdate
         },
         {
@@ -233,6 +237,11 @@ const router = new VueRouter({
             path: '/Event',
             name: 'Event',
             component: event
+        },
+        {
+            path: '/EventEmail',
+            name: 'EventEmail',
+            component: eventEmail
         },
         {
             path: '/BusMaster',
@@ -304,6 +313,21 @@ const router = new VueRouter({
             path:'/PrintClassStudent',
             name:'PrintClassStudent',
             component: printClassStudent,
+        },
+        {
+            path:'/PlannerMaster',
+            name:'Planner Master',
+            component: plannerMaster,
+        },
+        {
+            path:'/PlannerAssignSchool',
+            name:'Planner Assign School',
+            component: plannerAssignSchool,
+        },
+        {
+            path:'/PlannerAssignStudent',
+            name:'Planner Assign Student',
+            component: plannerAssignStudent,
         },
     ]
 });

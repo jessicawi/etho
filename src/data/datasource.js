@@ -175,7 +175,8 @@ export default class DataSource {
     async login(userId, password) {
         const data = {
             userID: userId,
-            userPassword: password
+            userPassword: password,
+            type: 'Kagami Website'
         };
 
         try {
@@ -236,7 +237,8 @@ export default class DataSource {
     async externalLogin(userId, tokenId) {
         const data = {
             userID: userId,
-            externalLoginToken: tokenId
+            externalLoginToken: tokenId,
+            type: 'Kagami Website'
         };
 
         const response = await this.callWebService("/controller/Login.asmx/checkLogin", data, "POST", false);
@@ -1912,9 +1914,9 @@ export default class DataSource {
         return response;
     }
 
-    async getClassBySemesterAndCourseID(semesterID, courseID) {
+    async getClassBySemesterAndCourseID(academicYear, courseID) {
         const data = {
-            semesterID: semesterID,
+            academicYear: academicYear,
             courseID: courseID
         };
 
@@ -2368,26 +2370,109 @@ export default class DataSource {
         return response;
     }
 
-    async saveEvent(obj, participantObj) {
-        const data = {
-            obj: obj,
-            ParticipantObj: participantObj,
+    async saveEvent(files, obj, participantObj) {
+        const formData = new FormData();
+        formData.append("obj", obj);
+        formData.append("ParticipantObj", participantObj);
+        formData.append('token', Cookies.get('authToken'));
+        formData.append('UserID_Session', Cookies.get('userIDSession'));
+        formData.append('UserSchool_Session', Cookies.get('schoolSession'));
+        formData.append('UserType_Session', Cookies.get('userTypeSession'));
+        formData.append('UserUniversitySession', Cookies.get('userUniversitySession'));
+        formData.append('UserEmailSession', Cookies.get('userEmailSession'));
+        formData.append('USRidSession', Cookies.get('usRidSession'));
+        formData.append('UserNameSession', Cookies.get('userNameSession'));
+        console.log(files, "files");
+        if (files && files.length > 1) {
+            for (let key in files) {
+                // console.log(key);
+                if (files.hasOwnProperty(key)) {
+                    // console.log(files[key]);
+                    if (key > 0) {
+                        formData.append(`upload_${key}`, files[key]);
+                    } else {
+                        formData.append("upload", files[key]);
+                    }
+                }
+            }
+        } else if (files) {
+            formData.append("upload", files[0]);
+        }
+        const request = {
+            url: `${API_HOST}/controller/Event.asmx/saveEvent`,
+            cache: false,
+            type: 'POST',
+            data: formData,
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            async: false,
+            json: false,
+            success: function (response) {
+                return response;
+            }
         };
-        const response = await this.callWebService("/controller/Event.asmx/saveEvent", data, "POST");
+        let response = await jQuery.ajax(request);
+        if (typeof response === "string") {
+            response = JSON.parse(response);
+        }
         return response;
+        // const data = {
+        //     obj: obj,
+        //     ParticipantObj: participantObj,
+        // };
+        // if (files && files.length > 1) {
+        //     for (let key in files) {
+        //         // console.log(key);
+        //         if (files.hasOwnProperty(key)) {
+        //             // console.log(files[key]);
+        //             if (key > 0) {
+        //                 data[`upload_${key}`] = files[key];
+        //             } else {
+        //                 data.upload = files[key];
+        //             }
+        //         }
+        //     }
+        // } else if (files) {
+        //     data.upload = files[0];
+        // }
+        //
+        // console.log("data", data);
+        //
+        // const response = await this.callWebService("/controller/Event.asmx/saveEvent", data, "POST",true,false);
+        //
+        // console.log("res", response);
+        //
+        // return response;
     }
 
     async getEvent(eventID) {
         const data = {
             eventID: eventID,
         };
-        const response = await this.callWebService("/controller/Event.asmx/getEvent", data, "POST");
+        const response = await this.callWebService("/controller/Event.asmx/getEventList", data, "POST");
+        return response;
+    }
+
+    async getEventDetails(eventID) {
+        const data = {
+            eventID: eventID,
+        };
+        const response = await this.callWebService("/controller/Event.asmx/getEventDetails", data, "POST");
+        return response;
+    }
+
+    async getEventFile(eventID) {
+        const data = {
+            eventID: eventID
+        };
+        const response = await this.callWebService("/controller/Event.asmx/getEventFiles", data, "POST");
         return response;
     }
 
     async getUpComingEvent() {
         const data = {};
-        const response = await this.callWebService("/controller/Event.asmx/getUpComingEvent", data, "POST");
+        const response = await this.callWebService("/controller/Event.asmx/getLatestUpComingEvents", data, "POST");
         return response;
     }
 
@@ -2415,13 +2500,64 @@ export default class DataSource {
         return response;
     }
 
-    async updateEvent(obj, participantObj) {
-        const data = {
-            Obj: obj,
-            ParticipantObj: participantObj,
+    async updateEvent(files, obj, participantObj) {
+        const formData = new FormData();
+        formData.append("obj", obj);
+        formData.append("ParticipantObj", participantObj);
+        formData.append('token', Cookies.get('authToken'));
+        formData.append('UserID_Session', Cookies.get('userIDSession'));
+        formData.append('UserSchool_Session', Cookies.get('schoolSession'));
+        formData.append('UserType_Session', Cookies.get('userTypeSession'));
+        formData.append('UserUniversitySession', Cookies.get('userUniversitySession'));
+        formData.append('UserEmailSession', Cookies.get('userEmailSession'));
+        formData.append('USRidSession', Cookies.get('usRidSession'));
+        formData.append('UserNameSession', Cookies.get('userNameSession'));
+        if (files && files.length > 1) {
+            for (let key in files) {
+                // console.log(key);
+                if (files.hasOwnProperty(key)) {
+                    // console.log(files[key]);
+                    if (key > 0) {
+                        formData.append(`upload_${key}`, files[key]);
+                    } else {
+                        formData.append("upload", files[key]);
+                    }
+                }
+            }
+        } else if (files && files[0]) {
+            formData.append("upload", files[0]);
+        }
+
+        console.log("files");
+        console.log(files);
+
+        const request = {
+            url: `${API_HOST}/controller/Event.asmx/updateEvent`,
+            cache: false,
+            type: 'POST',
+            data: formData,
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            async: false,
+            json: false,
+            success: function (response) {
+                return response;
+            }
         };
-        const response = await this.callWebService("/controller/Event.asmx/updateEvent", data, "POST");
+
+        let response = await jQuery.ajax(request);
+        if (typeof response === "string") {
+            response = JSON.parse(response);
+        }
         return response;
+
+        // const data = {
+        //     Obj: obj,
+        //     ParticipantObj: participantObj,
+        // };
+        // const response = await this.callWebService("/controller/Event.asmx/updateEvent", data, "POST");
+        // return response;
     }
 
     async deleteEvent(eventID) {
@@ -2429,6 +2565,15 @@ export default class DataSource {
             eventID: eventID,
         };
         const response = await this.callWebService("/controller/Event.asmx/deleteEvent", data, "POST");
+        return response;
+    }
+
+    async sendEvent(eventID,Obj) {
+        const data = {
+            eventID: eventID,
+            Obj: Obj
+        };
+        const response = await this.callWebService("/controller/Event.asmx/sendEventEmail", data, "POST");
         return response;
     }
 
@@ -3088,7 +3233,7 @@ export default class DataSource {
                 obj: obj,
                 inputPaymentDueDate: inputPaymentDueDate,
                 action: action,
-                breakdownFlag:breakdownFlag,
+                breakdownFlag: breakdownFlag,
             };
             const response = await this.callWebService("/controller/Billing.asmx/generateBatchInvoice", data, "POST");
             return response;
@@ -3289,13 +3434,17 @@ export default class DataSource {
         }
     }
 
-    async getInvoiceList(invoiceDateFrom, invoiceDateTo, invoiceDueDateFrom, invoiceDueDateTo) {
+    async getInvoiceList(invoiceDateFrom, invoiceDateTo, invoiceDueDateFrom, invoiceDueDateTo,
+                         studentIndexNo, invoiceNo, studentName) {
         try {
             const data = {
                 invoiceDateFrom: invoiceDateFrom,
                 invoiceDateTo: invoiceDateTo,
                 invoiceDueDateFrom: invoiceDueDateFrom,
-                invoiceDueDateTo: invoiceDueDateTo
+                invoiceDueDateTo: invoiceDueDateTo,
+                studentIndexNo: studentIndexNo,
+                invoiceNo: invoiceNo,
+                studentName: studentName,
             };
             const response = await this.callWebService("/controller/Billing.asmx/getInvoiceList", data, "POST");
             return response;
@@ -3416,6 +3565,249 @@ export default class DataSource {
                 studentID: studentID,
             };
             const response = await this.callWebService("/controller/Course.asmx/checkCourseOrderByLevelIDStudentID", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async sendBreakdownEmail(obj) {
+        try {
+            const data = {
+                obj: obj,
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/sendBreakdownEmail", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async generateClassStudentForPrinting(obj) {
+        try {
+            const data = {
+                obj: obj,
+            };
+            const response = await this.callWebService("/controller/Class.asmx/generateClassStudentForPrinting", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getAllCoursesLevel() {
+        try {
+            const data = {};
+            const response = await this.callWebService("/controller/Course.asmx/getAllCoursesLevel", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerMaster(level) {
+        try {
+            const data = {
+                level: level,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerMaster", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async savePlannerMaster(newPlannerMasterObjJson) {
+        try {
+            const data = {
+                newPlannerMasterObjJson: newPlannerMasterObjJson,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/savePlannerMaster", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updatePlannerMaster(plannerMasterID, mode) {
+        try {
+            const data = {
+                plannerMasterID: plannerMasterID,
+                mode: mode,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/updatePlannerMaster", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerAssignedToSchool(schID, semID) {
+        try {
+            const data = {
+                schID: schID,
+                semID: semID,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerAssignedToSchool", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerAssignedDetialsToSchool(schID, semID, crsID) {
+        try {
+            const data = {
+                schID: schID,
+                semID: semID,
+                crsID: crsID,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerAssignedDetialsToSchool", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updatePlannerAssignedDetialsToSchool(plannerSchoolAssginDetailsID, mode) {
+        try {
+            const data = {
+                plannerSchoolAssginDetailsID: plannerSchoolAssginDetailsID,
+                mode: mode
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/updatePlannerAssignedDetialsToSchool", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerUnAssignToSchool(crsID, semID, schID, levelType) {
+        try {
+            const data = {
+                schID: schID,
+                semID: semID,
+                crsID: crsID,
+                levelType: levelType,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerUnAssignToSchool", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async savePlannerAssignedToSchool(newPlannerAssignedToSchoolObjJson) {
+        try {
+            const data = {
+                newPlannerAssignedToSchoolObjJson: newPlannerAssignedToSchoolObjJson,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/savePlannerAssignedToSchool", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerAssignedRule(crsID, semID, schID) {
+        try {
+            const data = {
+                crsID: crsID,
+                semID: semID,
+                schID: schID,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerAssignedRule", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerUnAssignRuleDomainName(crsID, semID, schID, levelType) {
+        try {
+            const data = {
+                crsID: crsID,
+                semID: semID,
+                schID: schID,
+                levelType: levelType,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerUnAssignRuleDomainName", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updatePlannerAssignedRule(plannerSchoolAssginRuleID, mode) {
+        try {
+            const data = {
+                plannerSchoolAssginRuleID: plannerSchoolAssginRuleID,
+                mode: mode,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/updatePlannerAssignedRule", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async savePlannerAssignedRule(newPlannerAssignedRuleObjJson) {
+        try {
+            const data = {
+                newPlannerAssignedRuleObjJson: newPlannerAssignedRuleObjJson
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/savePlannerAssignedRule", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerAssignedStudentSummaryByClassSemester(classValue) {
+        try {
+            const data = {
+                classValue: classValue
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerAssignedStudentSummaryByClassSemester", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerAssignedStudentDetails(studentID, semID, crsID) {
+        try {
+            const data = {
+                studentID: studentID,
+                semID: semID,
+                crsID: crsID
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerAssignedStudentDetails", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updatePlannerAssignedStudentDetails(plannerAssignedStudentDetailsID, mode) {
+        try {
+            const data = {
+                plannerAssignedStudentDetailsID: plannerAssignedStudentDetailsID,
+                mode: mode
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/updatePlannerAssignedStudentDetails", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async savePlannerAssignStudent(newPlannerStudentObjJson) {
+        try {
+            const data = {
+                newPlannerStudentObjJson: newPlannerStudentObjJson
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/savePlannerAssignStudent", data, "POST");
             return response;
         } catch (e) {
             console.log(e);

@@ -87,75 +87,6 @@
                 </div>
             </div>
         </div>
-
-        <!--#region sort and display only by class-->
-        <!--<div class="row">
-            <div class="col-12">
-                <b-card no-body class="mb-1" v-for="tempobj_Year of arrobj_Classes" :key="tempobj_Year.id">
-                    <b-card-header header-tag="header" class="p-1" role="tab">
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="btn btn-info btn-block">
-                                    <div v-b-toggle="tempobj_Year.Str_SortBy">
-                                        {{tempobj_Year.Str_Display}}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <label class="label-checkbox float-right">
-                                    <input type="checkbox" class="cb_CheckAll"/>
-                                    <span class="span-checkbox"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </b-card-header>
-                    <b-collapse :id="tempobj_Year.Str_SortBy" visible role="tabpanel">
-                        <b-card-body>
-                            <b-card no-body class="mb-1" v-for="tempobj_Classes of tempobj_Year.ArrObj_Items"
-                                    :key="tempobj_Classes.id">
-                                <b-card-header header-tag="header" class="p-1" role="tab">
-                                    <div class="row">
-                                        <div class="col-10">
-                                            <div class="btn btn-info btn-block">
-                                                <div v-b-toggle="tempobj_Classes.Str_SortBy">
-                                                    {{tempobj_Classes.Str_Display}}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="label-checkbox float-right">
-                                                <input type="checkbox" class="cb_CheckAll"/>
-                                                <span class="span-checkbox"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </b-card-header>
-                                <b-collapse :id="tempobj_Classes.Str_SortBy" accordion="class2" role="tabpanel">
-                                    <b-card-body>
-                                        <div class="row">
-                                            <div class="div_Student uncheck"
-                                                 v-for="tempobj_Student of tempobj_Classes.ArrObj_Items"
-                                                 :key="tempobj_Student.id">
-                                                <label class="col- text-center"
-                                                       :for="tempobj_Student.Student_ID">
-                                                    <img class="student" :src="getSource(tempobj_Student)"/>
-                                                    <input type="checkbox" :value="tempobj_Student"
-                                                           v-model="arrobj_SelectedStudents"
-                                                           :id="tempobj_Student.Student_ID" @change="isCheck"/>
-                                                    <br/>
-                                                    <span v-if="!isNull(tempobj_Student.First_Name)">{{tempobj_Student.First_Name.split(" ")[0]}}</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </b-card-body>
-                                </b-collapse>
-                            </b-card>
-                        </b-card-body>
-                    </b-collapse>
-                </b-card>
-            </div>
-        </div>-->
-        <!--#endregion-->
     </div>
 </template>
 
@@ -380,17 +311,6 @@
         width: 75px;
         max-height: 100px;
     }
-
-    /*   label input[type="checkbox"] {
-           opacity: 1;
-           width: auto;
-           height: auto;
-           position: inherit;
-           top: auto;
-           left: auto;
-       }
-   */
-    /*#region On checkbox check transition*/
     label {
         cursor: pointer;
     }

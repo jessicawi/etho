@@ -651,7 +651,10 @@ small.small-grey-text {
 .carousel-indicators li {
     background-color: #222;
 }
-
+.carousel img {
+    margin: auto;
+    display: block;
+}
 /*
 8---animation---
  */
@@ -2559,7 +2562,7 @@ strong.feed-subtitle {
 .sideBarSection__item .subtitle {
     padding: 0px 15px;
     border-bottom: 1px solid #eeee;
-    margin-bottom: 15px;
+    /*margin-bottom: 15px;*/
 }
 
 .sideBarSection__item .desc li i {
@@ -2617,9 +2620,20 @@ span.sideBarSection__img {
 .sideBarSection__item .desc .el-collapse-item__header {
     background: transparent;
     border: 0px;
-    color: white;
+    /* color: white; */
+    padding: 0 15px;
+}
+.sideBarSection__item .desc .el-collapse-item__wrap {
+    padding: 0 15px;
 }
 
+.sideBarSection__item .el-collapse-item {
+    border-bottom: 1px solid #eee;
+}
+
+.sideBarSection__item .el-collapse-item:last-child {
+    border: 0;
+}
 .sideBarSection__item .desc .el-collapse-item__wrap {
     background: transparent;
     border: 0px;
@@ -6594,4 +6608,89 @@ span.render-range {
 .latestEventList .action-list button {
     margin-left: auto;
     display: block;
+}
+
+.event-details_duration, .event-details_duration .el-select {
+    width: 100%;
+}
+
+.event-details_item .el-input i {
+    top: -6px !important;
+    position: relative;
+}
+
+.event-register-time .el-input i {
+    top: 0px !important;
+    position: relative;
+}
+
+.event-join_btn {
+    display: table;
+    margin-left: auto;
+}
+
+.event-join {
+    padding: 0 20px;
+}
+
+.event-join h4 {
+    margin-bottom: 20px;
+    display: block;
+    color: #222;
+}
+
+.event-join_item i.fa {
+    background: #d1e8ff;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 25px;
+    color: #409eff;
+    margin-right: 10px;
+}
+
+.event-join_item i.fa:before {
+    line-height: 11px;
+}
+
+.event-join_item {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.event-UploadCarousel img {
+    height: 100%;
+    margin: auto;
+    display: block;
+}
+
+.event-UploadCarousel .el-carousel__item {
+    background: #ccd0d4;
+}
+
+.event-UploadCarousel {
+    border-radius: 5px 5px 0 0;
+}
+
+.add-event .btn {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+#event_Email .action-list {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#event_Email col:last-child {
+    width: 109px;
+}
+
+.event-email_buttonGroup .el-button-group {
+    margin: 0 11px;
+    display: flex;
+    justify-content: flex-end;
 }

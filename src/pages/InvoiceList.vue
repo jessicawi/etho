@@ -32,6 +32,15 @@
                     </div>
                 </div>
 
+            <div class="datatable-form__header atr-header-wrap mb-4">
+<!--                <label>Student Name:</label>-->
+                    <el-input v-model="studName" type="text" placeholder="Student Name"></el-input>
+<!--                <label>Student NO:</label>-->
+                    <el-input v-model="studNO"  type="text" placeholder="Student NO"></el-input>
+<!--                <label>Invoice NO:</label>-->
+                    <el-input v-model="invName"  type="text" placeholder="Invoice NO"></el-input>
+            </div>
+
                 <div class="admin-wrap">
                     <div class="datatable-form__submit text-right">
                     </div>
@@ -57,12 +66,15 @@
                                                  :key="item.prop"
                                                  sortable="custom">
                                 </el-table-column>
+
                             </data-tables>
                             <div class="datatable-form__submit text-center">
-                                <button class="btn btn-success searchbtn" id="btnSendEmail" v-on:click="showTestBModel()">Send Email</button><br>
+                                <button class="btn btn-success searchbtn" id="btnSendEmail" v-on:click="showBModal()">Send Email</button><br>
+                                <button class="btn btn-success searchbtn" id="btnSendEmailWithBreakdown" v-on:click="showBModalWithBreakdown()">Send Email With Breakdown</button><br><br>
 
 <!--                                <button class="btn btn-success searchbtn" id="btnSendEmail" v-on:click="btnSendEmail()">Send Email</button><br>-->
-<!--                                <button class="btn btn-success searchbtn" id="btnTest" v-on:click="showTestBModel()">SEND BATCH EMAIL TESTING</button>-->
+                                <br><button class="" id="btnTest" v-on:click="showTestBModal()">SEND BATCH EMAIL(TESTING PURPOSES ONLY)</button>
+                                <br><button class="" id="btnTestWithBreakdown" v-on:click="showTestBModalWithBreakdown()">SEND BATCH EMAIL With Breakdown(TESTING PURPOSES ONLY)</button>
                             </div>
                         </div>
                     </div><hr>
@@ -104,6 +116,79 @@
             <b-button class="mt-2" variant="success" block v-on:click="btnSendEmail()">Yes</b-button>
             <b-button class="mt-2" variant="danger" block v-on:click="btnSendEmail('No')">No</b-button>
         </b-modal>
+        <b-modal id="showBatchEmailConfirmationModalWithBreakdown" hide-footer title="Send Email Confirmation With Breakdown" size="sm"
+                 ref="showBatchEmailConfirmationModalWithBreakdown">
+            <data-tables :data="selectedListInt"
+                         width="55" stripe tooltip-effect='light' border
+                         ref="selectedListTable">
+                <el-table-column v-for="item in selectedList"
+                                 :prop="item.prop"
+                                 :label="item.label"
+                                 :key="item.prop"
+                                 sortable="custom">
+                </el-table-column>
+            </data-tables>
+            <div class="d-block text-center">
+                <h3>Proceed to send email??</h3>
+            </div>
+            <b-button class="mt-2" variant="success" block v-on:click="btnSendEmailWithBreakdown()">Yes</b-button>
+            <b-button class="mt-2" variant="danger" block v-on:click="btnSendEmailWithBreakdown('No')">No</b-button>
+        </b-modal>
+
+
+
+<!--        //testing only: start-->
+        <b-modal id="showTestingBModal" hide-footer title="Send Email Confirmation(TEST ONLY!)" size="sm"
+                 ref="showTestingBModal">
+            <data-tables :data="testingSelectedListInt"
+                         width="55" stripe tooltip-effect='light' border
+                         ref="selectedListTable">
+                <el-table-column v-for="item in testingSelectedList"
+                                 :prop="item.prop"
+                                 :label="item.label"
+                                 :key="item.prop"
+                                 sortable="custom">
+                </el-table-column>
+                    <el-table-column label="Email(TEST)" min-width="100px">
+                        <template slot-scope="scope">
+                                <el-input v-model="scope.row.newTestEmail" type="text"
+                                          placeholder="Email(Key in test email)"></el-input>
+                        </template>
+                    </el-table-column>
+            </data-tables>
+            <div class="d-block text-center">
+                <h3>Proceed to send email??</h3>
+            </div>
+            <b-button class="mt-2" variant="success" block v-on:click="btnTestingSendEmail()">Yes</b-button>
+            <b-button class="mt-2" variant="danger" block v-on:click="btnTestingSendEmail('No')">No</b-button>
+        </b-modal>
+        <b-modal id="showTestingBModalWithBreakdown" hide-footer title="Send Email Confirmation With Breakdown(TEST ONLY!)" size="sm"
+                 ref="showTestingBModalWithBreakdown">
+            <data-tables :data="testingSelectedListInt"
+                         width="55" stripe tooltip-effect='light' border
+                         ref="selectedListTable">
+                <el-table-column v-for="item in testingSelectedList"
+                                 :prop="item.prop"
+                                 :label="item.label"
+                                 :key="item.prop"
+                                 sortable="custom">
+                </el-table-column>
+                <el-table-column label="Email(TEST)" min-width="100px">
+                    <template slot-scope="scope">
+                        <el-input v-model="scope.row.newTestEmail" type="text"
+                                  placeholder="Email(Key in test email)"></el-input>
+                    </template>
+                </el-table-column>
+            </data-tables>
+            <div class="d-block text-center">
+                <h3>Proceed to send email??</h3>
+            </div>
+            <b-button class="mt-2" variant="success" block v-on:click="btnTestingSendEmailWithBreakdown()">Yes</b-button>
+            <b-button class="mt-2" variant="danger" block v-on:click="btnTestingSendEmailWithBreakdown('No')">No</b-button>
+        </b-modal>
+<!--        //testing only: end-->
+
+
     </div>
 </template>
 
@@ -118,8 +203,14 @@
         async mounted(){},
         data(){
             return{
+                //search filter added on
+                studName:'',
+                studNO:'',
+                invName:'',
+                //search filter added on
+
                 spdSelection:[],
-                selectedEmailSenderListInt:[],
+                // selectedEmailSenderListInt:[],
                 startupText:'',
                 //start: More detail
                 studentCourseID:'',
@@ -232,7 +323,6 @@
                     }]
                 },
 
-                //testing only
                 selectedListInt:[],
                 selectedList:[{
                     prop: "studentName",
@@ -252,7 +342,33 @@
                 }],
 
                 tempResp:[],
-                //testing only
+
+                //testing only:start
+                testingSelectedListInt:[],
+                testingSelectedList:[{
+                    prop: "studentName",
+                    label: "Student Name"
+                }, {
+                    prop: "IH_Invoice_Status",
+                    label: "Invoice Status"
+                },{
+                    prop: "IH_Invoice_No",
+                    label: "Invoice Name"
+                },{
+                    prop: "email",
+                    label: "Email(Key in your testing email)"
+                },{
+                    prop: "sponsor_type",
+                    label: "Payee"
+                }],
+                rules: {
+                    studentName:{ type:"string",required:true,message:"必填字段",trigger:"change"},
+                    input:{ type:"string",required:true,message:"必填字段",trigger:"change"},
+                    supplier:{ type:"string",required:true,message:"必填字段",trigger:"change"},
+                    newTestEmail:{ type:"string",required:true,message:"必填字段",trigger:"change"},
+                },
+                //testing only: end
+
             }
         },
         methods:{
@@ -266,7 +382,8 @@
                 try{
                     this.clearTablesList();
                     const resp = await DataSource.shared.getInvoiceList(this.inputFromDate[0],
-                     this.inputFromDate[1], this.inputFromDueDate[0],this.inputFromDueDate[1]);
+                     this.inputFromDate[1], this.inputFromDueDate[0],this.inputFromDueDate[1],
+                        this.studNO,this.invName,this.studName);
                     if (resp) {
                         if (resp.code === '88') {
                             window.location.replace('/');
@@ -339,7 +456,7 @@
                                     message: 'Send Success!',
                                     type: 'success'
                                 });
-                                this.selectedEmailSenderListInt=resp.Table;
+                                // this.selectedEmailSenderListInt=resp.Table;
                                 this.$refs.showBatchEmailConfirmationModal.hide();
                                 window.location.replace('/invoicelist');
                             }
@@ -351,14 +468,56 @@
                 }
             },
 
-            async btnTestClick(){
+            async btnSendEmailWithBreakdown(value){
                 try{
-                console.log('btnTestCLick');
+                    if(value==='No'){
+                        this.$refs.showBatchEmailConfirmationModalWithBreakdown.hide();
+                    }
+                    else{
+                        let selectedObjList=[];
+                        this.spdSelection.forEach(m=>{
+                            let list={
+                                IH_Invoice_No:m.IH_Invoice_No,
+                                studentID:m.FK_Student_ID,
+                                studentName:m.studentName,
+                                email:m.email,
+                                //email:'cheeseng.goh@etonhouse.com.sg',
+                            };
+                            selectedObjList.push(list);
+                        });
+                        console.log(selectedObjList.length,selectedObjList);
+                        const resp = await DataSource.shared.sendBreakdownEmail(JSON.stringify(selectedObjList));
+                        if(resp){
+                            if(resp.code==='2'){
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'No Email Found'
+                                });
+                            }
+                            else if(resp.code==='99'){
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'Cannot send email'
+                                });
+                            }
+                            else if(resp.code==='1'){
+                                this.$notify({
+                                    title: 'Success',
+                                    message: 'Send Success!',
+                                    type: 'success'
+                                });
+                                // this.selectedEmailSenderListInt=resp.Table;
+                                this.$refs.showBatchEmailConfirmationModalWithBreakdown.hide();
+                                window.location.replace('/invoicelist');
+                            }
+                        }
+                    }
                 }
                 catch(e){
                     this.results = e;
                 }
             },
+
             async getSelectedList(){
                 try{
                     this.selectedListInt=this.spdSelection ;
@@ -367,11 +526,19 @@
                     this.results = e;
                 }
             },
-            async showTestBModel(){
+            async showBModal(){
                 try{
                     this.$refs.showBatchEmailConfirmationModal.show();
                     await this.getSelectedList();
-                    await this.btnTestClick();
+                }
+                catch(e){
+                    this.results=e;
+                }
+            },
+            async showBModalWithBreakdown(){
+                try{
+                    this.$refs.showBatchEmailConfirmationModalWithBreakdown.show();
+                    await this.getSelectedList();
                 }
                 catch(e){
                     this.results=e;
@@ -382,6 +549,138 @@
                this.InvoiceListInt=[];
                this.InvoiceListWithoutPayeeEmailInt=[];
             },
+
+
+
+            //Testing items only: start
+            async showTestBModal(){
+                try{
+                    this.$refs.showTestingBModal.show();
+                    await this.getTestingSelectedList();
+                }
+                catch(e){
+                    this.results=e;
+                }
+            },
+            async showTestBModalWithBreakdown(){
+                try{
+                    this.$refs.showTestingBModalWithBreakdown.show();
+                    await this.getTestingSelectedList();
+                }
+                catch(e){
+                    this.results=e;
+                }
+            },
+            async getTestingSelectedList()
+            {
+                try{
+                    this.testingSelectedListInt=this.spdSelection ;
+                }
+                catch(e){
+                    this.results=e;
+                }
+            },
+            async btnTestingSendEmail(value){
+                try{
+                    if(value==='No'){
+                        this.$refs.showTestingBModal.hide();
+                    }
+                    else{
+                        let selectedObjList=[];
+                        this.spdSelection.forEach(m=>{
+                            let list={
+                                IH_Invoice_No:m.IH_Invoice_No,
+                                studentID:m.FK_Student_ID,
+                                studentName:m.studentName,
+                                email:m.newTestEmail,
+                            };
+                            selectedObjList.push(list);
+                        });
+                        console.log(selectedObjList.length,selectedObjList);
+                        const resp = await DataSource.shared.sendEmailInvoice(JSON.stringify(selectedObjList));
+                        if(resp){
+                            if(resp.code==='2'){
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'No Email Found'
+                                });
+                            }
+                            else if(resp.code==='99'){
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'Cannot send email'
+                                });
+                            }
+                            else if(resp.code==='1'){
+                                this.$notify({
+                                    title: 'Success',
+                                    message: 'Send Success!',
+                                    type: 'success'
+                                });
+
+                                this.$refs.showTestingBModal.hide();
+                                window.location.replace('/invoicelist');
+                            }
+                        }
+                    }
+                }
+                catch(e){
+                    this.results = e;
+                }
+            },
+            async btnTestingSendEmailWithBreakdown(value){
+                try{
+                    if(value==='No'){
+                        this.$refs.showTestingBModalWithBreakdown.hide();
+                    }
+                    else{
+                        let selectedObjList=[];
+                        this.spdSelection.forEach(m=>{
+                            let list={
+                                IH_Invoice_No:m.IH_Invoice_No,
+                                studentID:m.FK_Student_ID,
+                                studentName:m.studentName,
+                                email:m.newTestEmail,
+                            };
+                            selectedObjList.push(list);
+                        });
+                        console.log(selectedObjList.length,selectedObjList);
+                        const resp = await DataSource.shared.sendBreakdownEmail(JSON.stringify(selectedObjList));
+                        if(resp){
+                            if(resp.code==='2'){
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'No Email Found'
+                                });
+                            }
+                            else if(resp.code==='99'){
+                                this.$notify.error({
+                                    title: 'Message',
+                                    message: 'Cannot send email'
+                                });
+                            }
+                            else if(resp.code==='1'){
+                                this.$notify({
+                                    title: 'Success',
+                                    message: 'Send Success!',
+                                    type: 'success'
+                                });
+
+                                this.$refs.showTestingBModalWithBreakdown.hide();
+                                window.location.replace('/invoicelist');
+                            }
+                        }
+                    }
+                }
+                catch(e){
+                    this.results = e;
+                }
+            },
+            //Testing items only: end
+
+
+
+
         },
     }
 </script>

@@ -487,7 +487,7 @@ Lockfile:
       "@babel/helper-plugin-utils" "^7.0.0"
       "@babel/helper-replace-supers" "^7.4.0"
       "@babel/helper-split-export-declaration" "^7.4.0"
-      globals "^11.1.0"
+      s "^11.1.0"
   
   "@babel/plugin-transform-computed-properties@^7.2.0":
     version "7.2.0"

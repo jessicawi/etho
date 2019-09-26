@@ -716,7 +716,7 @@
 
                         this.remainingImage = this.post.countImageFile - 4;
                     });
-console.log()
+
                 await this.sleep(200);
 
                 this.$emit('loadingclose','false');

@@ -94,14 +94,6 @@
                     </select>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <label>Intake Year</label>
-                    <select ref="ddlStudentIntakeYear" class="form-control pro-edt-select form-control-primary">
-                        <option v-for="item in studentIntakeYearList" v-bind:value="item.PAI_Intake_No.trim()">{{
-                            item.PAI_Intake_No.trim() }}
-                        </option>
-                    </select>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Date of Commencement</label>
                     <div class="date">
                         <el-date-picker v-model="inputDateOfCommencement" format="dd/MM/yyyy"
@@ -109,10 +101,7 @@
                                         placeholder="Pick a date"></el-date-picker>
                     </div>
                 </div>
-                <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
-                <!--<button class="btn btn-primary waves-effect waves-light m-r-10" v-on:click="ApproveReject('APPROVE')">Approve</button>-->
-                <!--<button class="btn btn-primary waves-effect waves-light m-r-10" v-on:click="ApproveReject('REJECT')">Reject</button>-->
-                <!--</div>-->
+
                 <hr class="custom-hr"/>
                 <div class="col-lg-6">
                     <button v-on:click="ApproveReject('REJECT')"
@@ -142,19 +131,7 @@
                 studentSchoolID: '',
                 inputDateOfCommencement: '',
 
-                transferInListInt: [
-                    // {
-                    //     Index_No: "123",
-                    //     Full_Name: "qweasd",
-                    //     Middle_name: "asd",
-                    //     Last_name: "qw"
-                    // },{
-                    //     Index_No: "1231",
-                    //     Full_Name: "qweasd",
-                    //     Middle_name: "asd",
-                    //     Last_name: "qw"
-                    // }
-                ],
+                transferInListInt: [],
                 transferInList: [{
                     prop: "Index_No",
                     label: "Student ID"
@@ -244,7 +221,6 @@
             this.getPendingAcceptTransferSchoolList();
             this.BindStudentLevel();
             this.BindAcademicYear();
-            this.BindStudentIntakeYear();
         },
         async mounted() {
         },
@@ -321,44 +297,13 @@
                     this.results = e;
                 }
             },
-            async BindStudentIntakeYear() {
-                try {
-                    const response = await DataSource.shared.getIntakeYear();
-                    if (response) {
-                        this.studentIntakeYearListResponse = response.Table;
-                        this.studentIntakeYearListResponse.forEach(m => {
-                            this.studentIntakeYearList.push(m);
-                        });
-                    }
-                } catch (e) {
-                    this.results = e;
-                }
-            },
             async ApproveReject(value) {
+                this.$vs.loading();
                 try {
                     if (this.transferStudentID !== "" && this.studentSchoolID !== "") {
                         if (value === 'APPROVE') {
-                            if (this.$refs.ddlStudentSelectLevel.value !== "" && this.$refs.ddlStudentFirstAcademicYear.value !== "" && this.$refs.ddlStudentIntakeYear.value !== "" && this.inputDateOfCommencement !== "" && this.inputDateOfCommencement !== null) {
-                                const getAcaYearRes = await DataSource.shared.getAcademicYearDateRange(this.$refs.ddlStudentFirstAcademicYear.value);
-
-                                if (getAcaYearRes) {
-                                    if (getAcaYearRes.code === "99") {
-                                        this.$notify.error({
-                                            title: 'Error',
-                                            message: 'Get Academic Year Error - Please try again later'
-                                        });
-                                    } else {
-                                        let academicYearFromDate, academicYearToDate;
-
-                                        this.getAcaYearResTemp = getAcaYearRes.Table;
-                                        this.getAcaYearResTemp.forEach(m => {
-                                            academicYearFromDate = m.SMT_From;
-                                            academicYearToDate = m.SMT_To;
-                                        });
-
-                                        this.academicYearToDate(value, academicYearFromDate, academicYearToDate, this.$refs.ddlStudentSelectLevel.value, this.$refs.ddlStudentFirstAcademicYear.value, this.$refs.ddlStudentIntakeYear.value);
-                                    }
-                                }
+                            if (this.$refs.ddlStudentSelectLevel.value !== "" && this.$refs.ddlStudentFirstAcademicYear.value !== "" && this.inputDateOfCommencement !== "" && this.inputDateOfCommencement !== null) {
+                                this.SaveApproveReject('TransferAccept', this.transferStudentID, this.$refs.ddlStudentSelectLevel.value, this.$refs.ddlStudentFirstAcademicYear.value, this.inputDateOfCommencement, this.studentSchoolID);
                             } else {
                                 this.$notify.error({
                                     title: 'Require',
@@ -366,22 +311,23 @@
                                 });
                             }
                         } else if (value === 'REJECT') {
-                            this.academicYearToDate(value, 'NO DATA', 'NO DATA', 'NO DATA', 'NO DATA', 'NO DATA');
+                            this.SaveApproveReject('TransferReject', 'NO DATA', 'NO DATA', 'NO DATA', 'NO DATA', this.studentSchoolID);
                         }
                     } else {
                         this.$notify.error({
                             title: 'Error',
-                            message: 'Error! Fail to get table info'
+                            message: 'Info Error...'
                         });
                     }
                 } catch (e) {
                     this.results = e;
                 }
+                this.$vs.loading.close();
             },
-            async academicYearToDate(value, academicYearFromDate, academicYearToDate, level, adYear, intakeYear) {
+            async SaveApproveReject(mode, studentID, crsID, semID, commencementDate, studentSchoolID) {
                 this.$vs.loading();
                 try {
-                    const getSetLvlRes = await DataSource.shared.setLevelForAcceptScool(this.transferStudentID, level, academicYearFromDate, academicYearToDate, adYear, intakeYear, value, this.studentSchoolID, this.inputDateOfCommencement);
+                    const getSetLvlRes = await DataSource.shared.setLevel(mode, studentID, crsID, semID, commencementDate, studentSchoolID);
 
                     if (getSetLvlRes) {
                         if (getSetLvlRes.code === "1") {

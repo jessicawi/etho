@@ -381,6 +381,7 @@
                                     <label>* Commencement Date</label>
                                     <div class="date" :class="{ 'inputFirstCommencementDateDiv': deferValid }">
                                         <el-date-picker v-model="inputFirstCommencementDate" type="date"
+                                                        @change="getAutoAssignLevelAcademicYear()"
                                                         format="dd/MM/yyyy" class="inputFirstCommencementDate"
                                                         value-format="dd/MM/yyyy" placeholder="Pick a day"
                                                         :class="{ 'requiredFields': $v.inputFirstCommencementDate.$error }"
@@ -405,6 +406,9 @@
                                     </div>
                                     <div class="requiredFieldsMsg" v-if="$v.inputFirstCommencementDate.$error">
                                         First commencement date required
+                                    </div>
+                                    <div v-if="autoLevel" class="autoLevel">
+                                        Level: {{autoLevel}}
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -1254,38 +1258,6 @@
                                 <h5 class="text-left student-form__title" id="v-step-LevelTabTitle">Level</h5>
                             </div>
                             <div class="row form-group__wrapper">
-                                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                <!--<label>Select Level</label>-->
-                                <!--<select v-model="ddlStudentSelectLevel_Level"-->
-                                <!--class="form-control pro-edt-select form-control-primary">-->
-                                <!--<option v-for="item in levelList_Level" v-bind:value="item.PK_Course_ID.trim()">-->
-                                <!--{{ item.CRS_Course_Name.trim() }}-->
-                                <!--</option>-->
-                                <!--</select>-->
-                                <!--</div>-->
-                                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                <!--<label>First Academic Year</label>-->
-                                <!--<select v-model="ddlStudentFirstAcademicYear_Level"-->
-                                <!--class="form-control pro-edt-select form-control-primary">-->
-                                <!--<option v-for="item in academicYearList_Level"-->
-                                <!--v-bind:value="item.PK_Semester_ID.trim()">{{ item.SMT_Code.trim() }}-->
-                                <!--</option>-->
-                                <!--</select>-->
-                                <!--</div>-->
-                                <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
-                                <!--<label>Intake Year</label>-->
-                                <!--<select v-model="ddlStudentIntakeYear_Level"-->
-                                <!--class="form-control pro-edt-select form-control-primary">-->
-                                <!--<option v-for="item in studentIntakeYearList_Level"-->
-                                <!--v-bind:value="item.PAI_Intake_No.trim()">{{ item.PAI_Intake_No.trim() }}-->
-                                <!--</option>-->
-                                <!--</select>-->
-                                <!--</div>-->
-                                <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
-                                <!--<button class="btn btn-primary waves-effect waves-light m-r-10"-->
-                                <!--v-on:click="AddLevel">Add Level-->
-                                <!--</button>-->
-                                <!--</div>-->
                                 <promotion-component @result="promotionResult"
                                                      @studentPromoteAction="studentPromoteAction"
                                                      :selectedStudents="arrayStudentIDLevelComponent"
@@ -1295,7 +1267,8 @@
                                 ></promotion-component>
                             </div>
                             <div v-if="lvlLevelList_Level.length>0">
-                                <data-tables :data="lvlLevelList_Level" :actionCol="actionCol_Level">
+                                <!--<data-tables :data="lvlLevelList_Level" :actionCol="actionCol_Level">-->
+                                <data-tables :data="lvlLevelList_Level">
                                     <!--<data-tables :data="lvlLevelList_Level" :actionCol="actionCol_Level"-->
                                     <!--@selection-change="handleSelectionChange">-->
                                     <el-table-column v-for="lvlLevelList_LevelAllInfo in lvlLevelList_LevelAll"
@@ -2360,6 +2333,7 @@
                 highestLevel: false,
                 referralTransferMode: '',
                 referralTransferModeTitle: '',
+                autoLevel: '',
             };
         },
         computed: {
@@ -2689,6 +2663,9 @@
                                 const parRes = await DataSource.shared.getParent(parentID, "");
                                 if (parRes) {
                                     this.BindParentFields(parRes.Table);
+
+                                    this.ParentCompanyAddressShow('Father');
+                                    this.ParentCompanyAddressShow('Mother');
                                 }
                             }
                         }
@@ -3665,63 +3642,6 @@
                     this.results = e;
                 }
             },
-            async AddLevel() {
-                try {
-                    if (this.lblStudentID !== "" && this.ddlStudentSelectLevel_Level !== "" && this.ddlStudentFirstAcademicYear_Level !== "" && this.ddlStudentIntakeYear_Level !== "") {
-                        const getAcaYearRes = await DataSource.shared.getAcademicYearDateRange(this.ddlStudentFirstAcademicYear_Level);
-
-                        if (getAcaYearRes) {
-                            if (getAcaYearRes.code === '88') {
-                                window.location.replace('/');
-                            }
-                            if (getAcaYearRes.code === "99") {
-
-                            } else {
-                                let academicYearFromDate, academicYearToDate;
-
-                                this.getAcaYearResTemp = getAcaYearRes.Table;
-                                this.getAcaYearResTemp.forEach(m => {
-                                    academicYearFromDate = m.SMT_From;
-                                    academicYearToDate = m.SMT_To;
-                                });
-
-                                const getSetLvlRes = await DataSource.shared.setLevel(this.lblStudentID, this.ddlStudentSelectLevel_Level, academicYearFromDate, academicYearToDate, this.ddlStudentFirstAcademicYear_Level, this.ddlStudentIntakeYear_Level);
-
-                                if (getSetLvlRes) {
-                                    if (getSetLvlRes.code === '88') {
-                                        window.location.replace('/');
-                                    } else if (getSetLvlRes.code === "1") {
-                                        this.$notify({
-                                            title: 'Success',
-                                            message: 'Records Successfully Saved',
-                                            type: 'success'
-                                        });
-                                        window.location.replace('/student?id=' + this.lblStudentID);
-                                    } else if (getSetLvlRes.code === "2") {
-                                        this.$notify.error({
-                                            title: 'Error',
-                                            message: 'cannot have multiple active level'
-                                        });
-                                    } else {
-                                        this.$notify.error({
-                                            title: 'Error',
-                                            message: 'Save Student Level Error - Please try again later'
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        this.$notify.error({
-                            title: 'Error',
-                            message: 'Please select level, academic year and intake year'
-                        });
-                    }
-
-                } catch (e) {
-                    this.results = e;
-                }
-            },
             async GetGoogleAPI(postcodeModel) {
                 try {
                     if (postcodeModel === 'inputStudentPostalCode' && this.inputStudentPostalCode !== '' && this.inputStudentAddress1 === '') {
@@ -3840,7 +3760,12 @@
             },
             async transferSave() {
                 try {
-                    if (this.ddlTransferSchool !== '' && this.ddlTransferSchool !== undefined) {
+                    if (this.inputTransferSchoolEffDate === '' || this.inputTransferSchoolEffDate === null || this.inputTransferSchoolRemark === '' || this.ddlTransferSchool === '') {
+                        this.$notify.error({
+                            title: 'Require',
+                            message: 'Required All Fields...'
+                        });
+                    } else {
                         this.$vs.loading();
                         const response = await DataSource.shared.saveTransferSchool(this.lblStudentID, this.ddlTransferSchool, this.inputTransferSchoolRemark, this.inputTransferSchoolEffDate, this.referralTransferMode);
                         if (response) {
@@ -3876,11 +3801,6 @@
                             }
                         }
                         this.$vs.loading.close();
-                    } else {
-                        this.$notify.error({
-                            title: 'Error',
-                            message: 'Please fill in all the fields!'
-                        });
                     }
                 } catch (e) {
                     this.results = e;
@@ -4395,6 +4315,8 @@
                         this.inputStudentIC = '';
                     }
                 }
+
+                this.getAutoAssignLevelAcademicYear();
             },
             EnrolledinOtherCenterShow() {
                 if (this.ddlStudentEnrolledinOtherCenter === 'No') {
@@ -4575,6 +4497,27 @@
 
                 this.referralTransferMode = value;
                 this.$refs.transferShowModal.show();
+            },
+            async getAutoAssignLevelAcademicYear() {
+                try {
+                    if (this.lblCreateOrEdit === "New" && this.inputStudentDateOfBirth !== null && this.inputStudentDateOfBirth !== '' && this.inputFirstCommencementDate !== null && this.inputFirstCommencementDate !== '') {
+                        const response = await DataSource.shared.getAutoAssignLevelAcademicYear(this.inputFirstCommencementDate, this.inputStudentDateOfBirth);
+                        if (response) {
+                            if (response.code === '88') {
+                                window.location.replace('/');
+                            } else if (response.code === '99') {
+                                console.log('getAutoAssignLevelAcademicYear Error!');
+                            } else {
+                                this.autoLevel = response.Table[0].level;
+                            }
+                        }
+                    }
+                    else {
+                        this.autoLevel = '';
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
             },
         },
     };
@@ -4783,6 +4726,11 @@
 
     .inputFirstCommencementDateDiv .el-date-editor.el-input {
         width: 80% !important;
+    }
+
+    .autoLevel {
+        text-align: left;
+        color: blue;
     }
 </style>
 <style>

@@ -107,7 +107,7 @@
             handleSelectionChange(val) {
                 this.multipleSelection = val;
                 this.isSelection = true;
-                console.log(this.multipleSelection);
+                console.log(this.multipleSelection, "ss");
             },
             async BindParticipant() {
                 try {
@@ -267,99 +267,53 @@
             },
             async sendEmail(row) {
                 if (this.isSelection === false) {
-                    let email = "";
-                    if (row.EventParType === "Student") {
-                        if (row.FatherEmail !== "" && row.MotherEmail !== "") {
-                            email = row.FatherEmail + ";" + row.MotherEmail;
-                        } else if (row.FatherEmail !== "") {
-                            email = row.FatherEmail;
-                        } else if (row.MotherEmail !== "") {
-                            email = row.MotherEmail;
-                        }
-                        let Obj = {
-                            email: email,
-                            paxType: row.EventParType
-                        };
-                        const response = await DataSource.shared.sendEvent(this.eventID, JSON.stringify(Obj));
-                        if (response.code === '88') {
-                            console.log('88');
-                        } else if (response.code === "99") {
-                            console.log('99');
-                        } else if (response.code === '1') {
-                            this.$notify({
-                                title: 'Success',
-                                message: 'Email Sent',
-                                type: 'success'
-                            });
-                            this.editEvent();
-                        }
-                    } else if (row.EventParType === "Others") {
-                        let Obj = {
-                            email: row.PaxName,
-                            paxType: row.EventParType
-                        };
-                        const response = await DataSource.shared.sendEvent(this.eventID, JSON.stringify(Obj));
-                        if (response.code === '88') {
-                            console.log('88');
-                        } else if (response.code === "99") {
-                            console.log('99');
-                        } else if (response.code === '1') {
-                            this.$notify({
-                                title: 'Success',
-                                message: 'Email Sent',
-                                type: 'success'
-                            });
-                            this.editEvent();
+                    let tempSelection = [];
+                    tempSelection.push(row);
+                    this.multipleSelection = tempSelection;
+                }
+                this.multipleSelection = this.multipleSelection.map(m => {
+                    if (m.EventParType === "Student") {
+                        if (m.FatherEmail !== "" && m.MotherEmail !== "") {
+                            m.email = m.FatherEmail + "," + m.MotherEmail;
+                        } else if (m.FatherEmail !== "") {
+                            m.email = m.FatherEmail;
+                        } else if (m.MotherEmail !== "") {
+                            m.email = m.MotherEmail;
                         }
                     }
-                } else {
-                    let email = "";
-                    this.multipleSelection.forEach(async object => {
-                        if (object.EventParType === "Student") {
-                            if (object.FatherEmail !== "" && object.MotherEmail !== "") {
-                                email = object.FatherEmail + ";" + object.MotherEmail;
-                            } else if (object.FatherEmail !== "") {
-                                email = object.FatherEmail;
-                            } else if (object.MotherEmail !== "") {
-                                email = object.MotherEmail;
-                            }
-                            let Obj = {
-                                email: email,
-                                paxType: object.EventParType
-                            };
-                            const response = await DataSource.shared.sendEvent(this.eventID, JSON.stringify(Obj));
-                            if (response.code === '88') {
-                                console.log('88');
-                            } else if (response.code === "99") {
-                                console.log('99');
-                            } else if (response.code === '1') {
-                                this.$notify({
-                                    title: 'Success',
-                                    message: 'Email Sent',
-                                    type: 'success'
-                                });
-                                this.editEvent();
-                            }
-                        } else if (object.EventParType === "Others") {
-                            let Obj = {
-                                email: object.PaxName,
-                                paxType: object.EventParType
-                            };
-                            const response = await DataSource.shared.sendEvent(this.eventID, JSON.stringify(Obj));
-                            if (response.code === '88') {
-                                console.log('88');
-                            } else if (response.code === "99") {
-                                console.log('99');
-                            } else if (response.code === '1') {
-                                this.$notify({
-                                    title: 'Success',
-                                    message: 'Email Sent',
-                                    type: 'success'
-                                });
-                                this.editEvent();
-                            }
-                        }
-                    })
+                    return m;
+                });
+                console.log(this.multipleSelection, "22");
+                let tempEmail = [];
+                this.multipleSelection.forEach(m => {
+                    if (m.EventParType === "Student") {
+                        let my_object = {
+                            email: m.email,
+                            paxType: m.EventParType
+                        };
+                        tempEmail.push(my_object);
+                    } else {
+                        let my_object = {
+                            email: m.PaxName,
+                            paxType: m.EventParType
+                        };
+                        tempEmail.push(my_object);
+                    }
+                });
+                let emailList = JSON.stringify(tempEmail);
+                console.log(emailList, "aa");
+                const response = await DataSource.shared.sendEvent(this.eventID, emailList);
+                if (response.code === '88') {
+                    console.log('88');
+                } else if (response.code === "99") {
+                    console.log('99');
+                } else if (response.code === '1') {
+                    this.$notify({
+                        title: 'Success',
+                        message: 'Email Sent',
+                        type: 'success'
+                    });
+                    this.editEvent();
                 }
 
 

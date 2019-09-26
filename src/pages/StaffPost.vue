@@ -2,16 +2,13 @@
     <div id="staff-post" class="">
         <div class="profile-student" v-if="isParent === 'Parent' ">
             <div class="profile-student__wrapper">
-
                 <div class="profile-student-cover">
                     <img src="../assets/parent-feed-bg.jpg"/>
                 </div>
                 <div class="container">
-                    <!--<img src="../assets/boy.png">-->
                     <div class="myaccount-image_wrap">
                         <img v-bind:src="imgParentProfile" type="file"
                              class="imgStaffProfile"/>
-
                         <button v-on:click="showProfileModal" type="button"
                                 class=" text-center"><span>Edit Profile Photo</span>
                         </button>
@@ -29,9 +26,6 @@
                             Mother
                         </span>
                     </div>
-                    <!--<span class=""><strong>SG-016-16-0038</strong><br/>Student ID</span>-->
-                    <!--<span class=""><strong>Year 2018: 01/01/2018 - 31/12/2018</strong><br/>Academic Year</span>-->
-                    <!--<span class=""><strong>Class One</strong><br/>Class</span>-->
                 </div>
             </div>
         </div>
@@ -53,25 +47,12 @@
             <div class="row">
                 <!--<b>result:</b> {{staffPostResults}}-->
                 <vs-col vs-justify="center" vs-w="4" class="right-sideBar">
-                    <!--<div class="dashboard-logo mt-4 mb-3"><img src="../assets/kagami-long.png"/></div>-->
                     <div class="sideBarSection__wrapper">
                         <div class="sideBarSection__item" v-if="isParent === 'Parent' ">
                             <div class="subtitle">
                                 <h6>Student Information</h6>
                             </div>
                             <div class="desc flex">
-                                <!--<ul>-->
-                                <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> N2-->
-                                <!--Inquirers-->
-                                <!--Class-->
-                                <!--</li>-->
-                                <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> K2-->
-                                <!--Explorers-->
-                                <!--Class-->
-                                <!--</li>-->
-                                <!--<li><span class="sideBarSection__img"><img src="../assets/boy.png"></span> PSA Group-->
-                                <!--</li>-->
-                                <!--</ul>-->
                                 <el-collapse v-model="studentsAccordion" accordion>
                                     <el-collapse-item
                                             :title="student.StudentFirstName + ' ' + student.StudentMiddleName + ' ' + student.StudentLastName"
@@ -237,7 +218,12 @@
                                     @deletePost="deletePost"
                             />
                         </div>
-                        <div class="lds-ellipsis" v-if="feedLoader || isLoading"><div></div><div></div><div></div><div></div></div>
+                        <div class="lds-ellipsis" v-if="feedLoader || isLoading">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,7 +281,6 @@
         </b-modal>
         <b-modal id="modal_broadcastReadMore" ref="modal_broadcastReadMore" centered hide-footer hide-header>
             <div v-loading="loading">
-
                 <PostComponent
                         :parent-post="tempBroadcastModalPostID"
                         @loadPosts="loadPosts"
@@ -333,7 +318,7 @@
             PostComponent,
             VueTagsInput,
             // At,
-            BroadcastList
+            BroadcastList,
         },
         data() {
             return {
@@ -399,8 +384,8 @@
                 loading: true,
 
                 feedLoader: false,
-                deleteType:"",
-                deletePostID:"",
+                deleteType: "",
+                deletePostID: "",
 
 
             };
@@ -446,9 +431,8 @@
                         promise_GetPosts.then((response) => {
                             if (response.Table) {
                                 this.list.push.apply(this.list, response.Table);
-
-                                this.feedLoader = !this.feedLoader;
                             }
+                            this.feedLoader = !this.feedLoader;
                         });
 
                         /*if (this.isParent === "Parent") {
@@ -1119,7 +1103,7 @@
             }
             ,
             async commentDelete() {
-                if (this.deleteType === "comment"){
+                if (this.deleteType === "comment") {
                     let PoCmID = this.deleteCmId;
                     let PoCmContent = this.deleteCmContent;
                     let postId = this.deleteCmPostId;
@@ -1161,7 +1145,7 @@
                         console.log(e);
                         this.error = e;
                     }
-                }else if(this.deleteType === "post"){
+                } else if (this.deleteType === "post") {
 
                     DataSource.shared.softDeletePost(this.deletePostID).then((result) => {
                     });

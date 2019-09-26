@@ -299,7 +299,7 @@
                 </div>
             </div>
         </b-modal>
-        <b-modal id="assignClassModal" size="lg" title="Assign Class" ok-only ok-variant="secondary" hide-footer
+        <b-modal id="assignClassModal" size="lg" title="Assign Students" ok-only ok-variant="secondary" hide-footer
                  ref="assignClassShowModal" v-model="assignClassModal">
             <div class="">
                 <div style="display: none;">{{ assignClassLevelID }} - {{ assignClassID }} - {{ assignClassSemID }}
@@ -369,7 +369,7 @@
                 </div>
             </div>
         </b-modal>
-        <b-modal id="ViewClassModal" size="lg" title="Assign Class" ok-only ok-variant="secondary"
+        <b-modal id="ViewClassModal" size="lg" title="View Students" ok-only ok-variant="secondary"
                  ref="ViewClassModal" ok-title="Close" hide-footer v-model="ViewClassModal">
             <div class="">
                 <div style="display: none;">{{ assignClassLevelID }} - {{ assignClassID }}</div>
@@ -379,7 +379,9 @@
                 </div>
                 <div class="">
                     <div>
-                        <data-tables :data="currentStudent" v-if="currentStudent.length>0">
+                        <data-tables :data="currentStudent" v-if="currentStudent.length>0" @selection-change="viewStudentsSelection">
+                            <el-table-column type="selection" width="55" :reserve-selection="true">
+                            </el-table-column>
                             <el-table-column v-for="studentList in currentStudentList"
                                              :prop="studentList.prop"
                                              :label="studentList.label" :key="studentList.prop"
@@ -397,10 +399,10 @@
                         Close
                     </button>
                 </div>
-                <div class="col-lg-6">
-                    <button @click="returnAssignStudents"
+                <div class="col-lg-6" v-if="viewStudentsSelectionList.length > 0">
+                    <button @click="printStudentClass()"
                             class="btn btn-primary waves-effect waves-light m-r-10 btnFamilyIDSearch float-right">
-                        Assign Student
+                        Print Students Class
                     </button>
                 </div>
             </div>
@@ -650,6 +652,9 @@
                 editClassStatusList: ['Active', 'Closed'],
                 assignStudentsListInt: [],
 
+                viewStudentsSelectionList: [],
+                currentSemID: '',
+                currentCrsID: '',
 
                 classList: [{
                     prop: "CLS_ClassName",
@@ -1117,8 +1122,11 @@
                         this.assignClassID = row.PK_Class_ID;
                         this.assignClassSemID = row.CLS_FK_Semester_ID;
                         this.getAssignStudents();
-                        this.$refs.ViewClassModal.show();
 
+                        this.currentSemID = row.CLS_FK_Semester_ID;
+                        this.currentCrsID = row.PK_Course_ID;
+
+                        this.$refs.ViewClassModal.show();
                     }
                 }];
             },
@@ -1316,6 +1324,73 @@
             },
             tourStop() {
                 this.$tours['classManagementPageVueTourName'].stop();
+            },
+            viewStudentsSelection (val) {
+                this.viewStudentsSelectionList = val;
+            },
+            async printStudentClass() {
+                try {
+                    let fullName = '';
+                    let studentList = [];
+
+                    this.viewStudentsSelectionList.forEach(item => {
+                        if (item.Middle_name !== '') {
+                            fullName = item.Full_Name.trim() + ' ' + item.Middle_name.trim() + ' ' + item.Last_name.trim();
+                        } else {
+                            fullName = item.Full_Name.trim() + ' ' + item.Last_name.trim();
+                        };
+
+                        let studentListTemp = {
+                            StudentID: item.Student_ID,
+                            FullName: fullName,
+                            IndexNo: item.Index_No,
+                        };
+
+                        studentList.push(studentListTemp);
+                    });
+
+                    let studentListObjJson = {
+                        SemID : this.currentSemID,
+                        CrsID : this.currentCrsID,
+                        StudentList : studentList,
+                    };
+
+                    this.$vs.loading();
+
+                    const response = await DataSource.shared.generateClassStudentForPrinting(JSON.stringify(studentListObjJson));
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '99') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Generate Student Card: Error',
+                            });
+                        } else if (response.code === '2') {
+                            this.$notify({
+                                title: 'No records',
+                                message: 'No student found',
+                            });
+                        } else {
+                            let base64string = response.code;
+
+                            var byteChar = atob(base64string);
+                            var byteNo = new Array(byteChar.length);
+                            for (var i = 0; i < byteChar.length; i++) {
+                                byteNo[i] = byteChar.charCodeAt(i);
+                            }
+
+                            var byteArray = new Uint8Array(byteNo);
+                            var file = new Blob([byteArray], {type: 'application/pdf;base64'});
+                            var fileUrl = URL.createObjectURL(file);
+                            window.open(fileUrl, '_blank', 'width=500, height=500');
+                        }
+                    }
+
+                    this.$vs.loading.close();
+                } catch (e) {
+                    this.results = e;
+                }
             },
         },
     };

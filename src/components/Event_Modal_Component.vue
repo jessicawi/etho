@@ -4,9 +4,6 @@
             <div class="col-lg-12 mb-3">
                 <input type="file" multiple class="inputfile"
                        id="FU_Portfolio"/>
-                <!--<input type="file" multiple @change="onFileChanged" ref="fileupload" class="inputfile"-->
-                <!--id="inputfile"-->
-                <!--data-multiple-caption="{count} files selected">-->
                 <label for="FU_Portfolio">Choose a file</label>
                 <el-carousel arrow="always" class="event-UploadCarousel" :autoplay="false"
                              v-if="arrobj_SelectedFiles&&arrobj_SelectedFiles.length > 0">
@@ -17,25 +14,6 @@
                                 v-bind:ref="'image'+parseInt( key )"/>
                     </el-carousel-item>
                 </el-carousel>
-                <!--<b-carousel id="carousel1"-->
-                <!--style="text-shadow: 1px 1px 2px #333;"-->
-                <!--:controls="arrobj_SelectedFiles.length > 1"-->
-                <!--indicators-->
-                <!--background="#fff"-->
-                <!--:interval="0">-->
-                <!--<div>-->
-                <!--<b-carousel-slide v-for="obj_Images of arrobj_SelectedFiles" :key="obj_Images.id" >-->
-                <!--<img slot="img" class="card-img-top d-block img-fluid w-100"-->
-                <!--:src="getMediumSource(obj_Images)"-->
-                <!--:alt="obj_Images.EventFIleName"/>-->
-                <!--</b-carousel-slide >-->
-                <!--</div>-->
-                <!--</b-carousel>-->
-                <!--<div v-for="obj_Images of arrobj_SelectedFiles" :key="obj_Images.ID">-->
-                <!--<img slot="img" class="card-img-top d-block img-fluid w-100"-->
-                <!--:src="getMediumSource(obj_Images)"-->
-                <!--:alt="obj_Images.EventFIleName"/>-->
-                <!--</div>-->
                 <div class="btn btn-primary" v-if="arrobj_SelectedFiles" @click="clearPreview()"><strong>X</strong>
                     REMOVE ALL
                 </div>
@@ -91,10 +69,6 @@
                 <el-checkbox :disabled="this.isDisabled" v-model="optParentSignUp">Parent sign up?
                 </el-checkbox>
             </div>
-            <!--<div class="col-lg-12 mt-2 event-fullDay">-->
-            <!--<el-checkbox :disabled="this.isDisabled" v-model="optFullDay">Full Day Event-->
-            <!--</el-checkbox>-->
-            <!--</div>-->
             <div class="col-lg-12">
                 <label class="createEvent_details-title">Event Details</label>
                 <div class="event-details_item">
@@ -230,16 +204,6 @@
                 </div>
                 <div class="event-add-participant" v-if="userType === 'Teacher'">
                     <label class="mt-4">Add Student</label>
-                    <!--el-input
-                            class="input-new-tag"
-                            v-model="inputEventParticipant"
-                            type="email"
-                            :disabled="this.isDisabled"
-                            placeholder="Participant Email"
-                    >
-                    </el-input>
-                    <el-button class="" size="small" @click="addToParticipantList()">+ Add Participant>
-                    </el-button-->
                     <div class="event-participant_student">
                         <el-tag
                                 v-for="guest in studentInt"
@@ -285,18 +249,6 @@
                         </el-button>
                     </div>
                 </div>
-                <!--div v-if="guestInt.length>0 && isEditEvent===true">
-                    <data-tables :data="guestInt" @selection-change="changeSelection"
-                                 :action-col="guestListAction">
-                        <el-table-column type="selection" width="55">
-                        </el-table-column>
-                        <el-table-column v-for="item in guestList" min-width="50px"
-                                         :prop="item.prop"
-                                         :label="item.label" :key="item.prop"
-                                         sortable="custom">
-                        </el-table-column>
-                    </data-tables>
-                </div-->
             </div>
         </div>
     </div>
@@ -306,7 +258,6 @@
     import Cookies from "js-cookie";
     import moment from 'moment';
     import $ from "jquery";
-    import global from "../global";
 
     export default {
         name: "Event_Modal_Component",
@@ -362,6 +313,7 @@
         mounted() {
             const self = this;
             this.initEvent();
+            self.loadWhitelist();
             this.userType = Cookies.get('userTypeSession');
             this.sessionID = Cookies.get('userIDSession');
             for (let image of this.images) {
@@ -399,7 +351,6 @@
                 this.EventDuration = this.eventDurationHour;
                 this.selectedEventID = this.eventID;
                 this.arrobj_SelectedFiles = this.eventFiles.Table;
-                console.log("show")
             },
             async btnCreateEvent() {
                 try {
@@ -437,15 +388,6 @@
                         EventLocation: this.inputEventLocation,
                         EventDuration: this.EventDuration,
                     };
-                    // if (this.guestInt) {
-                    //     this.guestInt.forEach(item => {
-                    //         let participantListDetail = {
-                    //             Type: 'Others',
-                    //             value: item.value,
-                    //         };
-                    //         this.ParticipantNameListInt.push(participantListDetail);
-                    //     });
-                    // }
 
                     let guestIntSave = [];
                     guestIntSave.push(...this.guestInt);
@@ -602,9 +544,10 @@
             addToParticipantList() {
                 try {
 
-                    const exist = this.inputEventParticipantList.find(p => {
-                        return p === this.inputEventParticipant;
+                    const exist = this.guestInt.find(p => {
+                        return p.value === this.inputEventParticipant;
                     });
+
                     if (this.validEmail() && !exist) {
 
                         let tempGuestInt = [];
@@ -715,7 +658,14 @@
                             message: 'File limit exceeded 2MB!'
                         });
                     } else {
-                        this.arrobj_SelectedFiles = event.target.files;
+                        if (this.isWhitelist(file)){
+                            this.arrobj_SelectedFiles = event.target.files;
+                        }else{
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'File Format Not Accepted!'
+                            });
+                        }
                     }
                 }
 
@@ -723,6 +673,19 @@
                     this.getImagePreviews();
                 }
 
+            },
+            isWhitelist(file) {
+                let temparrstr = file.name.split(".");
+                let str_Ext = ("." + temparrstr[temparrstr.length - 1]).toUpperCase();
+                let isWhitelisted = this.arrstr_Whitelist.findIndex(x => x.type.toUpperCase() === str_Ext) !== -1;
+                let isValidFile = file.size > 0;
+
+                return (isWhitelisted && isValidFile);
+            },
+            async loadWhitelist() {
+                await DataSource.shared.getWhitelist().then((result) => {
+                    this.arrstr_Whitelist = result.Table;
+                });
             },
             getImagePreviews() {
                 /*

@@ -173,7 +173,7 @@
         },
 
         mounted() {
-            console.log(this.$refs.SCRS_Status.innerHTML);
+            //console.log(this.$refs.SCRS_Status.innerHTML);
         },
 
         methods: {
@@ -183,7 +183,8 @@
 
                     this.studentDetail = resp.Table;
                     this.studentDetail.forEach(m => {
-                        this.inputStudentName = m.Full_Name;
+                        console.log(m);
+                        this.inputStudentName = m.Full_Name+" "+m.Last_name;
                         this.inputStudentNO = m.Index_No;
                         this.inputStudentStatus = m.Status;
                         this.inputCommencementDate = m.Regst_date_convert;
@@ -197,7 +198,27 @@
                     });
 
                     const PayeeResp = await DataSource.shared.getPayee(this.inputStudentNO);
-                    this.inputPayeeName = PayeeResp.PAR_Father_FirstName + ' ' + PayeeResp.PAR_Father_MiddleName + ' ' + PayeeResp.PAR_Father_LastName;
+
+                    if(this.sponsor_type==="Father")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Father_FirstName + ' ' + PayeeResp.PAR_Father_LastName;
+                    }
+                    else if(this.sponsor_type==="Mother")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Mother_FirstName + ' ' + PayeeResp.PAR_Mother_LastName;
+                    }
+                    else if(this.sponsor_type==="Father Company")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Father_CompanyName;
+                    }
+                    else if(this.sponsor_type==="Mother Company")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Mother_CompanyName;
+                    }
+                    else
+                    {
+                        this.inputPayeeName = '';
+                    }
 
                 } catch (e) {
                     this.results = e;

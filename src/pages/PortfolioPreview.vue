@@ -265,7 +265,7 @@
                                     <el-input
                                             type="textarea"
                                             autosize
-                                            v-model="item.PostPorDtlDevelopmentGoals"
+                                            v-model="item.newConnection"
                                             ref="postGoal"
                                             class="mb-2"
                                     >
@@ -674,6 +674,7 @@
                         this.getImage();
                         this.postList = this.postList.map(m => {
                             m.newAnalysis = m.PostPorDtlAnalysisReflection;
+                            m.newConnection = m.PostPorDtlDevelopmentGoals;
                             m.showContent = true;
                             m.showConnection = true;
                             m.showObservation = true;
@@ -755,6 +756,7 @@
                             this.getImage();
                             this.postList = this.postList.map(m => {
                                 m.newAnalysis = m.PostPorDtlAnalysisReflection + '\n' + m.PostPorDtlObservation;
+                                m.newConnection = m.PostPorDtlDevelopmentDomain + '\n' + m.PostPorDtlDevelopmentGoals;
                                 return m;
                             });
                         }
@@ -834,7 +836,8 @@
                             let objects = {
                                 postID: m.PostID,
                                 postContent: m.PostContent,
-                                postGoal: m.PostPorDtlDevelopmentGoals,
+                                // postGoal: m.PostPorDtlDevelopmentGoals,
+                                postGoal: m.newConnection,
                                 postObservation: m.newAnalysis,
                                 postCreatedDate: m.PostCreatedDate_convert
                             };

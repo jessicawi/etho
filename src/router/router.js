@@ -7,8 +7,8 @@ import resetEmail from "../pages/ResetEmail";
 import resetPassword from "../pages/ResetPassword";
 import studentList from "../pages/StudentList";
 import student from "../pages/Student";
-import studentEditLevel from "../pages/StudentEditLevel";
-import studentEditClass from "../pages/StudentEditClass";
+// import studentEditLevel from "../pages/StudentEditLevel";
+// import studentEditClass from "../pages/StudentEditClass";
 import parentList from "../pages/ParentList";
 import parent from "../pages/Parent";
 import manageRelationship from "../pages/ManageRelationship";
@@ -50,10 +50,10 @@ import invoiceList from "../pages/InvoiceList";
 import attendanceMaster from "../pages/AttendanceMaster";
 import classOverview from "../pages/ClassOverview";
 import portfolioMedia from "../pages/PortfolioMedia";
-import printClassStudent from "../pages/PrintClassStudent";
 import plannerMaster from "../pages/PlannerMaster";
 import plannerAssignSchool from "../pages/PlannerAssignSchool";
 import plannerAssignStudent from "../pages/PlannerAssignStudent";
+import secretAdminConfigPage from "../pages/SecretAdminConfigPage";
 
 Vue.use(VueRouter);
 
@@ -108,16 +108,16 @@ const router = new VueRouter({
             name: 'Student',
             component: student
         },
-        {
-            path: '/student-edit-level',
-            name: 'Student Edit Level',
-            component: studentEditLevel
-        },
-        {
-            path: '/student-edit-class',
-            name: 'Student Edit Class',
-            component: studentEditClass
-        },
+        // {
+        //     path: '/student-edit-level',
+        //     name: 'Student Edit Level',
+        //     component: studentEditLevel
+        // },
+        // {
+        //     path: '/student-edit-class',
+        //     name: 'Student Edit Class',
+        //     component: studentEditClass
+        // },
         {
             path: '/parent-list',
             name: 'Parent List',
@@ -310,11 +310,6 @@ const router = new VueRouter({
             meta: {bodyClass: 'portfolioMedia'}
         },
         {
-            path:'/PrintClassStudent',
-            name:'PrintClassStudent',
-            component: printClassStudent,
-        },
-        {
             path:'/PlannerMaster',
             name:'Planner Master',
             component: plannerMaster,
@@ -328,6 +323,11 @@ const router = new VueRouter({
             path:'/PlannerAssignStudent',
             name:'Planner Assign Student',
             component: plannerAssignStudent,
+        },
+        {
+            path:'/SecretAdminConfigPage',
+            name:'Secret Admin Config Page',
+            component: secretAdminConfigPage,
         },
     ]
 });

@@ -124,7 +124,7 @@
                     <i class="material-icons">thumb_up_alt</i> PROMOTE
                 </el-button>
                 <el-button type="primary" id="btn_PromoteSelected" style="z-index: 2;"
-                           v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0"
+                           v-if="!this.isNull(arrobj_SelectedStudents) && arrobj_SelectedStudents.length > 0 && highestLevel !== true"
                            @click="showPromotionModal" class="d-flex">
                     <i class="material-icons">thumb_up_alt</i> PROMOTE
                 </el-button>
@@ -268,6 +268,7 @@
                         }
                     },
                 ],
+                highestLevel: false
                 //vue tour
             };
         },
@@ -312,6 +313,15 @@
 
                     this.showLoading();
                     const response = await DataSource.shared.getClassByLevelClassID(Student_list.PK_Course_ID, Student_list.PK_Class_ID);
+                    const nextResponse = await DataSource.shared.getNextLevel(Student_list.PK_Course_ID);
+
+                    if (nextResponse){
+                        switch (nextResponse.code) {
+                            case "2":
+                                this.highestLevel = true;
+                                break;
+                        }
+                    }
                     this.obj_SelectedClassID = Student_list;
                     this.obj_SelectedClass = Student_list.CLS_ClassName + Student_list.CLS_Batch;
                     if (response) {

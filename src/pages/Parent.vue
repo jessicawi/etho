@@ -1071,6 +1071,55 @@
                         </div>
                     </div>
                 </el-tab-pane>
+                <el-tab-pane name="Children" label="Children">
+                    <div class="">
+                        <div class="childrenAreaDiv">
+                            <div class="">
+                                <h5 class="text-left student-form__title">Children List</h5>
+                            </div>
+                            <div class="form-group__wrapper row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="empty-list_image" v-if="childrenListInt.length<1">
+                                        <strong>No Data Found...</strong>
+                                        <img src="../assets/notfound.png"/>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <data-tables :data="childrenListInt" v-if="childrenListInt.length>0">
+                                        <el-table-column v-for="childrenListInfo in childrenList"
+                                                         :prop="childrenListInfo.prop"
+                                                         :label="childrenListInfo.label"
+                                                         :key="childrenListInfo.prop"
+                                                         sortable="custom">
+                                        </el-table-column>
+
+                                        <el-table-column label="Edit">
+                                            <template slot-scope="scope">
+                                                <el-button type="primary"
+                                                           icon="el-icon-edit"
+                                                           :disabled="checkSiblingEditButton(childrenListInt[scope.$index].School_ID) !== true"
+                                                           @click.native.prevent="editSibling(childrenListInt[scope.$index].School_ID, childrenListInt[scope.$index].Student_ID)">
+                                                    Edit
+                                                </el-button>
+                                            </template>
+                                        </el-table-column>
+
+                                        <el-table-column label="Edit">
+                                            <template slot-scope="scope">
+                                                <el-button type="primary"
+                                                           icon="el-icon-edit"
+                                                           :disabled="checkSiblingReActivate(childrenListInt[scope.$index].Status) !== true"
+                                                           @click.native.prevent="OpenReActivateModal(childrenListInt[scope.$index].Student_ID)">
+                                                    Re-Active
+                                                </el-button>
+                                            </template>
+                                        </el-table-column>
+                                    </data-tables>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </el-tab-pane>
             </el-tabs>
 
             <div class="row">
@@ -1092,6 +1141,38 @@
         </div>
 
         <div class="whitespace-30"></div>
+
+        <b-modal id="reActivateModal" size="lg" title="Re-Activate" ok-only ok-variant="secondary" ok-title="Cancel"
+                 ref="reActivateShowModal" hide-footer>
+            <div class="row ">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label>Date of Commencement</label>
+                    <div class="date">
+                        <el-date-picker v-model="inputReActivateDateOfCommencement" format="dd/MM/yyyy"
+                                        value-format="dd/MM/yyyy" type="date" placeholder="Pick a date"></el-date-picker>
+                    </div>
+                </div>
+                <hr class="custom-hr"/>
+                <div class="col-lg-12">
+                    <button v-on:click="openReActivateConfirmModal()" class="btn btn-primary waves-effect waves-light m-r-10">
+                        Re-Activate
+                    </button>
+                </div>
+            </div>
+        </b-modal>
+        <b-modal id="reActivateConfirmModal" size="sm" title="Confirm Re-Active" ok-only ok-variant="secondary" ok-title="Cancel"
+                 ref="reActivateConfirmShowModal" hide-footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    Confirm ?
+                </div>
+                <div class="col-lg-12">
+                    <button v-on:click="reActive()" class="btn btn-primary waves-effect waves-light m-r-10">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -1099,6 +1180,7 @@
     import DataSource from "../data/datasource";
     import {required, requiredIf, requiredUnless, email} from "vuelidate/lib/validators";
     import Vue from 'vue';
+    import Cookies from "js-cookie";
 
     export default {
         name: "Parent",
@@ -1165,6 +1247,20 @@
                 inputGuardianCompanyEmail: '',
                 inputThirdPartyCompanyEmail: '',
 
+                currentStudentID: '',
+                inputReActivateDateOfCommencement: '',
+
+                childrenListInt: [],
+                childrenList: [{
+                    prop: "StudentName",
+                    label: "Student Name"
+                }, {
+                    prop: "Status",
+                    label: "Status"
+                }, {
+                    prop: "SchoolName",
+                    label: "School Name"
+                }],
             };
         },
         computed: {
@@ -1217,6 +1313,7 @@
         },
         async mounted() {
             await this.LoadParentInfo();
+            await this.getChildren();
         },
         methods: {
             backToPrevious() {
@@ -2165,12 +2262,95 @@
                     this.ddlGuardianEmployeeName = '';
                 }
             },
+            async getChildren() {
+                try {
+                    const response = await DataSource.shared.getRelationshipByParentID(this.lblParentID);
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '99') {
+                            console.log('Get Children Error!');
+                        } else if (response.code === '2') {
+                            this.childrenListInt = [];
+                        } else {
+                            this.childrenListInt = response.Table;
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            checkSiblingEditButton(value) {
+                if (value === Cookies.get('schoolSession')) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            editSibling(schID, siblingStudentID) {
+                if (schID === Cookies.get('schoolSession')) {
+                    window.location.replace('/student?id=' + siblingStudentID);
+                } else {
+                    this.$notify.error({
+                        title: 'Error',
+                        message: 'You are not authorize to edit this student\'s info'
+                    });
+                }
+            },
+            checkSiblingReActivate(value) {
+                if (value === 'Withdrawn' || value === 'Graduated') {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            OpenReActivateModal (value) {
+                this.currentStudentID = value;
+                this.inputReActivateDateOfCommencement = '';
+                this.$refs.reActivateShowModal.show();
+            },
+            openReActivateConfirmModal (){
+                if (this.inputReActivateDateOfCommencement === null || this.inputReActivateDateOfCommencement === '') {
+                    this.$notify({
+                        title: 'Require',
+                        message: 'Please select Date of Commencement...'
+                    });
+                } else {
+                    this.$refs.reActivateShowModal.hide();
+                    this.$refs.reActivateConfirmShowModal.show();
+                }
+            },
+            async reActive() {
+                const response = await DataSource.shared.setLevel('ReActivate', this.currentStudentID, '', '', this.inputReActivateDateOfCommencement, '');
+                if (response) {
+                    if (response.code === '88') {
+                        window.location.replace('/');
+                    } else if (response.code === '1') {
+                        this.$notify({
+                            title: 'Success',
+                            message: 'Re-Activate Successfully!',
+                            type: 'success'
+                        });
+                        window.location.replace('/parent?id=' + this.lblParentID);
+                    } else if (response.code === '3') {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Commencement Date out of range...'
+                        });
+                    } else {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Re-Activate: Error...'
+                        });
+                    }
+                }
+            },
         },
     };
 </script>
 
 <style scoped>
-    .fatherAreaDiv, .motherAreaDiv, .guardianAreaDiv, .thirdpartyAreaDiv, .otherAreaDiv {
+    .fatherAreaDiv, .motherAreaDiv, .guardianAreaDiv, .thirdpartyAreaDiv, .otherAreaDiv, .childrenAreaDiv {
         margin-bottom: 50px;
     }
 

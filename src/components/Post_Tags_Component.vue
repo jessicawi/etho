@@ -12,16 +12,54 @@
                                             <input type="checkbox" class="test cb_CheckAll"/>
                                             <span class="span-checkbox"></span>
                                         </label>
-                                        <span>{{tempobj_Year.Str_Display}}</span>
+                                        <span>{{tempobj_Year.Str_Display}} </span>
+                                        <div v-for="tempobj_Level of tempobj_Year.ArrObj_Items"  v-if="arrobj_Levels[0].ArrObj_Items.length < 2">
+                                            <span v-for="tempobj_Class of tempobj_Level.ArrObj_Items">&nbsp;{{tempobj_Class.Str_Display}}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </header>
-                    <b-collapse :id="tempobj_Year.Str_SortBy" visible role="tabpanel">
+                    <div v-if="arrobj_Levels[0].ArrObj_Items.length < 2" v-for="tempobj_Level of tempobj_Year.ArrObj_Items">
+                        <div class="" v-for="tempobj_Class of tempobj_Level.ArrObj_Items">
+                            <header class="" role="tab">
+                                <div class="row">
+                                    <!--<div class="col-12 sub-tag option-tag">-->
+                                        <!--<label class="label-checkbox float-right">-->
+                                            <!--<input type="checkbox" class="cb_CheckAll"/>-->
+                                            <!--<span class="span-checkbox"></span>-->
+                                        <!--</label>-->
+                                    <!--</div>-->
+                                    <div class="col-lg-12">
+                                        <div>
+                                            <div class="row student-tag">
+                                                <div class="div_Student uncheck"
+                                                     v-for="tempobj_Student of tempobj_Class.ArrObj_Items"
+                                                     :key="tempobj_Student.id">
+                                                    <label class="col- text-center"
+                                                           :for="tempobj_Student.Student_ID">
+                                                        <img class="student" :src="getSource(tempobj_Student)"/>
+                                                        <input type="checkbox"
+                                                               :value="tempobj_Student.Student_ID"
+                                                               v-model="arrobj_SelectedStudents"
+                                                               :id="tempobj_Student.Student_ID"/>
+                                                        <br/>
+                                                        <span>{{tempobj_Student.First_Name.split(" ")[0]}}</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </header>
+
+                        </div>
+                    </div>
+                    <b-collapse :id="tempobj_Year.Str_SortBy" visible role="tabpanel" v-else>
                         <div>
                             <div class="" v-for="tempobj_Level of tempobj_Year.ArrObj_Items"
-                                    :key="tempobj_Level.id">
+                                 :key="tempobj_Level.id">
                                 <header class="" role="tab">
                                     <div class="row">
                                         <div class="col-12 sub-tag">
@@ -39,7 +77,7 @@
                                 <b-collapse :id="tempobj_Level.Str_SortBy" accordion="level" role="tabpanel">
                                     <div>
                                         <div class="" v-for="tempobj_Class of tempobj_Level.ArrObj_Items"
-                                                :key="tempobj_Class.id">
+                                             :key="tempobj_Class.id">
                                             <header class="" role="tab">
                                                 <div class="row">
                                                     <div class="col-12 sub-tag option-tag">
@@ -169,6 +207,8 @@
                 arrobj_Levels: [],
                 arrobj_Classes: [],
                 arrobj_SelectedStudents: [],
+
+                filterByClassID: '',
             }
         },
         methods: {
@@ -188,7 +228,6 @@
             },
 
             init() {
-                this.showLoading();
                 this.sortByLevelClass();
                 if (!this.isNull(this.parent_Post))
                     this.initTags();
@@ -199,31 +238,85 @@
                 this.$emit("tags", this.arrobj_SelectedStudents);
             },
 
+            // sortByLevelClass() {
+            //     DataSource.shared.getAllActiveStudentsBySchool().then((result) => {
+            //         return result.Table;
+            //     }).then((result) => {
+            //         if (this.isNull(result))
+            //             return;
+            //
+            //         let sortedList = this.groupBy(result, "SMT_Code", "SMT_Code");
+            //
+            //         for (let i = 0; i < sortedList.length; i++) {
+            //             let tempLevel = this.groupBy(sortedList[i].ArrObj_Items, "CRS_Course_Name", "CRS_Course_Name");
+            //
+            //             for (let j = 0; j < tempLevel.length; j++) {
+            //                 let tempClass = this.groupBy(tempLevel[j].ArrObj_Items, "PK_Class_ID", "CLS_ClassName");
+            //
+            //                 tempLevel[j].ArrObj_Items = tempClass;
+            //             }
+            //
+            //             sortedList[i].ArrObj_Items = tempLevel;
+            //         }
+            //
+            //         this.arrobj_Levels = sortedList;
+            //     }).finally(() => {
+            //         this.hideLoading();
+            //     });
+            // },
+
             sortByLevelClass() {
-                DataSource.shared.getAllActiveStudentsBySchool().then((result) => {
-                    return result.Table;
-                }).then((result) => {
-                    if (this.isNull(result))
-                        return;
+                if (this.portfolio_Type !== null) {
+                    if (this.filterByClassID !== '') {
+                        DataSource.shared.getAllActiveStudentsByClass(this.filterByClassID).then((result) => {
+                            return result.Table;
+                        }).then((result) => {
+                            if (this.isNull(result))
+                                return;
 
-                    let sortedList = this.groupBy(result, "SMT_Code", "SMT_Code");
+                            this.groupStudentList(result);
+                        }).finally(() => {
+                            this.hideLoading();
+                        });
+                    }
+                } else {
+                    this.showLoading();
 
-                    for (let i = 0; i < sortedList.length; i++) {
-                        let tempLevel = this.groupBy(sortedList[i].ArrObj_Items, "CRS_Course_Name", "CRS_Course_Name");
+                    DataSource.shared.getAllActiveStudentsBySchool().then((result) => {
+                        return result.Table;
+                    }).then((result) => {
+                        if (this.isNull(result))
+                            return;
 
-                        for (let j = 0; j < tempLevel.length; j++) {
-                            let tempClass = this.groupBy(tempLevel[j].ArrObj_Items, "PK_Class_ID", "CLS_ClassName");
+                        this.groupStudentList(result);
+                    }).finally(() => {
+                        this.hideLoading();
+                    });
+                }
+            },
 
-                            tempLevel[j].ArrObj_Items = tempClass;
-                        }
+            groupStudentList (result) {
+                let sortedList = this.groupBy(result, "SMT_Code", "SMT_Code");
 
-                        sortedList[i].ArrObj_Items = tempLevel;
+                for (let i = 0; i < sortedList.length; i++) {
+                    let tempLevel = this.groupBy(sortedList[i].ArrObj_Items, "CRS_Course_Name", "CRS_Course_Name");
+
+                    for (let j = 0; j < tempLevel.length; j++) {
+                        let tempClass = this.groupBy(tempLevel[j].ArrObj_Items, "PK_Class_ID", "CLS_ClassName");
+
+                        tempLevel[j].ArrObj_Items = tempClass;
                     }
 
-                    this.arrobj_Levels = sortedList;
-                }).finally(() => {
-                    this.hideLoading();
-                });
+                    sortedList[i].ArrObj_Items = tempLevel;
+                }
+
+                this.arrobj_Levels = sortedList;
+                console.log(this.arrobj_Levels,"111")
+            },
+
+            filterByClassIDChange(value) {
+                this.filterByClassID = value;
+                this.sortByLevelClass();
             },
 
             sortByClass() {
@@ -370,7 +463,10 @@
                 self.verifyCheckall(this);
             });
         },
-        props: {parent_Post: {type: Object, default: null}},
+        props: {
+            parent_Post: {type: Object, default: null},
+            portfolio_Type: {type: String, default: null},
+        },
     }
 </script>
 

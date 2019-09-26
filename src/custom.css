@@ -90,6 +90,9 @@ hr.custom-hr {
     display: block;
     width: 100%;
 }
+img {
+    max-width: 100%;
+}
 
 /*
 1---form---
@@ -305,6 +308,10 @@ label {
     color: #999;
 }
 
+.requiredFieldsMsg {
+    color: red;
+    font-weight: bold;
+}
 /*
 2---button---
  */
@@ -598,7 +605,7 @@ small.small-grey-text {
 /*
 6---modal---
  */
-.modal-dialog header {
+.modal-dialog header.modal-header {
     background: url("./assets/modal-bg.png");
 }
 
@@ -3211,6 +3218,7 @@ h4.title {
 .guardianAreaDiv,
 .thirdpartyAreaDiv,
 .otherAreaDiv,
+.childrenAreaDiv,
 .addAreaDiv,
 .medAreaDiv,
 .ecAreaDiv,
@@ -3771,11 +3779,12 @@ label.withoutInput {
 }
 
 .gallery-album label.gallery-album__image {
+    background: #eee !important;
     /* width: 150px; */
     /* height: 150px; */
     overflow: hidden;
     margin: 10px;
-    border: 1px solid #edf0f4;
+    border: 1px solid #d8dbde87;
     position: relative;
     /* box-shadow: 0px 0px 10px -3px #ccc; */
     position: absolute;
@@ -3786,19 +3795,23 @@ label.withoutInput {
     text-align: center;
     font-size: 20px;
     color: white;
+    display: flex !important;
+    align-items: center;
+    border-radius: 5px;
+    justify-content: center;
 }
 
 .gallery-album label.gallery-album__image img {
     height: 100%;
     text-align: center;
-    display: block;
+    /* display: block; */
     /* margin: auto; */
-    position: absolute;
+    /* position: absolute; */
     /* left: 0; */
     /* margin: auto; */
     /* text-align: center; */
-    margin-left: auto;
-    margin-right: auto;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
 }
 
 .gallery-action button {
@@ -3999,7 +4012,38 @@ label.withoutInput {
 .gallery-album input[type='checkbox']:checked + label:before {
     bottom: 0;
 }
+.modal_MoveItem-slider {
+    padding: 20px;
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+}
 
+.modal_MoveItem-buttonGroup {
+    padding: 20px;
+    background: #ffffff;
+    margin: 0;
+}
+
+div#modal_MoveItem___BV_modal_body_ {
+    padding: 0;
+}
+.modal_MoveItem-buttonGroup button {
+    width: 100%;
+    margin: 0 0 10px;
+    text-align: left;
+}
+.modal_MoveItem-buttonGroup button i {
+    font-size: 1.2em;
+    margin-right: 5px;
+}
+
+.modal_MoveItem-buttonGroup button i.el-icon-arrow-right {
+    font-size: 0.8em;
+    margin-left: auto;
+    float: right;
+    margin-right: 0;
+    line-height: 1.4em;
+}
 /*
 27---post update components---
  */
@@ -4093,11 +4137,23 @@ label.withoutInput {
 }
 
 .student-tag .div_Student {
-    padding: 10px 20px 3px;
+    /*padding: 10px 20px 3px;*/
     background: #f5f5f5;
     margin: 5px;
+    width: calc(20% - 10px);
+    border-radius: 5px;
 }
-
+.student-tag .div_Student.check {
+    background: #dcdfe6;
+    color: #acafb7;
+    transform: scale(0.85);
+    transition: all 0.3s;
+    opacity: 1;
+    border: 0;
+}
+.student-tag .div_Student label {
+    padding: 10px 20px 3px;
+}
 .student-tag {
     padding: 20px 30px;
     background: #ffffff;
@@ -4645,6 +4701,38 @@ label.preview-comment__commenter span {
     margin-bottom: 30px;
 }
 
+
+/*
+29.1---portfolio media---
+ */
+#portfoliomedia .el-carousel__mask {
+    background: transparent;
+}
+
+#portfoliomedia .el-carousel__item--card img {
+    border-radius: 5px;
+    box-shadow: 0 0 26px -5px #b5b5b5;
+}
+.portfolioMedia_bg {
+    margin: -40px -40px -16em;
+    opacity: 0.5;
+    position: relative;
+    top: -7em;
+}
+
+#portfoliomedia .admin-wrap {
+    overflow: hidden;
+}
+
+#portfoliomedia .header h3 {
+    border-bottom: 2px dashed #eee;
+    padding-bottom: 16px;
+}
+
+.portfolio-media_list {
+    position: relative;
+    z-index: 1;
+}
 /*
 30---daily routine---
  */

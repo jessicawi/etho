@@ -37,7 +37,6 @@
                             <img slot="img" class="img-fluid preview" v-bind:ref="'image'+parseInt( key )"/>
                         </b-carousel-slide>
                     </b-carousel>
-
                     <div class="btn btn-primary" v-if="arrobj_SelectedFiles != null && arrobj_SelectedFiles.length > 0"
                          @click="clearPreview"><strong>X</strong>
                         REMOVE ALL
@@ -45,50 +44,112 @@
                 </div>
                 <form @submit.prevent="verifyPost">
                     <div class="form-group row pt-4">
-                        <div class="col-md-6">
+                        <div class="col-md-6 formDiv"
+                             :class="{ 'form-group--error': $v.obj_Post.PostPorDtlTitle.$error }">
                             <label for="tb_Title">Title</label>
                             <input v-model="obj_Post.PostPorDtlTitle" type="text" class="form-control" id="tb_Title"
-                                   placeholder="Please enter a title" required/>
+                                   placeholder="Please enter a title"
+                                   v-model.trim="$v.obj_Post.PostPorDtlTitle.$model"/>
+                            <div class="error requiredFieldsMsg" v-if="!$v.obj_Post.PostPorDtlTitle.required">
+                                <el-alert
+                                        title="Title is required"
+                                        type="error">
+                                </el-alert>
+                            </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 formDiv"
+                             :class="{ 'form-group--error': $v.obj_Post.PostPorDtlObservation.$error }">
                             <label for="tb_Observation">Observation</label>
                             <textarea v-model="obj_Post.PostPorDtlObservation" type="text" class="form-control"
                                       id="tb_Observation"
-                                      placeholder="Please enter your observation" required></textarea>
+                                      placeholder="Please enter your observation"
+                                      v-model.trim="$v.obj_Post.PostPorDtlObservation.$model"></textarea>
+                            <div class="error requiredFieldsMsg" v-if="!$v.obj_Post.PostPorDtlObservation.required">
+                                <el-alert
+                                        title="Observation is required"
+                                        type="error">
+                                </el-alert>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label>Analysis & reflection</label>
-                            <select v-model="obj_Post.PostPorDtlAnalysisReflection" type="text" class="form-control"
-                                    id="tb_AnalysisReflection">
-                                <option disabled value="">Please select one</option>
-                                <option value="Option 1">Option 1</option>
-                            </select>
+                        <div class="col-md-6 formDiv" :class="{ 'form-group--error': $v.ddlClass.$error }">
+                            <label>Class</label>
+                            <el-select v-model="ddlClass" placeholder="Select Class"
+                                       class="pro-edt-select fullWidth mb-3"
+                                       @change="changeClass()" v-model.trim="$v.ddlClass.$model">
+                                <el-option
+                                        v-for="item in ddlClassList"
+                                        :key="item.PK_Class_ID"
+                                        :label="item.CLS_ClassName.trim() + ' ' +item.CLS_Batch.trim()"
+                                        :value="item.PK_Class_ID.trim()">
+                                </el-option>
+                            </el-select>
+                            <div class="error requiredFieldsMsg" v-if="!$v.ddlClass.required">
+                                <el-alert
+                                        title="Class is required"
+                                        type="error">
+                                </el-alert>
+                            </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 formDiv"
+                             :class="{ 'form-group--error': $v.obj_Post.PostPorDtlDevelopmentGoals.$error }">
                             <label>Developmental Goals</label>
-                            <select v-model="obj_Post.PostPorDtlDevelopmentGoals" type="text" class="form-control"
-                                    id="tb_Goals">
-                                <option disabled value="">Please select one</option>
-                                <option value="Option 1">Option 1</option>
-                            </select>
+                            <!--<select v-model="obj_Post.PostPorDtlDevelopmentGoals" type="text" class="form-control"-->
+                            <!--id="tb_Goals">-->
+                            <!--<option disabled value="">Please select one</option>-->
+                            <!--<option value="Option 1">Option 1</option>-->
+                            <!--</select>-->
+                            <el-select v-model="obj_Post.PostPorDtlDevelopmentGoals" placeholder="Select Goals"
+                                       class="pro-edt-select fullWidth mb-3"
+                                       @change="setValidateDropdown(obj_Post.PostPorDtlDevelopmentGoals)">
+                                <el-option
+                                        v-for="item in ddlGoalsList"
+                                        :key="item.PlnStaDomain.trim() + ' - ' + item.PlnStaGoals.trim()"
+                                        :label="item.PlnStaDomain.trim() + ' - ' + item.PlnStaGoals.trim()"
+                                        :value="[item.PlnStaDomain.trim(),item.PlnStaGoals.trim()]">
+                                </el-option>
+                            </el-select>
+                            <div class="error requiredFieldsMsg"
+                                 v-if="!$v.obj_Post.PostPorDtlDevelopmentGoals.required">
+                                <el-alert
+                                        title="Developmental Goals is required"
+                                        type="error">
+                                </el-alert>
+                            </div>
                         </div>
-
-                        <div class="col-md-12">
-                            <tags-component :parent_Post="post" @tags="setTags"></tags-component>
+                        <div class="col-md-12 formDiv"
+                             :class="{ 'form-group--error': $v.obj_Post.PostPorDtlAnalysisReflection.$error }">
+                            <label>Analysis & Reflection</label>
+                            <!--<select v-model="obj_Post.PostPorDtlAnalysisReflection" type="text" class="form-control"-->
+                            <!--id="tb_AnalysisReflection">-->
+                            <!--<option disabled value="">Please select one</option>-->
+                            <!--<option value="Option 1">Option 1</option>-->
+                            <!--</select>-->
+                            <input v-model="obj_Post.PostPorDtlAnalysisReflection" type="text" class="form-control"
+                                   placeholder="Analysis & reflection"
+                                   v-model.trim="$v.obj_Post.PostPorDtlAnalysisReflection.$model"/>
+                            <div class="error requiredFieldsMsg"
+                                 v-if="!$v.obj_Post.PostPorDtlAnalysisReflection.required">
+                                <el-alert
+                                        title="Analysis & Reflection is required"
+                                        type="error">
+                                </el-alert>
+                            </div>
                         </div>
-
+                        <div class="col-md-12 formDiv">
+                            <tags-component :parent_Post="post" @tags="setTags" :portfolio_Type="portfolio_Type"
+                                            ref="studentListComponent"></tags-component>
+                        </div>
                     </div>
                     <div class="row justify-content-center form-footer">
                         <div class="col-6">
                             <input type="reset" @click="resetAll" class="btn btn-secondary float-left" value="Cancel"/>
                         </div>
                         <div class="col-6">
-                            <input type="submit" class="btn btn-primary " value="Submit"/>
+                            <input type="submit" class="btn btn-primary " value="Submit" @click="Validation"/>
                         </div>
                     </div>
                 </form>
             </div>
-
             <div class="col-6">
             </div>
         </div>
@@ -107,12 +168,12 @@
         </div>-->
     </div>
 </template>
-
 <script>
     "use strict";
     import DataSource from "../data/datasource";
     import $ from "jquery";
     import tagsComponent from "./Post_Tags_Component";
+    import {required} from "vuelidate/lib/validators";
 
     export default {
         name: "Post_Portfolio_Component",
@@ -129,9 +190,33 @@
                     PostPorDtlTitle: "",
                     PostPorDtlObservation: "",
                     PostPorDtlAnalysisReflection: "",
-                    PostPorDtlDevelopmentGoals: ""
+                    PostPorDtlDevelopmentGoals: []
                 },
+
+                portfolio_Type: 'Yes',
+                ddlClassList: [],
+                ddlClass: '',
+                ddlGoalsList: [],
             };
+        },
+        validations: {
+            obj_Post: {
+                PostPorDtlTitle: {
+                    required
+                },
+                PostPorDtlObservation: {
+                    required
+                },
+                PostPorDtlDevelopmentGoals: {
+                    required
+                },
+                PostPorDtlAnalysisReflection: {
+                    required
+                }
+            },
+            ddlClass: {
+                required
+            }
         },
         methods: {
             //return a promise that resolves with a File instance
@@ -154,75 +239,83 @@
             sleep(milliseconds) {
                 return new Promise(resolve => setTimeout(resolve, milliseconds));
             },
+            Validation() {
+                this.$v.$touch();
+            },
+            setValidateDropdown(value) {
+                console.log(value);
+                this.$v.obj_Post.PostPorDtlDevelopmentGoals.$touch()
+            },
             async verifyPost() {
-                this.$vs.loading();
-
                 try {
-                    if (this.isNull(this.obj_Post.PostPorDtlTitle) ||
-                        this.isNull(this.obj_Post.PostPorDtlObservation) ||
-                        this.isNull(this.obj_Post.PostPorDtlAnalysisReflection) ||
-                        this.isNull(this.obj_Post.PostPorDtlDevelopmentGoals) ||
-                        this.isNull(this.arrobj_SelectedStudents)) {
+                    if (!this.$v.$error) {
+                        this.$vs.loading();
+                        if (this.isNull(this.obj_Post.PostPorDtlTitle) ||
+                            this.isNull(this.obj_Post.PostPorDtlObservation) ||
+                            this.isNull(this.obj_Post.PostPorDtlAnalysisReflection) ||
+                            this.isNull(this.obj_Post.PostPorDtlDevelopmentGoals) ||
+                            this.isNull(this.arrobj_SelectedStudents)) {
 
-                        setTimeout(() => {
-                            this.$vs.loading.close();
-                        }, 500);
+                            setTimeout(() => {
+                                this.$vs.loading.close();
+                            }, 500);
 
-                        this.$emit("result", "FALSE");
-                        this.$notify.error({
-                            title: 'Error',
-                            message: 'Please fill in content'
-                        });
-                        return;
-                    }
-
-                    console.log('2');
-                    await this.sleep(1000);
-                    /*let studentsIds = this.arrobj_SelectedStudents.map(x => x.Student_ID);*/
-                    const response = await DataSource.shared.savePortfolioPost(this.arrobj_SelectedFiles,
-                        this.obj_Post.PostPorDtlTitle,
-                        this.obj_Post.PostPorDtlObservation,
-                        this.obj_Post.PostPorDtlAnalysisReflection,
-                        this.obj_Post.PostPorDtlDevelopmentGoals,
-                        this.arrobj_SelectedStudents, "", "",
-                        this.obj_Post.PostID);
-
-                    if (response) {
-                        if (!this.isNull(response) && response.code === "1") {
-                            this.$emit("result", "TRUE");
-                            await DataSource.shared.softDeletePost(this.obj_Post.PostID);
-                        } else
                             this.$emit("result", "FALSE");
-                    }
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please fill in content'
+                            });
+                            return;
+                        }
 
-                    this.$notify({
-                        title: 'Success',
-                        message: 'Portfolio added.',
-                        type: 'success'
-                    });
-                    this.$vs.loading.close();
-                    // DataSource.shared.savePortfolioPost(this.arrobj_SelectedFiles,
-                    //     this.obj_Post.PostPorDtlTitle,
-                    //     this.obj_Post.PostPorDtlObservation,
-                    //     this.obj_Post.PostPorDtlAnalysisReflection,
-                    //     this.obj_Post.PostPorDtlDevelopmentGoals,
-                    //     this.arrobj_SelectedStudents, "", "",
-                    //     this.obj_Post.PostID)
-                    //     .then((result) => {
-                    //
-                    //         console.log("333")
-                    //
-                    //         if (!this.isNull(result) && result.code == "1") {
-                    //             this.$emit("result", "TRUE");
-                    //
-                    //             DataSource.shared.softDeletePost(this.obj_Post.PostID);
-                    //         }
-                    //         else
-                    //             this.$emit("result", "FALSE");
-                    //     });
+                        console.log('2');
+                        await this.sleep(1000);
+                        /*let studentsIds = this.arrobj_SelectedStudents.map(x => x.Student_ID);*/
+                        const response = await DataSource.shared.savePortfolioPost(this.arrobj_SelectedFiles,
+                            this.obj_Post.PostPorDtlTitle,
+                            this.obj_Post.PostPorDtlObservation,
+                            this.obj_Post.PostPorDtlAnalysisReflection,
+                            this.obj_Post.PostPorDtlDevelopmentGoals[0],
+                            this.obj_Post.PostPorDtlDevelopmentGoals[1],
+                            this.arrobj_SelectedStudents, "", "",
+                            this.obj_Post.PostID);
+
+                        if (response) {
+                            if (!this.isNull(response) && response.code === "1") {
+                                this.$emit("result", "TRUE");
+                                await DataSource.shared.softDeletePost(this.obj_Post.PostID);
+                            } else
+                                this.$emit("result", "FALSE");
+                        }
+
+                        this.$notify({
+                            title: 'Success',
+                            message: 'Portfolio added.',
+                            type: 'success'
+                        });
+                        this.$vs.loading.close();
+                        // DataSource.shared.savePortfolioPost(this.arrobj_SelectedFiles,
+                        //     this.obj_Post.PostPorDtlTitle,
+                        //     this.obj_Post.PostPorDtlObservation,
+                        //     this.obj_Post.PostPorDtlAnalysisReflection,
+                        //     this.obj_Post.PostPorDtlDevelopmentGoals,
+                        //     this.arrobj_SelectedStudents, "", "",
+                        //     this.obj_Post.PostID)
+                        //     .then((result) => {
+                        //
+                        //         console.log("333")
+                        //
+                        //         if (!this.isNull(result) && result.code == "1") {
+                        //             this.$emit("result", "TRUE");
+                        //
+                        //             DataSource.shared.softDeletePost(this.obj_Post.PostID);
+                        //         }
+                        //         else
+                        //             this.$emit("result", "FALSE");
+                        //     });
+                    }
 
                 } catch (e) {
-                    console.log('wawawwwwwwwww');
                     this.results = e;
                 }
 
@@ -240,7 +333,10 @@
                     }
 
                     this.arrobj_Levels = sortedList;
+                    console.log(this.arrobj_Levels, "111");
                 });
+
+                this.bindClasses();
             },
             getStudents() {
                 return new Promise((resolve, reject) => {
@@ -387,6 +483,42 @@
                 };
                 this.$emit("result", "CANCEL");
             },
+            changeClass() {
+                this.$refs.studentListComponent.filterByClassIDChange(this.ddlClass);
+                this.getPlannerAssignedStudentsGroupByClassID();
+            },
+            async bindClasses() {
+                try {
+                    const response = await DataSource.shared.getAttendanceClass();
+                    if (response) {
+                        this.class = response.Table;
+                        this.class.forEach(m => {
+                            this.ddlClassList.push(m);
+                        });
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async getPlannerAssignedStudentsGroupByClassID() {
+                try {
+                    const response = await DataSource.shared.getPlannerAssignedStudentsGroupByClassID(this.ddlClass);
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '99') {
+                            console.log('getPlannerAssignedStudentsGroupByClassID Error');
+                        } else if (response.code === '2') {
+                            this.obj_Post.PostPorDtlDevelopmentGoals = '';
+                            this.ddlGoalsList = [];
+                        } else {
+                            this.ddlGoalsList = response.Table;
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
         },
         mounted() {
             const self = this;
@@ -437,9 +569,16 @@
         props: ["images", "post"],
     };
 </script>
-
 <style scoped>
     #carousel1 img {
         height: 250px;
+    }
+
+    .fullWidth {
+        width: 100%;
+    }
+
+    .formDiv {
+        margin-top: 20px;
     }
 </style>

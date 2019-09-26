@@ -1,30 +1,50 @@
 <template>
     <div id="portfoliomedia">
-        <div class="container admin-wrap">
-            <div class="pb-5">
+        <div class="container admin-wrap  mt-5">
+            <div class="row header mb-3">
+                <div class="col-lg-12 ">
+                    <h3 class=" text-center">PORTFOLIO MEDIA</h3>
+                    <span></span>
+                </div>
+            </div>
+            <div class="pb-5 row">
                 <div class="col-lg-12">
-                    <div class="row">
+                    <div class="row portfolio-media_list">
                         <div v-if="mediaList.length < 1" class="empty-list_image">
                             <strong>{{startupText}}</strong>
                             <img src="../assets/notfound.png"/>
                         </div>
-                        <div class="col-lg-12" v-if="mediaList.length > 0">
-                            <b-carousel style="text-shadow: 1px 1px 2px #333;"
-                                        controls
-                                        indicators
+                        <div class="col-lg-12 mt-5" v-if="mediaList.length > 1">
+                            <!--<b-carousel style="text-shadow: 1px 1px 2px #333;"-->
+                                        <!--controls-->
+                                        <!--indicators-->
+                                        <!--:interval="0">-->
+                                <!--<div v-for="media in mediaList">-->
+                                    <!--<b-carousel-slide>-->
+                                        <!--<img slot="img" class="card-img-top d-block img-fluid "-->
+                                             <!--:src="convertToFile(media)"-->
+                                        <!--/>-->
+                                    <!--</b-carousel-slide>-->
 
-                                        :interval="0">
-                                <div v-for="media in mediaList">
-                                    <b-carousel-slide>
-                                        <img slot="img" class="card-img-top d-block img-fluid w-100"
-                                             :src="convertToFile(media)"
-                                        />
-                                    </b-carousel-slide>
-                                </div>
-                            </b-carousel>
+                                <!--</div>-->
+                            <!--</b-carousel>-->
+
+                            <el-carousel :interval="4000" type="card" height="200px">
+                                <el-carousel-item v-for="media in mediaList" :key="media.ID">
+                                    <img :src="convertToFile(media)"/>
+                                </el-carousel-item>
+                            </el-carousel>
+                        </div>
+                        <div v-else class="col-lg-12 mt-5">
+                            <div  v-for="media in mediaList">
+                                <img :src="convertToFile(media)"/>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="portfolioMedia_bg" v-if="mediaList.length > 0">
+                <img src="../assets/media_bg.jpg"/>
             </div>
         </div>
     </div>

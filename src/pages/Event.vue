@@ -202,21 +202,6 @@
                                 </div>
                             </div>
                             <div class="latestEventList">
-                                <!--ul class='eventUI'>
-                                    <li v-for="item in eventList" v-bind:key="item.EventID">
-                                        <b>{{item.EventTitle}}</b><br>
-                                        {{convertToDate(item.EventStartTime)}}<br>
-                                        {{getEventTime(item.EventStartTime,item.EventEndTime)}}<br>
-                                        {{item.EventLocation}}<br>
-                                        <b>Created By:{{item.CONname}}</b><br>
-                                        <b-btn v-if="item.EventCreatedBy === sessionID" @click="editEvent(item)">Edit
-                                        </b-btn>&nbsp;
-                                        <b-btn v-if="item.EventCreatedBy === sessionID"
-                                               @click="deleteEvent(item.EventID)">Delete
-                                        </b-btn>
-                                        <hr>
-                                    </li>
-                                </ul-->
                                 <data-tables :data="upComingEventList" :action-col="eventListAction">
                                     <el-table-column v-for="item in eventListTable" min-width="50px"
                                                      :prop="item.prop"
@@ -228,11 +213,6 @@
                         </div>
                         <div class="col-sm-12" v-if="!showLatest">
                             <div class="event-calendar">
-                                <!--full-calendar
-                                defaultView="dayGridMonth"
-                                :events="events"
-                                locale="en">
-                                </full-calendar-->
                                 <div>
                                     <div class="event-calendar_header">
                                         <div class="ec-header-left">
@@ -611,9 +591,6 @@
                 this.$refs['EventShowModal'].hide();
                 // this.$refs['EventShowModalNonStaff'].hide();
             },
-            async changeSelection(val) {
-                this.spdSelection = val;
-            },
             setTags(value) {
                 try {
                     this.tags = value;
@@ -689,7 +666,6 @@
 
                         const resp = await DataSource.shared.getEventParticipantByEventID(m.EventID);
                         if (resp){
-                            console.log("resp")
                             if (resp.code === '2') {
                                 this.MasterParticipantList.forEach(m => {
                                     this.CurrentParticipantList.push(m);
@@ -714,7 +690,6 @@
                                 let studentIntFilter = participantResponse.filter(d => {
                                     return d.EventParType === "Student";
                                 });
-                                console.log('studentIntFilter', studentIntFilter);
                                 if (this.isStaff === false) {
                                     this.studentInt = studentIntFilter;
                                 } else {
@@ -728,7 +703,6 @@
                                         tempStudentInt.push(my_object);
                                     });
                                     this.studentInt = tempStudentInt;
-                                    console.log('studentInt', this.studentInt);
                                 }
 
 
@@ -749,16 +723,16 @@
                 try {
                     this.$vs.loading();
                     //capture EventID
-                    var obj = {
+                    let obj = {
                         eventID: objValue.EventID,
                         eventCreatedBy: objValue.EventCreatedBy,
                     };
+
                     this.selectedEventID = obj.eventID;
                     const response = await DataSource.shared.getEventDetails(this.selectedEventID);
                     this.BindEventFields(response.Table);
                     await this.sleep(800);
                     let promise_GetPostFile = await DataSource.shared.getEventFile(this.selectedEventID);
-                    console.log("promise_GetPostFile", promise_GetPostFile);
 
                     this.arrobj_SelectedFiles = promise_GetPostFile;
 
@@ -839,51 +813,6 @@
                     this.results = e;
                 }
             },
-            getEventTime(startValue, endValue) {
-                try {
-                    let startTime = new Date(startValue);
-                    let endTime = new Date(endValue);
-                    let timeDiff = Math.abs(endTime.getTime() - startTime.getTime());
-                    let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                    let starthour = new Date(startValue).getHours();
-                    let startminute = new Date(startValue).getMinutes();
-                    let endhour = new Date(endValue).getHours();
-                    let endminute = new Date(endValue).getMinutes();
-                    let Time;
-                    if (diffDays > 1) {
-                        return "All Day";
-                    } else {
-                        Time = starthour + ":" + startminute + "AM to " + endhour + ":" + endminute + "PM";
-                        return Time;
-                    }
-                } catch (e) {
-                    alert(e);
-                }
-            },
-            convertToDate(startTime) {
-                let day = new Date(startTime).getDate();
-                let month = new Date(startTime).getMonth() + 1;
-                let year = new Date(startTime).getFullYear();
-                let date;
-
-                let monthValue = new Array();
-                monthValue[0] = "January";
-                monthValue[1] = "February";
-                monthValue[2] = "March";
-                monthValue[3] = "April";
-                monthValue[4] = "May";
-                monthValue[5] = "June";
-                monthValue[6] = "July";
-                monthValue[7] = "August";
-                monthValue[8] = "September";
-                monthValue[9] = "October";
-                monthValue[10] = "November";
-                monthValue[11] = "December";
-
-                let m = monthValue[month - 1];
-                date = day + "th " + m + " " + year;
-                return date;
-            },
             async LoadEventDetails() {
                 try {
                     this.scheduleList = [];
@@ -904,20 +833,6 @@
                                 });
 
                             }
-
-                            // this.eventList.forEach((m) => {
-                            //     let items = {
-                            //         EventTitle: m.EventTitle,
-                            //         EventStartTime_Convert: m.EventStartTime_Convert,
-                            //         EventTime: moment(m.EventStartTime).format("hh:mm A") + " - " + moment(m.EventEndTime).format("hh:mm A"),
-                            //         EventLocation: m.EventLocation,
-                            //         CONname: m.CONname,
-                            //         EventEndTime_Convert: m.EventEndTime_Convert,
-                            //         EventID: m.EventID,
-                            //     };
-                            //     this.latestEventList.push(items);
-                            //
-                            // });
 
                             this.eventList.forEach((m) => {
                                 // m.start = m.EventCreatedOn_Convert;
@@ -985,10 +900,10 @@
                     console.log(e);
                 }
             },
-            eventNewEdit(value) {
+            eventNewEdit(value,res) {
                 if (value === 'New') {
                     this.lblNewEditCalendar = value;
-                    this.refreshBModalValue();
+                    this.refreshBModalValue(res);
                 } else {
                     this.lblNewEditCalendar = value;
                 }
@@ -999,12 +914,13 @@
                     this.$refs.EventShowModal.show();
                 }
             },
-            refreshBModalValue() {
-                let getCurrentDateTime = new Date();
+            refreshBModalValue(res) {
+                // let getCurrentDateTime = new Date();
                 this.isDisabled = false;
                 this.inputEventTitle = '';
                 this.rdEventType = '';
-                this.inputEventTime = getCurrentDateTime;
+                this.inputEventTime[0] = new Date(res);
+                this.inputEventTime[1] = new Date(res);
                 this.inputEventRegLimit = 0;
                 this.inputEventRegCutOffDay = 0;
                 this.inputEventLocation = '';
@@ -1020,12 +936,6 @@
                 });
                 this.EventDurationHour = '';
                 this.arrobj_SelectedFiles = [];
-            },
-            async filterSelectedParticipant(filterValue, allOptions) {
-                return allOptions.filter(option => option.includes(filterValue));
-            },
-            async btnAddClasses() {
-                console.log(this.ddlClassLevel);
             },
             showClassModal() {
                 this.$refs.addClassModal.show();
@@ -1087,14 +997,16 @@
                 this.setRenderRangeText();
             },
             beforeCreateSchedule(res) {
-                res.guide.clearGuideElement();
-                this.eventNewEdit('New');
+
+                this.inputEventTime[0] =  new Date(res.start);
+                this.inputEventTime[1] =  new Date(res.start);
+                this.eventNewEdit('New',res.start);
             },
             onClickSchedule(res) {
                 let item =
                     {
                         "EventID": res.schedule.id,
-                        "EventCreatedBy": res.schedule.raw
+                        "EventCreatedBy": res.schedule.raw,
                     };
                 this.editEvent(item);
             },

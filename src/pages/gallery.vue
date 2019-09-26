@@ -83,8 +83,7 @@
                 </div>
                 <div class="col-md-9 bg-white div_ItemContainer">
                     <div class=" gallery-album">
-                        <div class="" v-for="obj_File of arrobj_Files" :key="obj_File.GalID"
-                        >
+                        <div class="" v-for="obj_File of arrobj_Files" :key="obj_File.GalID">
                             <label :for="obj_File.GalID" class="gallery-album__image">
                                 <img v-if="isImage(obj_File)" :src="getLowSource(obj_File)" :alt="obj_File.GalFileName"
                                      draggable="false"/>
@@ -92,7 +91,7 @@
                             <input class="limited" type="checkbox" :id="obj_File.GalID" :value="obj_File"
                                    v-model="arrobj_SelectedItem"
                                    :disabled="isNull(arrobj_SelectedItem.find(x=>x.GalID === obj_File.GalID)) && arrobj_SelectedItem.length >= int_SelectLimit"/>
-                            <label for="obj_File.GalID"></label>
+                            <label :for="obj_File.GalID"></label>
                             <!--<div v-if="isImage(obj_File)" :data-type="obj_File.GalType">
                                 <label :for="obj_File.GalID">
                                     <img :src="getLowSource(obj_File)" :alt="obj_File.GalFileName" draggable="false"/>
@@ -199,33 +198,41 @@
             </div>
         </b-modal>
         <b-modal id="modal_MoveItem" title="Move item(s) to?" ref="modal_MoveItem" centered @ok="MoveItems">
-            <div class="row">
-                <b-carousel id="carousel2"
-                            style="text-shadow: 1px 1px 2px #333;"
-                            controls
-                            indicators
-                            background="#ababab"
-                            :interval="0"
-                >
-                    <b-carousel-slide v-for="obj_Item of arrobj_SelectedItem" :key="obj_Item.FileID">
-                        <img slot="img" :src="getLowSource(obj_Item)"
-                             :alt="obj_Item.GalFileName"/>
-                    </b-carousel-slide>
-                </b-carousel>
-            </div>
-            <div class="row">
-                <div class="col-">
-                    <button class="btn btn-light" id="btn_MoveModalPrevious">
-                        <i class="fa fa-folder" aria-hidden="true"></i>Go Back
-                    </button>
+
+            <div class="row modal_MoveItem-buttonGroup">
+                <div class="col-lg-4">
+
+                    <el-button type="primary" id="btn_MoveModalPrevious" @click="MoveModalGoBack">
+                        <i class="el-icon-house"></i>
+                        Go Back
+                    </el-button>
+
+                    <div v-for="obj_MoveModalFolder of arrobj_MoveModalFolders"
+                                     :key="obj_MoveModalFolder.GalID"
+                                     :data-type="obj_MoveModalFolder.GalType">
+                        <el-button type="primary" @click="MoveModalChangeDirectory(obj_MoveModalFolder)">
+                            <i class="el-icon-folder"></i>
+                            {{obj_MoveModalFolder.GalFolder}}
+                            <i class="el-icon-arrow-right   "></i>
+                        </el-button>
+                    </div>
                 </div>
-                <div class="col-" v-for="obj_MoveModalFolder of arrobj_MoveModalFolders"
-                     :key="obj_MoveModalFolder.GalID"
-                     :data-type="obj_MoveModalFolder.GalType">
-                    <button class="btn btn-light" @click="MoveModalChangeDirectory(obj_MoveModalFolder)">
-                        <i class="fa fa-folder" aria-hidden="true"></i>
-                        {{obj_MoveModalFolder.GalFolder}}
-                    </button>
+                <div class="col-lg-8">
+
+                    <div class="modal_MoveItem-slider">
+                        <b-carousel id="carousel2"
+                                    style="text-shadow: 1px 1px 2px #333;"
+                                    controls
+                                    indicators
+                                    background="#ababab"
+                                    :interval="0"
+                        >
+                            <b-carousel-slide v-for="obj_Item of arrobj_SelectedItem" :key="obj_Item.FileID">
+                                <img slot="img" :src="getLowSource(obj_Item)"
+                                     :alt="obj_Item.GalFileName"/>
+                            </b-carousel-slide>
+                        </b-carousel>
+                    </div>
                 </div>
             </div>
         </b-modal>
@@ -306,7 +313,7 @@
                 let checkPop = i + 1;
                 let obj_PreviousFolder = this.arrobj_FolderPath[i];
                 this.initFolder(obj_PreviousFolder);
-                if (this.arrobj_FolderPath.length !== checkPop){
+                if (this.arrobj_FolderPath.length !== checkPop) {
                     this.arrobj_FolderPath.pop();
                 }
             },
@@ -614,7 +621,6 @@
                 this.$refs.modal_MoveItem.show();
                 this.arrobj_MoveModalFolderPath = [];
                 this.arrobj_MoveModalFolderPath.push.apply(this.arrobj_MoveModalFolderPath, this.arrobj_FolderPath);
-
                 let obj_CurrentFolder = this.arrobj_MoveModalFolderPath[this.arrobj_MoveModalFolderPath.length - 1];
 
                 this.MoveModalInitFolder(obj_CurrentFolder);
@@ -622,24 +628,20 @@
             ,
             hideMoveModal() {
                 this.$refs.modal_MoveItem.hide();
-            }
-            ,
+            },
             MoveModalGoBack() {
                 if (this.arrobj_MoveModalFolderPath.length >= 1)
                     this.arrobj_MoveModalFolderPath.pop();
-
-                let obj_PreviousFolder = this.arrobj_MoveModalFolderPath[this.arrobj_MoveModalFolderPath.length - 1];
-
-                this.MoveModalInitFolder(obj_PreviousFolder);
+                if (this.arrobj_MoveModalFolderPath.length > 0) {
+                    let obj_PreviousFolder = this.arrobj_MoveModalFolderPath[this.arrobj_MoveModalFolderPath.length - 1];
+                    this.MoveModalInitFolder(obj_PreviousFolder);
+                }
             }
             ,
             MoveModalChangeDirectory(obj_Folder) {
                 this.arrobj_MoveModalFolderPath.push(obj_Folder);
-
                 this.MoveModalInitFolder(obj_Folder);
-            }
-            ,
-
+            },
             MoveModalInitFolder(obj_Folder) {
                 this.arrobj_MoveModalFolders = [];
 

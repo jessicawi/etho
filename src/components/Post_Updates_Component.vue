@@ -5,10 +5,16 @@
             <div class="col-12">
                 <form class="needs-validation form-style vs-con-loading__container" novalidate
                       @submit.prevent="onSubmit" id="div-with-loading">
-                    <div class="mb-3 form-group">
+                    <div class="mb-3 form-group" :class="{ 'form-group--error': $v.addPostContent.$error }">
                         <!--<label for="username">Username</label>-->
                         <textarea type="text" class="form-control" id="postContent" v-model="addPostContent"
-                                  placeholder="CONTENT"></textarea>
+                                  placeholder="CONTENT" v-model.trim="$v.addPostContent.$model"></textarea>
+                        <div class="error requiredFieldsMsg" v-if="!$v.addPostContent.required">
+                            <el-alert
+                                    title="Content is required"
+                                    type="error">
+                            </el-alert>
+                        </div>
                     </div>
                     <!--<div class="row">
                         <div class="col-md-6 ">
@@ -81,7 +87,7 @@
                             <b-btn @click="resetAll" class="float-left btn-secondary">Cancel</b-btn>
                         </div>
                         <div class="col-md-6">
-                            <button class="btn btn-primary " type="submit">Submit
+                            <button class="btn btn-primary " type="submit" @click="Validation">Submit
                             </button>
                         </div>
                     </div>
@@ -98,6 +104,7 @@
     import tagsComponent from "./Post_Tags_Component";
     import $ from "jquery";
     import {removeElementFromArray} from "../helper/utily";
+    import {required} from "vuelidate/lib/validators";
 
     export default {
         name: "updatesComponent",
@@ -120,6 +127,11 @@
                 loading: false,
                 uploadedFiles: []
             };
+        },
+        validations: {
+            addPostContent: {
+                required
+            },
         },
         methods: {
             sleep(milliseconds) {
@@ -253,69 +265,74 @@
             errorMsg() {
 
             },
+            Validation(){
+                this.$v.$touch();
+            },
             async onSubmit() {
-                this.error = "";
-                this.$vs.loading();
-                await this.sleep(500);
-                //this.results = "<< Requesting.. >>";
-                try {
-                    /*const studentsIds = this.tags.map(d => d.Student_ID);*/
+                if (!this.$v.$error) {
+                    this.error = "";
+                    this.$vs.loading();
+                    await this.sleep(500);
+                    //this.results = "<< Requesting.. >>";
+                    try {
+                        /*const studentsIds = this.tags.map(d => d.Student_ID);*/
 
 
-                    const saveResponse = await DataSource.shared.savePostUpdate(this.selectedFile, this.addPostContent, this.tags, this.tagClassID, this.tagLevelID, this.PostID);
-                    if (saveResponse) {
+                        const saveResponse = await DataSource.shared.savePostUpdate(this.selectedFile, this.addPostContent, this.tags, this.tagClassID, this.tagLevelID, this.PostID);
+                        if (saveResponse) {
 
-                        if (saveResponse.code == "1")
-                            this.$emit("result", "TRUE");
-                        else
-                            this.$emit("result", "FALSE");
-                        switch (saveResponse.code) {
-                            case "1":
-                                this.$emit("loadPosts");
-                                this.isModalOpen = false;
-                                // reset all input filed to blank
-                                this.selectedFile = [];
-                                this.$refs.fileupload.value = "";
-                                this.addPostContent = "";
-                                this.tagAcademicYearID = null;
+                            if (saveResponse.code == "1")
+                                this.$emit("result", "TRUE");
+                            else
+                                this.$emit("result", "FALSE");
+                            switch (saveResponse.code) {
+                                case "1":
+                                    this.$emit("loadPosts");
+                                    this.isModalOpen = false;
+                                    // reset all input filed to blank
+                                    this.selectedFile = [];
+                                    this.$refs.fileupload.value = "";
+                                    this.addPostContent = "";
+                                    this.tagAcademicYearID = null;
 
-                                this.tagLevelID = null;
-                                this.tagClassID = null;
-                                this.results = `Post Submitted`;
-                                // this.success = '';
-                                this.$notify({
-                                    title: 'Success',
-                                    message: 'Post Submitted, activity will be active in a while',
-                                    type: 'success'
-                                });
-                                await DataSource.shared.softDeletePost(this.PostID);
+                                    this.tagLevelID = null;
+                                    this.tagClassID = null;
+                                    this.results = `Post Submitted`;
+                                    // this.success = '';
+                                    this.$notify({
+                                        title: 'Success',
+                                        message: 'Post Submitted, activity will be active in a while',
+                                        type: 'success'
+                                    });
+                                    await DataSource.shared.softDeletePost(this.PostID);
 
-                                this.$vs.loading.close();
-                                break;
-                            case "88":
-                                this.$vs.loading.close();
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Please Login to submit post'
-                                });
-                                this.systemmsgError = true;
-                                break;
-                            case "99":
-                                this.$vs.loading.close();
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Please fill in content'
-                                });
-                                this.systemmsgError = true;
-                                break;
-                            // default:
-                            //     alert("Please try again later");
-                            //     this.results = JSON.stringify(response);
+                                    this.$vs.loading.close();
+                                    break;
+                                case "88":
+                                    this.$vs.loading.close();
+                                    this.$notify.error({
+                                        title: 'Error',
+                                        message: 'Please Login to submit post'
+                                    });
+                                    this.systemmsgError = true;
+                                    break;
+                                case "99":
+                                    this.$vs.loading.close();
+                                    this.$notify.error({
+                                        title: 'Error',
+                                        message: 'Please fill in content'
+                                    });
+                                    this.systemmsgError = true;
+                                    break;
+                                // default:
+                                //     alert("Please try again later");
+                                //     this.results = JSON.stringify(response);
+                            }
                         }
+                    } catch (e) {
+                        console.log(e);
+                        this.error = e;
                     }
-                } catch (e) {
-                    console.log(e);
-                    this.error = e;
                 }
             },
             getImagePreviews() {

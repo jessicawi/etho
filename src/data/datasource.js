@@ -782,30 +782,14 @@ export default class DataSource {
         return response;
     }
 
-    async setLevel(studentID, levelID, fromDate, toDate, academicYearID, intakeYear) {
+    async setLevel(mode, studentID, crsID, semID, commencementDate, studentSchoolID) {
         const data = {
+            mode: mode,
             studentID: studentID,
-            levelID: levelID,
-            fromDate: fromDate,
-            toDate: toDate,
-            academicYearID: academicYearID,
-            intakeYear: intakeYear,
-        };
-        const response = await this.callWebService("/controller/Students.asmx/setLevel", data, "POST");
-        return response;
-    }
-
-    async setLevelForAcceptScool(studentID, levelID, fromDate, toDate, academicYearID, intakeYear, acceptTransferStudent, studentSchoolID, effectiveDate) {
-        const data = {
-            studentID: studentID,
-            levelID: levelID,
-            fromDate: fromDate,
-            toDate: toDate,
-            academicYearID: academicYearID,
-            intakeYear: intakeYear,
-            acceptTransferStudent: acceptTransferStudent,
+            crsID: crsID,
+            semID: semID,
+            commencementDate: commencementDate,
             studentSchoolID: studentSchoolID,
-            effectiveDate: effectiveDate
         };
         const response = await this.callWebService("/controller/Students.asmx/setLevel", data, "POST");
         return response;
@@ -981,7 +965,7 @@ export default class DataSource {
         return response;
     }
 
-    async savePortfolioPost(files, porTitle, porObservation, porAnalysisReflection, porDevelopmentGoals, tagUserID, tagClassID, tagLevelID, postLinkID) {
+    async savePortfolioPost(files, porTitle, porObservation, porAnalysisReflection, porDevelopmentDomain, porDevelopmentGoals, tagUserID, tagClassID, tagLevelID, postLinkID) {
         const postType = "PORTFOLIO";
         const formData = new FormData();
         formData.append('token', Cookies.get('authToken'));
@@ -990,6 +974,7 @@ export default class DataSource {
         formData.append("porTitle", porTitle);
         formData.append("porObservation", porObservation);
         formData.append("porAnalysisReflection", porAnalysisReflection);
+        formData.append("porDevelopmentDomain", porDevelopmentDomain);
         formData.append("porDevelopmentGoals", porDevelopmentGoals);
         formData.append("postLinkID", postLinkID);
 
@@ -1583,13 +1568,7 @@ export default class DataSource {
         const response = await this.callWebService("/controller/Students.asmx/getIntakeYear", data, "POST");
         return response;
     }
-
-    async getUserList() {
-        const data = {};
-        const response = await this.callWebService("/controller/UserMagt.asmx/getUserList", data, "POST");
-        return response;
-    }
-
+    
 // SAMPLE 2 using axios
     async PostToGetDataWEIRD() {
         const options = {
@@ -2925,12 +2904,13 @@ export default class DataSource {
         return response;
     }
 
-    async getLeftOverPaymentReceipt(Obj, studentID, invoiceName, studentCourseID) {
+    async getLeftOverPaymentReceipt(Obj, studentID, invoiceName, studentCourseID,action) {
         const data = {
             receiptNameListObj: Obj,
             studentID: studentID,
             invoiceName: invoiceName,
             studentCourseID: studentCourseID,
+            action:action,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getLeftoverPayment", data, "POST");
         return response;
@@ -3435,7 +3415,7 @@ export default class DataSource {
     }
 
     async getInvoiceList(invoiceDateFrom, invoiceDateTo, invoiceDueDateFrom, invoiceDueDateTo,
-                         studentIndexNo, invoiceNo, studentName) {
+                         studentIndexNo, invoiceNo, studentName,type) {
         try {
             const data = {
                 invoiceDateFrom: invoiceDateFrom,
@@ -3445,6 +3425,7 @@ export default class DataSource {
                 studentIndexNo: studentIndexNo,
                 invoiceNo: invoiceNo,
                 studentName: studentName,
+                type:type,
             };
             const response = await this.callWebService("/controller/Billing.asmx/getInvoiceList", data, "POST");
             return response;
@@ -3808,6 +3789,96 @@ export default class DataSource {
                 newPlannerStudentObjJson: newPlannerStudentObjJson
             };
             const response = await this.callWebService("/controller/Portfolio.asmx/savePlannerAssignStudent", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPlannerAssignedStudentsGroupByClassID(classID) {
+        try {
+            const data = {
+                classID: classID
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getPlannerAssignedStudentsGroupByClassID", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getStudentPlannerProgressByClassIDRange(classID, studentID) {
+        try {
+            const data = {
+                classID: classID,
+                studentID: studentID,
+            };
+            const response = await this.callWebService("/controller/Portfolio.asmx/getStudentPlannerProgressByClassIDRange", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async clearAllToken(userID, userPassword) {
+        try {
+            const data = {
+                userID: userID,
+                userPassword: userPassword,
+            };
+            const response = await this.callWebService("/controller/Secret_Admin_Config_Token.asmx/clearAllToken", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getAutoAssignLevelAcademicYear(commencementDate, dateOfBirth) {
+        try {
+            const data = {
+                commencementDate: commencementDate,
+                dateOfBirth: dateOfBirth,
+            };
+            const response = await this.callWebService("/controller/Students.asmx/getAutoAssignLevelAcademicYear", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async checkSecretAdminConfigToken(tokenKeyAccess) {
+        try {
+            const data = {
+                tokenKeyAccess: tokenKeyAccess,
+            };
+            const response = await this.callWebService("/controller/Secret_Admin_Config_Token.asmx/checkSecretAdminConfigToken", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getStudentEmptyCourseIDInStudentCourse(studentID) {
+        try {
+            const data = {
+                studentID: studentID,
+            };
+            const response = await this.callWebService("/controller/Secret_Admin_Config_Token.asmx/getStudentEmptyCourseIDInStudentCourse", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async updateStudentEmptyCourseIDInStudentCourse(userID, userPassword, scrID, crsID) {
+        try {
+            const data = {
+                userID: userID,
+                userPassword: userPassword,
+                scrID: scrID,
+                crsID: crsID,
+            };
+            const response = await this.callWebService("/controller/Secret_Admin_Config_Token.asmx/updateStudentEmptyCourseIDInStudentCourse", data, "POST");
             return response;
         } catch (e) {
             console.log(e);

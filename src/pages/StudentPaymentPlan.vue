@@ -1143,6 +1143,7 @@
                 isInvoiceLineItemDisabled:false,
                 //Preview OR Generate
                 overPaymentFlag: '',
+                leftOverActionFlag:'',
 
                 //For Credit Note
                 cnInvoiceName: '',
@@ -1681,6 +1682,7 @@
             async overPaymentClick(value) {
 
                 if (value == 'Yes') {
+                    this.$vs.loading();
 
                     const receiptResp = await DataSource.shared.generateReceipt(JSON.stringify(this.overPaymentSPDList), this.studentID, this.studentCourseID, this.overPaymentFlag);
 
@@ -1718,6 +1720,8 @@
 
                 }
 
+                this.$vs.loading.close();
+
             },
 
             //Start: To disabled el-table-column "selectable"
@@ -1740,7 +1744,7 @@
 
                     this.studentDetail = resp.Table;
                     this.studentDetail.forEach(m => {
-                        this.inputStudentName = m.Full_Name;
+                        this.inputStudentName = m.Full_Name+" "+m.Last_name;
                         this.inputStudentNO = m.Index_No;
                         this.inputStudentStatus = m.Status;
                         this.sponsor_type = m.sponsor_type;
@@ -1761,13 +1765,13 @@
             },
 
             async clearSelect() {
-                this.$refs.invoiceGenerationTable.clearSelection();
-                this.$refs.ReceiptGenerationByTransactionHistoryTable.clearSelection();
-                this.$refs.ReceiptLeftOverPaymentTable.clearSelection();
+                // this.$refs.invoiceGenerationTable.clearSelection();
+                // this.$refs.ReceiptGenerationByTransactionHistoryTable.clearSelection();
+                // this.$refs.ReceiptLeftOverPaymentTable.clearSelection();
                 this.inputRemarks = '';
                 this.ddlPaymentMode = '';
                 this.inputReceiptDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
-                this.this.inputChequeNoBankName = '';
+                this.inputChequeNoBankName = '';
                 //clear generate invoice
                 this.reInvoiceName = '';
                 this.inputInvoiceDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
@@ -2761,10 +2765,20 @@
                         let countTotalPaidAmount = 0;
                         let countTotalNewPayAmount = 0;
 
+                        let countNegativeItem = 0;
+                        let countNegativeValue = 0;
+
                         this.spdSelection.forEach(item => {
                             selectedItemCount++;
                             countTotalPaidAmount += parseFloat(item.SPPD_TotalValue);
                             countTotalNewPayAmount += parseFloat(item.newPayAmount);
+
+                            if(parseFloat(item.SPPD_TotalValue)<0)
+                            {
+                                countNegativeItem++;
+                                countNegativeValue+=parseFloat(item.SPPD_TotalValue);
+                                // console.log(countNegativeItem,countNegativeValue);
+                            }
 
                             let spdDetail = {
                                 PK_SPD_ID: item.PK_SPD_ID,
@@ -2780,7 +2794,7 @@
                                 IH_Invoice_Name:'',
                             };
                             //Todo: overpayment confirmation checking START
-                            if (parseFloat(item.SPPD_TotalValue) < parseFloat(item.newPayAmount)) {
+                            if (parseFloat(item.SPPD_TotalValue) < parseFloat(item.newPayAmount)){
                                 countOverPaymentItems++;
                             }
                             //Todo: overpayment confirmation checking END
@@ -2797,7 +2811,13 @@
                                 message: 'Please select at least 1 payment item'
                             });
                         }
-                        if (countTotalPaidAmount < countTotalNewPayAmount) {
+                        else if(countNegativeItem>0&&(parseFloat(countNegativeValue)+parseFloat(countTotalPaidAmount)<0)){
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please check your overpayment items!!'
+                            });
+                        }
+                        else if (countTotalPaidAmount < countTotalNewPayAmount) {
                             if (this.receiptListCount === selectedItemCount) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
@@ -2805,9 +2825,10 @@
                             } else if (this.receiptListCount > selectedItemCount) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
-
                             }
-                        } else {
+                        }
+                        else
+                            {
 
                             if (countOverPaymentItems > 0) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
@@ -2855,6 +2876,9 @@
                         let countTotalPaidAmount = 0;
                         let countTotalNewPayAmount = 0;
 
+                        let countNegativeItem = 0;
+                        let countNegativeValue = 0;
+
                         this.spdSelection.forEach(item => {
 
                             //to assign invoiceName='' for adhoc receipt without invoice generated
@@ -2865,6 +2889,13 @@
                             selectedItemCount++;
                             countTotalPaidAmount += parseFloat(item.SPPD_TotalValue);
                             countTotalNewPayAmount += parseFloat(item.newPayAmount);
+
+                            if(parseFloat(item.SPPD_TotalValue)<0)
+                            {
+                                countNegativeItem++;
+                                countNegativeValue+=parseFloat(item.SPPD_TotalValue);
+                                // console.log(countNegativeItem,countNegativeValue);
+                            }
 
                             let spdDetail = {
                                 PK_SPD_ID: item.PK_SPD_ID,
@@ -2898,8 +2929,13 @@
                                 message: 'Please select at least 1 payment item'
                             });
                         }
-
-                        if (countTotalPaidAmount < countTotalNewPayAmount) {
+                        else if(countNegativeItem>0&&(parseFloat(countNegativeValue)+parseFloat(countTotalPaidAmount)<0)){
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Please check your overpayment items!!'
+                            });
+                        }
+                        else if(countTotalPaidAmount < countTotalNewPayAmount) {
                             if (this.receiptListCount === selectedItemCount) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
@@ -3728,7 +3764,7 @@
                         obj_List.push(objDetail);
                     }
 
-                    const resp = await DataSource.shared.getLeftOverPaymentReceipt(JSON.stringify(obj_List), this.studentID, (objValue.IH_Invoice_Name == "-" ? "" : objValue.IH_Invoice_Name), this.studentCourseID);
+                    const resp = await DataSource.shared.getLeftOverPaymentReceipt(JSON.stringify(obj_List), this.studentID, (objValue.IH_Invoice_Name == "-" ? "" : objValue.IH_Invoice_Name), this.studentCourseID, this.leftOverActionFlag);
 
                     if (resp) {
                         switch (resp.code) {
@@ -3881,7 +3917,7 @@
                                 refundAmount: m.newRefundAmount,
                                 totalAmount: m.totalAmount,
                                 //refundDate:m.refundDate,
-                                refundDate:"06/08/2019",
+                                // refundDate:"06/08/2019",
                                 refundRemarks:this.inputRefundRemarks,
                                 ID_Item_Description:m.RD_Item_Description,
                                 ID_GST_Applicable:m.RD_GST_Applicable,
@@ -4054,10 +4090,12 @@
 
             async showGenerateReceiptByHistory(value) {
                 try {
-
+                    this.leftOverActionFlag = 'receipt';
                     await this.getReceiptWithTransactionHistory(value);
                     await this.getleftOverPaymentReceipt(value);
                     this.$refs.showGenerateReceiptByHistoryModal.show();
+
+                    console.log(this.leftOverActionFlag);
 
                 } catch (e) {
                     this.results = e;
@@ -4066,9 +4104,12 @@
 
             async showGenerateCreditNote(value) {
 
+                this.leftOverActionFlag = 'cn';
                 await this.getReceiptWithTransactionHistory(value);
                 await this.getleftOverPaymentReceipt(value);
                 this.$refs.creditNoteModal.show();
+
+                console.log(this.leftOverActionFlag);
 
             },
 

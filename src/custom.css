@@ -93,7 +93,21 @@ hr.custom-hr {
 img {
     max-width: 100%;
 }
-
+.el-button.link-button {
+    background: none;
+    border: 0;
+    padding: 5px 0;
+    font-size: 11px;
+    font-weight: normal;
+    color: #409eff;
+}
+.el-button.link-button:hover {
+    background: transparent;
+}
+.el-button.link-button i {
+    font-size: 12px;
+    top: 2px;
+}
 /*
 1---form---
  */
@@ -677,26 +691,26 @@ small.small-grey-text {
     animation: loadingC .6s .3s linear infinite;
 }
 
-@keyframes loadingC {
+/*@keyframes loadingC {*/
 
-0
-{
-    transform: translate(0, 0)
-;
-}
-50
-%
-{
-    transform: translate(0, 15px)
-;
-}
-100
-%
-{
-    transform: translate(0, 0)
-;
-}
-}
+/*0*/
+/*{*/
+    /*transform: translate(0, 0)*/
+/*;*/
+/*}*/
+/*50*/
+/*%*/
+/*{*/
+    /*transform: translate(0, 15px)*/
+/*;*/
+/*}*/
+/*100*/
+/*%*/
+/*{*/
+    /*transform: translate(0, 0)*/
+/*;*/
+/*}*/
+/*}*/
 /*
 9---checkbox---
  */
@@ -718,7 +732,6 @@ label input[type="checkbox"] {
 }
 
 label input[type="checkbox"] + span {
-    display: -webkit-inline-box;
     display: -ms-inline-flexbox;
     display: inline-flex;
     position: relative;
@@ -3222,7 +3235,8 @@ h4.title {
 .addAreaDiv,
 .medAreaDiv,
 .ecAreaDiv,
-.lvlAreaDiv {
+.lvlAreaDiv,
+.hsAreaDiv {
     width: auto;
     padding: 20px;
 }
@@ -5214,7 +5228,24 @@ div#activityModal .modal-content {
     background: transparent;
     border: 0px;
 }
+span.daily-activity_obj {
+    display: block;
+    font-weight: normal;
+}
+#dailyroutine .el-date-editor, #dailyroutine .el-select {
+    width: auto !important;
+    display: block;
+    max-width: 212px;
+}
 
+#dailyroutine .el-date-editor input {
+    border-radius: 20px;
+    background: #dee2e6;
+}
+
+div#dailyroutine .el-form-item {
+    margin: 0;
+}
 /*
 31---post approve---
 */
@@ -6782,3 +6813,5 @@ span.render-range {
     display: flex;
     justify-content: flex-end;
 }
+
+

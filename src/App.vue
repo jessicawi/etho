@@ -19,12 +19,12 @@
         </b-modal>
     </div>
 </template>
-
 <script>
     import Header from "./components/Header";
     import MainContent from "./components/MainContent";
     import DataSource from "./data/datasource";
     import Cookies from "js-cookie";
+    import Global from "./global";
 
     export default {
         name: 'app',
@@ -42,26 +42,63 @@
         },
         mounted() {
             const isLogin = Cookies.get('authToken');
-            if (this.$route.path !== "/login" && this.$route.path !== "/register/parent" && this.$route.path !== "/reset-password" && this.$route.path !== "/reset-email" && this.$route.path !== "/PortfolioMedia" && this.$route.path !== "/SecretAdminConfigPage" && (!isLogin || isLogin === "null" || isLogin === "undefined")) {
+            if (this.$route.path !== "/login" &&
+                this.$route.path !== "/register/parent" &&
+                this.$route.path !== "/reset-password" &&
+                this.$route.path !== "/reset-email" &&
+                this.$route.path !== "/PortfolioMedia" &&
+                this.$route.path !== "/SecretAdminConfigPage" &&
+                (!isLogin || isLogin === "null" || isLogin === "undefined") &&
+                !this.$route.path.startsWith("/public/")) {
                 // alert("expired");
                 this.$message.error('Session is expired, please login again.');
-                this.$router.push('/login')
-            }else if (isLogin) {
+                this.$router.push('/login');
+            } else if (isLogin) {
                 this.isLoggedIn = true;
+                this.checkExpireCookies();
                 // setTimeout(this.warningLogout, 10800000); // 3 hours
             }
-            if (isLogin===null || isLogin==="undefined"){
+            if (isLogin === null || isLogin === "undefined") {
                 this.$router.push('/login');
             }
             this.isLoading = false;
-
         },
         methods: {
+            appGetMs() {
+                const d = new Date();
+                return d.getTime();
+            },
+            checkExpireCookies() {
+
+                const expireTime = Cookies.get('expireTime');
+                const nowMs = this.appGetMs();
+                let newExpireTime = new Date(Number(expireTime) + (1 * 60 * 1000));
+                let newCheckExpireTime = newExpireTime - nowMs;
+                setTimeout(() => {
+                    if (!expireTime || expireTime < nowMs) {
+                        DataSource.shared.logout();
+                    } else {
+                        this.checkExpireCookies();
+                    }
+                }, newCheckExpireTime);
+
+
+                // let timeout = 1 * 60 * 1000;
+                // console.log(timeout)
+                // setTimeout(() => {
+                //     let withToken = Cookies.get('authToken');
+                //     if (!withToken) {
+                //         DataSource.shared.logout();
+                //         // console.log("withToken");
+                //     }else{
+                //         this.checkExpireCookies();
+                //     }
+                // }, timeout);
+            },
             warningLogout() {
                 this.isSessionModalOpen = true;
                 // const result = "Session expired, press ok to continue login, press cancel to logout";
                 setTimeout(this.cancelClick, 10800);
-
             },
             okClick() {
                 // continue login
@@ -71,15 +108,13 @@
 
             },
             cancelClick() {
+                console.log("logout clicked");
                 DataSource.shared.logout();
                 Cookies.remove('authToken');
             },
         }
     };
-
-
 </script>
-
 <style>
     body {
     }
@@ -110,7 +145,7 @@
         text-decoration: none !important;
     }
 
-    .loading-screen{
+    .loading-screen {
         position: fixed;
         width: 100%;
         height: 100%;
@@ -122,7 +157,6 @@
         font-size: 30px;
     }
 </style>
-
 <style lang="scss">
     $theme-colors: (
             primary: #f44252

@@ -13,6 +13,11 @@
                             Patch Empty Level in Student Course
                         </el-button>
                     </div>
+                    <div class="col-lg-12">
+                        <el-button type="primary" class="mt-2 mb-2" @click="openDebugAutoGetLevelAcademicYearModal()">
+                            Debug Auto Get Level & Academic Year
+                        </el-button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,6 +90,81 @@
                 </div>
             </div>
         </b-modal>
+        <b-modal size="lg" title="Debug Auto Get Level & Academic Year" ok-only ok-variant="secondary" ok-title="Cancel" ref="debugAutoGetLevelAcademicYear" hide-footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <label>School</label>
+                    <el-select v-model="ddlDebugAutoGetLevelAcademicYearSchoolID" placeholder="Select School" class="pro-edt-select fullWidth">
+                        <el-option
+                                v-for="item in ddlDebugAutoGetLevelAcademicYearSchoolIDList"
+                                :key="item.PK_SCH_ID"
+                                :label="item.SCH_Short_Name"
+                                :value="item.PK_SCH_ID">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div class="col-lg-12">
+                    <label>Date of Birth</label>
+                    <div class="date">
+                        <el-date-picker v-model="inputDebugAutoGetLevelAcademicYearDOB" format="dd/MM/yyyy" value-format="dd/MM/yyyy" type="date"
+                                        placeholder="Pick a date"></el-date-picker>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <label>Commencement Date</label>
+                    <div class="date">
+                        <el-date-picker v-model="inputDebugAutoGetLevelAcademicYearCommencementDate" format="dd/MM/yyyy" value-format="dd/MM/yyyy" type="date"
+                                        placeholder="Pick a date"></el-date-picker>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <label>User Name</label>
+                    <input type="text" class="form-control" v-model="inputDebugAutoGetLevelAcademicYearUserName">
+                </div>
+                <div class="col-lg-12">
+                    <label>Password</label>
+                    <input type="password" class="form-control" v-model="inputDebugAutoGetLevelAcademicYearPassword">
+                </div>
+                <div class="col-lg-12">
+                    <el-button type="primary" class="mt-2 mb-2" @click="getDebugAutoGetLevelAcademicYear()">
+                        Submit
+                    </el-button>
+                </div>
+
+                <div class="col-lg-12" v-if="debugAutoGetLevelAcademicAutoGetListInt.length>0">
+                    <data-tables :data="debugAutoGetLevelAcademicAutoGetListInt">
+                        <el-table-column v-for="debugAutoGetLevelAcademicAutoGetListInfo in debugAutoGetLevelAcademicAutoGetList"
+                                         :prop="debugAutoGetLevelAcademicAutoGetListInfo.prop"
+                                         :label="debugAutoGetLevelAcademicAutoGetListInfo.label"
+                                         :key="debugAutoGetLevelAcademicAutoGetListInfo.prop"
+                                         sortable="custom">
+                        </el-table-column>
+                    </data-tables>
+                </div>
+
+                <div class="col-lg-12" v-if="debugAutoGetLevelAcademicAutoGetListActiveSemesterInt.length>0">
+                    <data-tables :data="debugAutoGetLevelAcademicAutoGetListActiveSemesterInt">
+                        <el-table-column v-for="debugAutoGetLevelAcademicAutoGetListActiveSemesterInfo in debugAutoGetLevelAcademicAutoGetListActiveSemester"
+                                         :prop="debugAutoGetLevelAcademicAutoGetListActiveSemesterInfo.prop"
+                                         :label="debugAutoGetLevelAcademicAutoGetListActiveSemesterInfo.label"
+                                         :key="debugAutoGetLevelAcademicAutoGetListActiveSemesterInfo.prop"
+                                         sortable="custom">
+                        </el-table-column>
+                    </data-tables>
+                </div>
+
+                <div class="col-lg-12" v-if="debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInt.length>0">
+                    <data-tables :data="debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInt">
+                        <el-table-column v-for="debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInfo in debugAutoGetLevelAcademicAutoGetListAllAgeCourses"
+                                         :prop="debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInfo.prop"
+                                         :label="debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInfo.label"
+                                         :key="debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInfo.prop"
+                                         sortable="custom">
+                        </el-table-column>
+                    </data-tables>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -113,6 +193,49 @@
                 }, {
                     prop: "Student Name",
                     label: "Student Name"
+                }],
+
+                ddlDebugAutoGetLevelAcademicYearSchoolID: '',
+                ddlDebugAutoGetLevelAcademicYearSchoolIDList: [],
+                inputDebugAutoGetLevelAcademicYearDOB: '',
+                inputDebugAutoGetLevelAcademicYearCommencementDate: '',
+                inputDebugAutoGetLevelAcademicYearUserName: '',
+                inputDebugAutoGetLevelAcademicYearPassword: '',
+                debugAutoGetLevelAcademicAutoGetListInt: [],
+                debugAutoGetLevelAcademicAutoGetList: [{
+                    prop: "Prop",
+                    label: "Prop"
+                }, {
+                    prop: "Value",
+                    label: "Value"
+                }],
+                debugAutoGetLevelAcademicAutoGetListActiveSemesterInt: [],
+                debugAutoGetLevelAcademicAutoGetListActiveSemester: [{
+                    prop: "PK_Semester_ID",
+                    label: "Sem ID"
+                }, {
+                    prop: "SMT_Code",
+                    label: "Academic Year"
+                }, {
+                    prop: "SEMD_DetailName",
+                    label: "Term"
+                }, {
+                    prop: "SEMD_FromDate",
+                    label: "Term From Date"
+                }, {
+                    prop: "SEMD_ToDate",
+                    label: "Term To Date"
+                }],
+                debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInt: [],
+                debugAutoGetLevelAcademicAutoGetListAllAgeCourses: [{
+                    prop: "PK_Course_ID",
+                    label: "Crs ID"
+                }, {
+                    prop: "CRS_Course_Name",
+                    label: "Level"
+                }, {
+                    prop: "CRS_Age",
+                    label: "Age"
                 }],
             };
         },
@@ -248,6 +371,87 @@
                             this.$refs.patchEmptyLevelInStudentCourse.hide();
                         }
                     }
+                }
+            },
+            openDebugAutoGetLevelAcademicYearModal () {
+                this.ddlDebugAutoGetLevelAcademicYearSchoolID = '';
+                this.ddlDebugAutoGetLevelAcademicYearSchoolIDList = [];
+                this.inputDebugAutoGetLevelAcademicYearDOB = '';
+                this.inputDebugAutoGetLevelAcademicYearCommencementDate = '';
+                this.inputDebugAutoGetLevelAcademicYearUserName = '';
+                this.inputDebugAutoGetLevelAcademicYearPassword = '';
+                this.debugAutoGetLevelAcademicAutoGetListInt = [];
+                this.debugAutoGetLevelAcademicAutoGetListActiveSemesterInt = [];
+                this.debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInt = [];
+
+                this.getAllSchools();
+
+                this.$refs.debugAutoGetLevelAcademicYear.show();
+            },
+            async getAllSchools(){
+                try {
+                    const response = await DataSource.shared.getAllSchools();
+                    if (response) {
+                        if (response.code === '99') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Error get student...'
+                            });
+                        } else if (response.code === '2') {
+                            this.ddlDebugAutoGetLevelAcademicYearSchoolIDList = [];
+                        } else {
+                            this.ddlDebugAutoGetLevelAcademicYearSchoolIDList = response.Table;
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async getDebugAutoGetLevelAcademicYear(){
+                try {
+                    if (this.ddlDebugAutoGetLevelAcademicYearSchoolID === '' || this.inputDebugAutoGetLevelAcademicYearDOB === '' || this.inputDebugAutoGetLevelAcademicYearCommencementDate === '' || this.inputDebugAutoGetLevelAcademicYearUserName === '' || this.inputDebugAutoGetLevelAcademicYearPassword === '') {
+                        this.$notify({
+                            title: 'Require',
+                            message: 'Please fill in all information....'
+                        });
+                    } else {
+                        this.debugAutoGetLevelAcademicAutoGetListInt = [];
+                        this.debugAutoGetLevelAcademicAutoGetListActiveSemesterInt = [];
+                        this.debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInt = [];
+
+                        const response = await DataSource.shared.getDebugAutoGetLevelAcademicYear(this.inputDebugAutoGetLevelAcademicYearUserName, this.inputDebugAutoGetLevelAcademicYearPassword, this.inputDebugAutoGetLevelAcademicYearCommencementDate, this.inputDebugAutoGetLevelAcademicYearDOB, this.ddlDebugAutoGetLevelAcademicYearSchoolID);
+                        if (response) {
+                            if (response.code === '99') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Error get student...'
+                                });
+                            } else if (response.code === '2') {
+                                this.$notify.error({
+                                    title: 'Invalid',
+                                    message: 'Invalid Login...'
+                                });
+                            } else {
+                                // response.SummaryTable.forEach(m => {
+                                //     if (m.Prop !== 'Debug Active Semester Table' && m.Prop !== 'Debug Active All Age Courses Table') {
+                                //         this.debugAutoGetLevelAcademicAutoGetListInt.push(m);
+                                //     } else {
+                                //         if (m.Prop === 'Debug Active Semester Table') {
+                                //             console.log(m.Value);
+                                //             this.debugAutoGetLevelAcademicAutoGetListActiveSemesterInt = m.Value.Table;
+                                //         } else if (m.Prop === 'Debug Active All Age Courses Table') {
+                                //             console.log(m.Value);
+                                //         }
+                                //     }
+                                // });
+                                this.debugAutoGetLevelAcademicAutoGetListInt = response.SummaryTable.Table;
+                                this.debugAutoGetLevelAcademicAutoGetListActiveSemesterInt = response.DebugActiveSemesterTable.Table;
+                                this.debugAutoGetLevelAcademicAutoGetListAllAgeCoursesInt = response.DebugActiveAllAgeCourses.Table;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
                 }
             },
         },

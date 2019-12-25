@@ -65,7 +65,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <el-button type="primary" class="mt-2 mb-2" @click="getPlannerUnAssignToSchoolDetails()">
-                            Assigned
+                            Assign
                         </el-button>
                     </div>
                     <div class="col-lg-12">
@@ -115,7 +115,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <el-button type="primary" class="mt-2 mb-2" @click="getPlannerUnAssignRuleDomainName()">
-                            Assigned
+                            Assign
                         </el-button>
                     </div>
                     <div class="col-lg-12">
@@ -217,14 +217,14 @@
                     prop: "PlnMasGoals",
                     label: "Goals"
                 }, {
-                    prop: "PlnMasKeySkill",
-                    label: "Key Skills"
+                    prop: "PlnMasGoalsType",
+                    label: "Goals Type"
                 }, {
-                    prop: "PlnMasCLD",
-                    label: "CLD"
+                    prop: "KeySkillOrCLD",
+                    label: "Key Skills Or CLD"
                 }, {
-                    prop: "PlnMasType",
-                    label: "Type"
+                    prop: "KeySkillOrCLDType",
+                    label: "Key Skills Or CLD Type"
                 }],
                 plannerAssignedListDelete: {
                     label: 'Delete',
@@ -251,14 +251,14 @@
                     prop: "PlnMasGoals",
                     label: "Goals"
                 }, {
-                    prop: "PlnMasKeySkill",
-                    label: "Key Skills"
+                    prop: "PlnMasGoalsType",
+                    label: "Goals Type"
                 }, {
-                    prop: "PlnMasCLD",
-                    label: "CLD"
+                    prop: "KeySkillOrCLD",
+                    label: "Key Skills Or CLD"
                 }, {
-                    prop: "PlnMasType",
-                    label: "Type"
+                    prop: "KeySkillOrCLDType",
+                    label: "Key Skills Or CLD Type"
                 }],
 
                 plannerAssignedRuleListInt: [],

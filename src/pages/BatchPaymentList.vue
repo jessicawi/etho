@@ -1,11 +1,7 @@
 <template>
     <div id="batch-payment-list">
-        <div class="container ">
-            <div class="row header mb-5">
-                <div class="col-lg-5 ">
-                    <h3 class="text-left mb-3">Batch Invoice</h3>
-                </div>
-            </div>
+        <div class="container">
+                    <h5 class="text-left mb-3">Batch Invoice</h5>
 
             <div class="datatable-form__header atr-header-wrap mb-4">
 
@@ -71,11 +67,11 @@
 
             <div class="admin-wrap">
                 <div class="datatable-form__submit text-right">
-                        <div class="col-lg-6" v-if="UnbilledBatchPaymentListInt.length>1">
+                        <div class="col-lg-6" v-if="UnbilledBatchPaymentListInt.length>0">
                             <el-checkbox v-model="cbPrintMonthlyBreakdown" label="Print monthly breakdown" border
                                          class="float-left"></el-checkbox>
                         </div>
-                    <el-button-group v-if="UnbilledBatchPaymentListInt.length>1">
+                    <el-button-group v-if="UnbilledBatchPaymentListInt.length>0">
                         <div class="datatable-form__input form-group flex-1">
                             <el-date-picker
                                     v-model="inputDueDate"
@@ -100,8 +96,32 @@
                         <img src="../assets/notfound.png"/>
                     </div>
 
+                    <div v-if="negativeStudentListInt.length>0">
+                        <b>Error List</b>
+                        <data-tables :data="negativeStudentListInt"
+                                     width="55" stripe tooltip-effect='light' border>
+                            <el-table-column v-for="item in negativeStudentList"
+                                             :prop="item.prop"
+                                             :label="item.label"
+                                             :key="item.prop"
+                                             sortable="custom">
+                            </el-table-column>
+                        </data-tables>
+                    </div>
+
                     <div v-if="UnbilledBatchPaymentListInt.length>0" class="datatable_group">
-                        <data-tables :data="UnbilledBatchPaymentListInt" @selection-change="changeSelection"
+                        <div class="">
+                            <el-input class="search-datatable" placeholder="Search Students"  v-model="UnbilledBatchPaymentListFilters[0].value">
+                                <template slot="prepend">
+                                    <i class="material-icons">search</i>
+                                    <span>Search Student</span>
+                                </template>
+                            </el-input>
+                        </div>
+                        <data-tables ref="selectableTable" :page-size="pageSize"
+                                     :pagination-props="{ pageSizes: [pageSize,100] }"
+                                     :filters="UnbilledBatchPaymentListFilters"
+                                     :data="UnbilledBatchPaymentListInt" @selection-change="changeSelection"
                                      width="55" stripe tooltip-effect='light' border>
                             <el-table-column type="selection" width="55" :reserve-selection="true">
                             </el-table-column>
@@ -120,7 +140,7 @@
                                               :step="0.01" placeholder="GST"></el-input>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="Total(IncludedGst)" min-width="100px">
+                            <el-table-column label="Total(IncludedGst)" min-width="70px">
                                 <template slot-scope="scope">
                                     <el-input id="totalValueWithGst" v-model="scope.row.SPPD_TotalValue" type="number" readonly="readonly"></el-input>
                                 </template>
@@ -145,6 +165,7 @@
         name: "BatchPaymentList",
         data(){
             return{
+                pageSize:50,
                 readonly:true,
                 spdSelection:[],
                 arrobj_selectedSPD:[],
@@ -175,6 +196,12 @@
                     prop: "SPPD_PaymentAmount",
                     label: "Amount"
                 }],
+                UnbilledBatchPaymentListFilters:[
+                    {
+                        value: '',
+                        prop: 'StudentName',
+                    },
+                ],
                 inputDueDate:'',
                 courseListResponse:'',
                 courseList:[],
@@ -207,6 +234,18 @@
                 objNonCourseFees:[],
                 nonEligibleStudentList:[],
                 //breakdown items
+
+                negativeStudentListInt:[],
+                negativeStudentList:[{
+                    prop: "StudentName",
+                    label: "Student Name"
+                }, {
+                    prop: "Index_No",
+                    label: "Index NO"
+                }, {
+                    prop: "NegativeAmount",
+                    label: "Negative Amount"
+                }],
             }
         },
         async mounted(){
@@ -288,11 +327,55 @@
             async batchPreviewClick(){
                 try{
                     this.sortByStudentNO();
+                    //todo:check eligibility for negative items and value: start
+                    let countNegativeStudent = 0;
+                    let tempListObj=[];
+                    this.arrobj_selectedSPD.forEach(m=>{
+                        let countNegativeItem = 0;
+                        let countValue = 0;
+                        let studentName = '';
+
+                       m.ArrObj_Items.forEach(n=>{
+                           if(parseFloat(n.SPPD_TotalValue)<0)
+                           {
+                               countNegativeItem++;
+                           }
+                           countValue+=parseFloat(n.SPPD_TotalValue);
+                           studentName = n.Full_Name+' '+n.Last_name;
+                       });
+
+                       if(parseFloat(countNegativeItem)>0 && parseFloat(countValue)<0)
+                       {
+                            countNegativeStudent++;
+                               let tempList = {
+                                   StudentName:studentName,
+                                   Index_No:m.ArrObj_Items[0].Index_No,
+                                   NegativeAmount:parseFloat(countValue).toFixed(2),
+                               };
+                               tempListObj.push(tempList);
+                               this.negativeStudentListInt = tempListObj;
+                       }
+
+                    });
+                    //todo:To check eligibility for negative items and value: end
+
                     if (!this.inputDueDate)
                     {
                         this.$notify({
                             title: 'Require',
                             message: '"Payment Due Date"'
+                        });
+                    }
+                    else if(this.spdSelection.length === 0) {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Please select at least 1 payment item'
+                        });
+                    }
+                    else if(countNegativeStudent>0){
+                        this.$notify({
+                            title: 'Error',
+                            message: '"Cannot generate invoice with negative value, please check students below:"'
                         });
                     }
                     else{
@@ -386,6 +469,42 @@
             async batchGenerateClick(){
                 try{
                     this.sortByStudentNO();
+                    let countNegativeStudent = 0;
+                    let tempListObj=[];
+
+                    this.arrobj_selectedSPD.forEach(m=>{
+                        let countNegativeItem = 0;
+                        let countValue = 0;
+                        let studentName = '';
+
+                        m.ArrObj_Items.forEach(n=>{
+                            // console.log(n.Full_Name,parseFloat(n.newGSTAmount),parseFloat(n.SPPD_TotalValue),n.SPPD_PaymentAmount);
+                            if(parseFloat(n.SPPD_TotalValue)<0)
+                            {
+                                countNegativeItem++;
+                            }
+                            countValue+=parseFloat(n.SPPD_TotalValue);
+                            // countValue = countValue+parseFloat(n.SPPD_TotalValue);
+                            studentName = n.Full_Name+' '+n.Last_name;
+                        });
+
+                        // console.log('xxx',studentName,parseFloat(countNegativeItem),countValue);
+
+                        if(parseFloat(countNegativeItem)>0 && parseFloat(countValue)<0)
+                        {
+                            countNegativeStudent++;
+                            let tempList = {
+                                StudentName:studentName,
+                                Index_No:m.ArrObj_Items[0].Index_No,
+                                NegativeAmount:parseFloat(countValue).toFixed(2),
+                            };
+                            // console.log('m.ArrObj_Items=',m.ArrObj_Items,m.ArrObj_Items[0].Index_No);
+                            tempListObj.push(tempList);
+                            this.negativeStudentListInt = tempListObj;
+                        }
+
+                    });
+
                     if (!this.inputDueDate)
                     {
                         this.$notify.error({
@@ -394,10 +513,15 @@
                         });
                     }
                     else if(this.spdSelection.length === 0) {
-                        console.log("2");
                         this.$notify.error({
                             title: 'Error',
                             message: 'Please select at least 1 payment item'
+                        });
+                    }
+                    else if(countNegativeStudent>0){
+                        this.$notify({
+                            title: 'Error',
+                            message: '"Cannot generate invoice with negative value, please check students below:"'
                         });
                     }
                     else{
@@ -491,8 +615,8 @@
                 this.$vs.loading.close();
             },
 
-            async clearSelect () {
-                 this.spdSelection=null;
+            clearSelect () {
+                // this.spdSelection=null;
             },
 
             getRowKeys(row){
@@ -591,6 +715,7 @@
                 try {
                     this.startupText = "No Data Found...";
                     this.UnbilledBatchPaymentListInt =[];
+                    this.negativeStudentListInt=[];
                     if (!this.schoolID)
                     {
                         this.$notify({

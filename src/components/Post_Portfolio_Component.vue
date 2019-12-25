@@ -98,14 +98,15 @@
                             <!--<option disabled value="">Please select one</option>-->
                             <!--<option value="Option 1">Option 1</option>-->
                             <!--</select>-->
-                            <el-select v-model="obj_Post.PostPorDtlDevelopmentGoals" placeholder="Select Goals"
-                                       class="pro-edt-select fullWidth mb-3"
+                            <el-select v-model="obj_Post.PostPorDtlDevelopmentGoals" placeholder="Select Development Goals" multiple
+                                       class="pro-edt-select fullWidth mb-3 postPortfolioComponentPage"
                                        @change="setValidateDropdown(obj_Post.PostPorDtlDevelopmentGoals)">
                                 <el-option
                                         v-for="item in ddlGoalsList"
-                                        :key="item.PlnStaDomain.trim() + ' - ' + item.PlnStaGoals.trim()"
-                                        :label="item.PlnStaDomain.trim() + ' - ' + item.PlnStaGoals.trim()"
-                                        :value="[item.PlnStaDomain.trim(),item.PlnStaGoals.trim()]">
+                                        class="ddlDevelopmentGoalsOption"
+                                        :key="item.PlnStaKeySkillCLD.trim()"
+                                        :label="item.PlnStaKeySkillCLD.trim()"
+                                        :value="item.PlnStaKeySkillCLD.trim()">
                                 </el-option>
                             </el-select>
                             <div class="error requiredFieldsMsg"
@@ -115,6 +116,15 @@
                                         type="error">
                                 </el-alert>
                             </div>
+                        </div>
+                        <div v-if="porDevelopmentObject.length>0" class="col-md-12 formDiv">
+                            <label>You have selected:</label>
+                            <data-tables :data="porDevelopmentObject">
+                                <el-table-column v-for="porDevelopmentObjectValueInfo in porDevelopmentObjectValue" :prop="porDevelopmentObjectValueInfo.prop"
+                                                 :label="porDevelopmentObjectValueInfo.label" :key="porDevelopmentObjectValueInfo.prop"
+                                                 sortable="custom">
+                                </el-table-column>
+                            </data-tables>
                         </div>
                         <div class="col-md-12 formDiv"
                              :class="{ 'form-group--error': $v.obj_Post.PostPorDtlAnalysisReflection.$error }">
@@ -197,6 +207,17 @@
                 ddlClassList: [],
                 ddlClass: '',
                 ddlGoalsList: [],
+                porDevelopmentObject: [],
+                porDevelopmentObjectValue: [{
+                    prop: "Domain",
+                    label: "Domain"
+                }, {
+                    prop: "Goals",
+                    label: "Goals"
+                }, {
+                    prop: "KeySkillCLD",
+                    label: "Key Skill or CLD"
+                }],
             };
         },
         validations: {
@@ -243,8 +264,23 @@
                 this.$v.$touch();
             },
             setValidateDropdown(value) {
-                console.log(value);
-                this.$v.obj_Post.PostPorDtlDevelopmentGoals.$touch()
+                this.$v.obj_Post.PostPorDtlDevelopmentGoals.$touch();
+
+                this.porDevelopmentObject = [];
+
+                this.obj_Post.PostPorDtlDevelopmentGoals.forEach(item => {
+                    this.ddlGoalsList.forEach(m => {
+                        if (item === m.PlnStaKeySkillCLD) {
+                            let porDevelopmentObjectTemp = {
+                                Domain: m.PlnStaDomain,
+                                Goals: m.PlnStaGoals,
+                                KeySkillCLD: m.PlnStaKeySkillCLD,
+                            };
+
+                            this.porDevelopmentObject.push(porDevelopmentObjectTemp);
+                        }
+                    });
+                });
             },
             async verifyPost() {
                 try {
@@ -270,13 +306,13 @@
 
                         console.log('2');
                         await this.sleep(1000);
+
                         /*let studentsIds = this.arrobj_SelectedStudents.map(x => x.Student_ID);*/
                         const response = await DataSource.shared.savePortfolioPost(this.arrobj_SelectedFiles,
                             this.obj_Post.PostPorDtlTitle,
                             this.obj_Post.PostPorDtlObservation,
                             this.obj_Post.PostPorDtlAnalysisReflection,
-                            this.obj_Post.PostPorDtlDevelopmentGoals[0],
-                            this.obj_Post.PostPorDtlDevelopmentGoals[1],
+                            JSON.stringify(this.porDevelopmentObject),
                             this.arrobj_SelectedStudents, "", "",
                             this.obj_Post.PostID);
 
@@ -509,9 +545,10 @@
                         } else if (response.code === '99') {
                             console.log('getPlannerAssignedStudentsGroupByClassID Error');
                         } else if (response.code === '2') {
-                            this.obj_Post.PostPorDtlDevelopmentGoals = '';
+                            this.obj_Post.PostPorDtlDevelopmentGoals = [];
                             this.ddlGoalsList = [];
                         } else {
+                            this.obj_Post.PostPorDtlDevelopmentGoals = [];
                             this.ddlGoalsList = response.Table;
                         }
                     }
@@ -580,5 +617,16 @@
 
     .formDiv {
         margin-top: 20px;
+    }
+
+    .ddlDevelopmentGoalsOption {
+        max-width: 450px;
+    }
+</style>
+<style>
+    .postPortfolioComponentPage .el-tag {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>

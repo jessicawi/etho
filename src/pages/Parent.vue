@@ -1386,7 +1386,7 @@
                     if (this.$route.query.id != null || this.$route.query.id != undefined) {
                         this.lblParentID = this.$route.query.id;
 
-                        const response = await DataSource.shared.getParent(this.$route.query.id, "");
+                        const response = await DataSource.shared.getParent(this.$route.query.id, "", "");
                         if (response) {
                             if (response.code == "2") {
                                 alert('No record found');
@@ -2298,7 +2298,7 @@
                 }
             },
             checkSiblingReActivate(value) {
-                if (value === 'Withdrawn' || value === 'Graduated') {
+                if (value === 'Withdrawn' || value === 'Graduated' || value === 'Void') {
                     return true;
                 } else {
                     return false;

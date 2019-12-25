@@ -397,12 +397,12 @@
             </div>
         </div>
     </div>
-    </div>
 </template>
 <script>
     import DataSource from "../data/datasource";
     import Vue from 'vue';
     import CollapseTransition from 'element-ui/lib/transitions/collapse-transition';
+    import Cookies from "js-cookie";
 
     export default {
         name: "PortfolioPreview",
@@ -436,8 +436,9 @@
                 showEnduringButton: true,
                 showResearchButton: true,
                 noEnduringRemark: false,
-                noResearchRemark: false
+                noResearchRemark: false,
 
+                PortfolioCreatedByConID: '',
             };
         },
         async created() {
@@ -655,6 +656,7 @@
                             this.inputLearningStory = m.PortfolioTitle;
                             this.taEnduringThemes = m.PortfolioEnduringThemes;
                             this.taResearchQuestion = m.PortfolioResearchQuestion;
+                            this.PortfolioCreatedByConID = m.PortfolioCreatedBy;
                         });
                         let tempPortfolioDetails = [];
                         response.DetailsTable.Table.forEach((m, index) => {
@@ -735,17 +737,17 @@
                             });
                         } else {
                             this.postList = response.Table;
-                            if (response.Table.length > 0) {
-                                let tempAnalysis = response.Table[0].PostPorDtlAnalysisReflection;
-                                let tempObservation = response.Table[0].PostPorDtlObservation;
-                                this.analysis = tempAnalysis + '\n' + tempObservation;
-                                let tempConnection = JSON.stringify(response.Table[0].PostPorDtlDevelopmentGoals);
-                                this.connection = JSON.parse(tempConnection);
-
-                                // let tempLearning = JSON.stringify(response.Table[0].PostPorDtlTitle);
-                                // this.inputLearningStory = JSON.parse(tempLearning);
-
-                            }
+                            // if (response.Table.length > 0) {
+                            //     let tempAnalysis = response.Table[0].PostPorDtlAnalysisReflection;
+                            //     let tempObservation = response.Table[0].PostPorDtlObservation;
+                            //     this.analysis = tempAnalysis + '\n' + tempObservation;
+                            //     let tempConnection = JSON.stringify(response.Table[0].PostPorDtlDevelopmentGoals);
+                            //     this.connection = JSON.parse(tempConnection);
+                            //
+                            //     // let tempLearning = JSON.stringify(response.Table[0].PostPorDtlTitle);
+                            //     // this.inputLearningStory = JSON.parse(tempLearning);
+                            //
+                            // }
 
                             // response.Table.forEach((m, index) => {
                             //     let my_object = {
@@ -754,11 +756,45 @@
                             //     m.push(my_object);
                             // });
                             this.getImage();
+
+                            // this.postList = this.postList.map(m => {
+                            //     m.newAnalysis = m.PostPorDtlAnalysisReflection + '\n' + m.PostPorDtlObservation;
+                            //     m.newConnection = m.PostPorDtlDevelopmentDomain + '\n' + m.PostPorDtlDevelopmentGoals;
+                            //     return m;
+                            // });
+
+                            //get learning moment
                             this.postList = this.postList.map(m => {
                                 m.newAnalysis = m.PostPorDtlAnalysisReflection + '\n' + m.PostPorDtlObservation;
-                                m.newConnection = m.PostPorDtlDevelopmentDomain + '\n' + m.PostPorDtlDevelopmentGoals;
                                 return m;
                             });
+
+                            await Promise.all(this.postList.map(async (m) => {
+                                const response = await DataSource.shared.getPostLearningMoment(m.PostPorDtlID);
+                                if (response) {
+                                    if (response.code === '88') {
+                                        window.location.replace('/');
+                                    } else if (response.code === '99') {
+                                        console.log('Error: Get Post Learning Moment');
+                                    } else if (response.code === '2') {
+                                        console.log('No record: Get Post Learning Moment');
+                                    } else {
+                                        let Domain = '';
+
+                                        response.Table.forEach(item => {
+                                            if (Domain === '') {
+                                                Domain = item.PostPorDtlLMDomain;
+                                            } else {
+                                                Domain = Domain + '\n' + item.PostPorDtlLMDomain;
+                                            }
+                                        });
+
+                                        m.newConnection = Domain;
+                                    }
+                                }
+                                return m;
+                            }));
+                            //get learning moment
                         }
                     }
                 } catch (e) {
@@ -937,6 +973,16 @@
                             this.approverPortfolioAction = true;
                         } else {
                             this.approverPortfolioAction = false;
+                        }
+
+                        if (this.$route.params.mode === '' || this.$route.params.mode === null || this.$route.params.mode === undefined) {
+                            if (response.code === '2' && Cookies.get('userIDSession') !== this.PortfolioCreatedByConID) {
+                                this.approverPortfolioAction = true;
+                            } else if (response.code === '5' && Cookies.get('userIDSession') === this.PortfolioCreatedByConID) {
+                                this.btnDownloadPDF = true;
+                            } else {
+                                this.$router.go(-1);
+                            }
                         }
                     }
                 } catch (e) {

@@ -30,8 +30,11 @@
                         <h4 class="student-name text-left">{{selectedStudentsName}}</h4>
                         <h4 class="student-name text-left" v-if="isNull(selectedStudentsName)">Select a student..</h4>
                         <el-button size="mini" type="primary" v-if="!isNull(arrobj_Posts)"
-                                   @click="initCreatePortfolioModal" class="float-left">Generate Portfolio <i
+                                   @click="initCreatePortfolioModal" class="float-left">Generate Learning Moments <i
                                 class="el-icon-circle-plus-outline el-icon-right"></i></el-button>
+                        <el-button v-if="!isNull(selectedStudentsName)" size="mini" type="primary" @click="viewProgress" class="float-left">
+                            View Progress <i class="el-icon-view el-icon-right"></i>
+                        </el-button>
                         <el-button size="mini" type="primary"
                                    v-if="!isNull(arrobj_Posts) && !isNull(arrobj_SelectedPortfolios)"
                                    @click="showDeleteModal" class="float-left">Delete Selected Portfolio <i
@@ -887,6 +890,15 @@
                     args[startIndex] = rest;
                     return func.apply(this, args);
                 };
+            },
+            viewProgress() {
+                this.$router.push({
+                    name: 'Planner Student Progress',
+                    params: {
+                        studentID: this.activeStudent,
+                        classID: this.activeClass,
+                    }
+                });
             },
         },
         mounted() {

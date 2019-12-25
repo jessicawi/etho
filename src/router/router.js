@@ -7,8 +7,6 @@ import resetEmail from "../pages/ResetEmail";
 import resetPassword from "../pages/ResetPassword";
 import studentList from "../pages/StudentList";
 import student from "../pages/Student";
-// import studentEditLevel from "../pages/StudentEditLevel";
-// import studentEditClass from "../pages/StudentEditClass";
 import parentList from "../pages/ParentList";
 import parent from "../pages/Parent";
 import manageRelationship from "../pages/ManageRelationship";
@@ -23,6 +21,7 @@ import report from "../pages/Report";
 import notFound from "../pages/NotFound";
 import portfolioPreview from "../pages/PortfolioPreview";
 import dailyRoutine from "../pages/DailyRoutine";
+import dailyRoutineSingleUpdate from "../pages/DailyRoutineSingleUpdate";
 import pendingApprover from "../pages/PendingApprover";
 import postapprove from "../pages/PostApprove";
 import myAccount from "../pages/MyAccount";
@@ -35,7 +34,6 @@ import studentPaymentPlan from "../pages/StudentPaymentPlan";
 import event from "../pages/Event";
 import eventEmail from "../pages/EventBlastEmail";
 import busMaster from "../pages/BusMaster";
-import dailyRoutineMassUpdate from "../pages/DailyRoutineMassUpdate";
 import busAttendance from "../pages/BusAttendance";
 import ecaMaster from "../pages/EcaMaster";
 import ecaAttendance from "../pages/EcaAttendance";
@@ -54,6 +52,17 @@ import plannerMaster from "../pages/PlannerMaster";
 import plannerAssignSchool from "../pages/PlannerAssignSchool";
 import plannerAssignStudent from "../pages/PlannerAssignStudent";
 import secretAdminConfigPage from "../pages/SecretAdminConfigPage";
+import plannerStudentProgress from "../pages/PlannerStudentProgress";
+import transactionListing from "../pages/TransactionListing";
+import studentListReport from "../pages/StudentListReport";
+import salesLedgerReport from "../pages/SalesLedgerReport";
+import publicPage from "../pages/Public/PublicPage";
+
+import newFeed from "../pages/NewFeed";
+import newMedia from "../pages/NewMedia";
+import newBroadcast from "../pages/NewBroadcast";
+import newEvent from "../pages/NewEvent";
+import batchItemList from "../pages/BatchItemList";
 
 Vue.use(VueRouter);
 
@@ -108,16 +117,6 @@ const router = new VueRouter({
             name: 'Student',
             component: student
         },
-        // {
-        //     path: '/student-edit-level',
-        //     name: 'Student Edit Level',
-        //     component: studentEditLevel
-        // },
-        // {
-        //     path: '/student-edit-class',
-        //     name: 'Student Edit Class',
-        //     component: studentEditClass
-        // },
         {
             path: '/parent-list',
             name: 'Parent List',
@@ -184,9 +183,9 @@ const router = new VueRouter({
             component: dailyRoutine
         },
         {
-            path: '/DailyRoutineMassUpdate',
-            name: 'Daily Routine Mass Update',
-            component: dailyRoutineMassUpdate
+            path: '/DailyRoutineSingleUpdate',
+            name: 'Daily Routine Single Update',
+            component: dailyRoutineSingleUpdate
         },
         {
             path: '/PendingApprover',
@@ -328,6 +327,56 @@ const router = new VueRouter({
             path:'/SecretAdminConfigPage',
             name:'Secret Admin Config Page',
             component: secretAdminConfigPage,
+        },
+        {
+            path:'/PlannerStudentProgress',
+            name:'Planner Student Progress',
+            component: plannerStudentProgress,
+        },
+        {
+            path:'/TransactionListing',
+            name:'TransactionListing',
+            component: transactionListing,
+        },
+        {
+            path:'/StudentListReport',
+            name:'Student List Report',
+            component: studentListReport,
+        },
+        {
+            path:'/SalesLedgerReport',
+            name:'Sales Ledger Report',
+            component: salesLedgerReport,
+        },
+        {
+            path:'/public/public-page',
+            name:'Public Page',
+            component: publicPage,
+        },
+        {
+            path: '/NewFeed',
+            name: 'New Feed',
+            component: newFeed
+        },
+        {
+            path: '/NewMedia',
+            name: 'New Media',
+            component: newMedia
+        },
+        {
+            path: '/NewBroadcast',
+            name: 'New Broadcast',
+            component: newBroadcast
+        },
+        {
+            path: '/NewEvent',
+            name: 'New Event',
+            component: newEvent
+        },
+        {
+            path: '/BatchItemList',
+            name: 'Batch Item List',
+            component: batchItemList
         },
     ]
 });

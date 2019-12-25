@@ -464,8 +464,8 @@
                     }
 
                     if (this.arrobj_SelectedFiles && this.isUploadFile === false) {
-                        let oldEventFile = JSON.stringify(this.arrobj_SelectedFiles.map(m => m.EventFileID));
-                        this.oldEventFileID = oldEventFile.substring(2, oldEventFile.length - 2);
+                        let oldEventFile = this.arrobj_SelectedFiles.map(m => m.EventFileID);
+                        this.oldEventFileID = oldEventFile.toString();
                     }
                     let Obj = {
                         EventID: this.selectedEventID,
@@ -483,6 +483,7 @@
                         OldEventFileID: this.oldEventFileID
                         // EventDesc:this:inputEventDesc
                     };
+
                     let guestIntSave = [];
                     guestIntSave.push(...this.guestInt);
                     if (this.studentInt) {
@@ -658,9 +659,9 @@
                             message: 'File limit exceeded 2MB!'
                         });
                     } else {
-                        if (this.isWhitelist(file)){
+                        if (this.isWhitelist(file)) {
                             this.arrobj_SelectedFiles = event.target.files;
-                        }else{
+                        } else {
                             this.$notify.error({
                                 title: 'Error',
                                 message: 'File Format Not Accepted!'

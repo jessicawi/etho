@@ -1,15 +1,6 @@
 <template>
     <div class="Content">
         <div class="homeBg"></div>
-        <!--<Step/>-->
-        <!--<div>-->
-        <!--<b>session token:</b> {{token}}<br/><br/>{{userType}}<br/><br/>-->
-        <!--<div v-for="object in list" :key="object.UserIDSession">-->
-        <!--{{object.UserIDSession}}-->
-        <!--</div>-->
-        <!--<h4>USER MENU</h4>-->
-        <!--<div style="height: 100px;overflow-y: scroll;width:80%;margin: auto;border:1px solid;">{{usermenu}}</div>-->
-        <!--</div>-->
         <div class="container">
             <div class="dashboard-title"><h4 class="text-left" style="color: white;">Overview</h4></div>
             <div class="row mb-3">
@@ -33,9 +24,6 @@
                         <div class="overview__icon"><img src="../assets/home-enroll.png"/></div>
                         <div class="overview__desc"><span
                                 class="large">{{enrollment}}</span><span>New Enrollment</span></div>
-                        <!--<div class="quicklink" v-if="isParent !== 'Teacher'">-->
-                        <!--<a href="/parent-list">VIEW / EDIT PARENT</a>-->
-                        <!--</div>-->
                     </div>
                 </div>
                 <div class="col-md-3 course">
@@ -125,10 +113,9 @@
                                     <strong>No Record Yet...</strong>
                                     <img src="../assets/notfound.png"/>
                                 </div>
-
                                 <b-card no-body v-if="isLoaded" class="studentSummary">
                                     <b-tabs v-model="tabIndex" card>
-                                        <b-tab :title="obj.title" active v-for="obj of studentMovements" >
+                                        <b-tab :title="obj.title" active v-for="obj of studentMovements">
                                             <span class="d-block text-left" v-if="emptyImage!==true">Student</span>
                                             <bar-chart
                                                     v-if="isLoaded"
@@ -175,13 +162,13 @@
                                                  sortable="custom">
                                 </el-table-column>
                             </data-tables>
-
                             <el-row slot="tool" style="margin: 10px 0">
                                 <el-col :span="8">
                                     <label class="lblAttTotalPresent">Total Present: {{attTotalPresent}}</label>
                                 </el-col>
                                 <el-col :span="8">
-                                    <label class="lblAttTotalNotPresent">Total Not Present: {{attTotalNotPresent}}</label>
+                                    <label class="lblAttTotalNotPresent">Total Not Present:
+                                        {{attTotalNotPresent}}</label>
                                 </el-col>
                                 <el-col :span="8">
                                     <label class="lblAttTotalStudent">Total Students: {{attTotalStudent}}</label>
@@ -191,54 +178,6 @@
                     </div>
                 </div>
             </div>
-            <!--<div class=" mb-3 home-news">-->
-            <!--<div class="dashboard-title"><h4 class="text-left float-left">Upcoming</h4><a class="float-right"-->
-            <!--href="#">MORE </a></div>-->
-            <!--<div class="row">-->
-            <!--<div class="col-md-4 mt-2">-->
-            <!--<div class="home-news__item custom-wrapper">-->
-            <!--<strong>Key facts about our school</strong>-->
-            <!--<div class="thumbnail">-->
-            <!--<img src="../assets/news1.jpg" title="News"/>-->
-            <!--</div>-->
-            <!--<div class="news-content">-->
-            <!--we offer academic, social and personal success for every student. Through opportunities-->
-            <!--to learn from the best, experiences beyond the ordinary, and the encouragement to-->
-            <!--achieve-->
-            <!--more than what they thought possible.-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="col-md-4 mt-2">-->
-            <!--<div class="home-news__item custom-wrapper">-->
-            <!--<strong>Key facts about our school</strong>-->
-            <!--<div class="thumbnail">-->
-            <!--<img src="../assets/news2.jpg" title="News"/>-->
-            <!--</div>-->
-            <!--<div class="news-content">-->
-            <!--we offer academic, social and personal success for every student. Through opportunities-->
-            <!--to learn from the best, experiences beyond the ordinary, and the encouragement to-->
-            <!--achieve-->
-            <!--more than what they thought possible.-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="col-md-4 mt-2">-->
-            <!--<div class="home-news__item custom-wrapper">-->
-            <!--<strong>Key facts about our school</strong>-->
-            <!--<div class="thumbnail">-->
-            <!--<img src="../assets/news3.jpg" title="News"/>-->
-            <!--</div>-->
-            <!--<div class="news-content">-->
-            <!--we offer academic, social and personal success for every student. Through opportunities-->
-            <!--to learn from the best, experiences beyond the ordinary, and the encouragement to-->
-            <!--achieve-->
-            <!--more than what they thought possible.-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
         </div>
     </div>
 </template>
@@ -251,9 +190,11 @@
     import Cookies from "js-cookie";
     import DoubleBarChart from "../components/charts/doubleBarChart";
     import moment from 'moment';
+    import Global from "../global";
 
     export default {
         name: 'homePage',
+
         data() {
             return {
                 tabIndex: 0,
@@ -285,8 +226,8 @@
                     datasets: [
                         {
                             label: 'Students by level',
-                            backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(0, 123, 255, 0.6)', 'rgba(23, 162, 184, 0.6)', 'rgba(255, 193, 7, 0.6)', 'rgba(237, 33, 124, 0.6)', 'rgba(0, 186, 255, 0.6)', 'rgba(18, 189, 215, 0.6)', 'rgba(255, 181, 0, 0.6)', 'rgba(154, 244, 23, 0.6)'],
-                            hoverBackgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(0, 123, 255, 1)', 'rgba(23, 162, 184, 1)', 'rgba(255, 193, 7, 1)', 'rgba(237, 33, 124, 1)', 'rgba(0, 186, 255, 1)', 'rgba(18, 189, 215, 1)', 'rgba(255, 181, 0, 1)', 'rgba(154, 244, 23, 1)'],
+                            backgroundColor: [],
+                            hoverBackgroundColor: [],
                             borderColor: 'rgba(237, 240, 244, 1)',
                             borderWidth: 5,
                             data: []
@@ -601,7 +542,6 @@
                     }
 
 
-
                 }
 
                 //show new enroll graph
@@ -699,6 +639,7 @@
                 // };
 
                 this.getAttendanceData();
+                this.loadChartColor();
             } catch (e) {
                 console.log(e);
             }
@@ -707,6 +648,10 @@
         //     this.showSession()
         // },
         methods: {
+            loadChartColor() {
+                this.chartdata.datasets[0].hoverBackgroundColor= this.HoverChartBG;
+                this.chartdata.datasets[0].backgroundColor= this.ChartBG;
+            },
             showSession: async function () {
                 this.token = Cookies.get('authToken') || "no token";
                 this.userType = Cookies.get('userTypeSession');
@@ -855,6 +800,8 @@
             currentDateWithAlphabet() {
                 return moment().format("DD MMM YYYY");
             },
+            ChartBG:()=>Global.state.ChartBG,
+            HoverChartBG:()=>Global.state.HoverChartBG,
         }
     };
 </script>

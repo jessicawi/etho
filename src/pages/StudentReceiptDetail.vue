@@ -163,7 +163,7 @@
 
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <label>Remarks</label>
-                                <textarea v-model="textAreaRemarks" ref="refTextAreaRemarks" disabled></textarea>
+                                <textarea v-model="textAreaRemarks" ref="refTextAreaRemarks"></textarea>
                             </div>
 
                             <div v-if="this.receiptStatus=='Active'" class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -370,34 +370,45 @@
 
                     // this.invoiceName ='';
                     // this.receiptName ='SG-005-RC19-0434';
+                    if(this.inputInvoiceNO||this.inputReceiptNO){
 
-                    const resp = await DataSource.shared.getReceiptList(this.inputInvoiceNO, this.inputReceiptNO);
-                    if (resp) {
-                        switch (resp.code) {
-                            case "88":
-                                this.$router.push('/');
-                                break;
-                            case "2":
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Invoice/Receipt not found'
-                                });
-                                break;
-                            case "99":
-                                this.$notify.error({
-                                    title: 'Error',
-                                    message: 'Error'
-                                });
-                                break;
+                        const resp = await DataSource.shared.getReceiptList(this.inputInvoiceNO, this.inputReceiptNO);
+                        if (resp) {
+                            switch (resp.code) {
+                                case "88":
+                                    this.$router.push('/');
+                                    break;
+                                case "2":
+                                    this.$notify.error({
+                                        title: 'Error',
+                                        message: 'Invoice/Receipt not found'
+                                    });
+                                    break;
+                                case "99":
+                                    this.$notify.error({
+                                        title: 'Error',
+                                        message: 'Error'
+                                    });
+                                    break;
 
-                            default:
-                                this.ReceiptListInt = resp.Table;
-                                resp.Table.forEach(m=>{
-                                    this.receiptStatus=m.RH_Receipt_Status;
-                                });
-                                this.isShow = true;
+                                default:
+                                    this.ReceiptListInt = resp.Table;
+                                    resp.Table.forEach(m=>{
+                                        this.receiptStatus=m.RH_Receipt_Status;
+                                    });
+                                    this.isShow = true;
+                            }
                         }
+
                     }
+                    else
+                    {
+                        this.$notify.error({
+                            title: 'TextBox Empty',
+                            message: 'Please key in Invoice/Receipt No!!'
+                        });
+                    }
+
                 }
                 catch(e){
                     this.results = e;
@@ -406,7 +417,7 @@
 
             async voidReceiptClick(){
                 try{
-                    const resp = await DataSource.shared.cancelReceipt(this.receiptID);
+                    const resp = await DataSource.shared.cancelReceipt(this.receiptID, this.textAreaRemarks);
                     if (resp) {
                         switch (resp.code) {
                             case "88":
@@ -431,10 +442,6 @@
                                 this.textAreaRemarks='';
                                 this.$refs.ReceiptDetailModal.hide();
 
-                                // this.ReceiptDetailsListInt = resp.Table;
-                                // resp.Table.forEach(m=>{
-                                //
-                                // });
                         }
                     }
                 }

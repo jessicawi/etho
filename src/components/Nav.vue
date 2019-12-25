@@ -248,7 +248,7 @@
                     </el-dropdown-menu>
                 </el-dropdown>
             </li>
-            <li class="info-menu__item">
+            <li class="info-menu__item" v-if="isToken">
                 <!--<vs-dropdown>-->
                 <!--<a class="a-icon" href="#">-->
                 <!--<i class="fa fa-user-circle" aria-hidden="true"></i>-->

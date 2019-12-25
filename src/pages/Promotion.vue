@@ -315,6 +315,8 @@
                     const response = await DataSource.shared.getClassByLevelClassID(Student_list.PK_Course_ID, Student_list.PK_Class_ID);
                     const nextResponse = await DataSource.shared.getNextLevel(Student_list.PK_Course_ID);
 
+                    this.highestLevel = false;
+
                     if (nextResponse){
                         switch (nextResponse.code) {
                             case "2":

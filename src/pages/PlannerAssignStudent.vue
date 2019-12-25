@@ -86,46 +86,28 @@
                             </el-option>
                         </el-select>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-12">
                         <label class="inlineLabel">
                             Key Skills
                         </label>
                         <span class="cursorPointer">
-                            <i class="material-icons" @click="masterKeySkillManual()">edit</i>
+                            <i class="material-icons" @click="masterKeySkillCLDManual()">edit</i>
                         </span>
-                        <el-select v-if="masterKeySkill" v-model="ddlKeySkill" @change="newDllChange('KeySkill')" placeholder="Select Key Skill" class="addNewDll">
+                        <el-select v-if="masterKeySkillCLD" v-model="ddlKeySkillCLD" placeholder="Select Key Skill or CLD" class="addNewDll">
                             <el-option
-                                    v-for="item in ddlKeySkillList"
+                                    v-for="item in ddlKeySkillCLDList"
                                     :key="item"
                                     :label="item"
                                     :value="item">
                             </el-option>
                         </el-select>
-                        <input type="text" class="form-control" v-if="!masterKeySkill" v-model="inputKeySkill">
-                    </div>
-                    <div class="col-lg-6">
-                        <label class="inlineLabel">
-                            CLD
-                        </label>
-                        <span class="cursorPointer" v-if="masterKeySkill">
-                            <i class="material-icons" @click="masterCLDManual()">edit</i>
-                        </span>
-                        <el-select v-if="masterCLD" v-model="ddlCLD" placeholder="Select CLD" class="addNewDll">
-                            <el-option
-                                    v-for="item in ddlCLDList"
-                                    :key="item"
-                                    :label="item"
-                                    :value="item">
-                            </el-option>
-                        </el-select>
-                        <input type="text" class="form-control" v-if="!masterCLD" v-model="inputCLD">
+                        <input type="text" class="form-control" v-if="!masterKeySkillCLD" v-model="inputKeySkillCLD">
                     </div>
                     <div class="col-lg-12">
                         <el-button type="primary" class="mt-2 mb-2" @click="addStudentPlanner()">
                             Add
                         </el-button>
                     </div>
-
                     <div v-if="addStudentPlannerListInt.length>0" class="datatable_group col-lg-12">
                         <div>
                             <label>New</label>
@@ -183,14 +165,10 @@
                 ddlDomain: '',
                 ddlGoalsList: [],
                 ddlGoals: '',
-                ddlKeySkillList: [],
-                ddlKeySkill: '',
-                ddlCLDList: [],
-                ddlCLD: '',
-                masterKeySkill: true,
-                inputKeySkill: '',
-                masterCLD: true,
-                inputCLD: '',
+                masterKeySkillCLD: true,
+                ddlKeySkillCLD: '',
+                inputKeySkillCLD: '',
+                ddlKeySkillCLDList: [],
 
                 plannerSummaryInt: [],
                 plannerSummary: [{
@@ -241,11 +219,8 @@
                     prop: "PlnStaGoals",
                     label: "Goals"
                 }, {
-                    prop: "PlnStaKeySkill",
-                    label: "Key Skill"
-                }, {
-                    prop: "PlnStaCLD",
-                    label: "CLD"
+                    prop: "PlnStaKeySkillCLD",
+                    label: "Key Skills Or CLD"
                 }],
                 studentPlannerDetailsDelete: {
                     label: 'Delete',
@@ -272,11 +247,8 @@
                     prop: "PlnMasGoals",
                     label: "Goals"
                 }, {
-                    prop: "PlnMasKeySkill",
-                    label: "Key Skill"
-                }, {
-                    prop: "PlnMasCLD",
-                    label: "CLD"
+                    prop: "KeySkillOrCLD",
+                    label: "Key Skills Or CLD"
                 }],
                 addStudentPlannerListDelete: {
                     label: 'Delete',
@@ -480,6 +452,7 @@
                             message: 'Please fulfill rules...'
                         });
                     } else {
+                        this.$vs.loading();
                         let newPlannerStudentObjJson = [];
 
                         this.addStudentPlannerListInt.forEach(item => {
@@ -487,8 +460,7 @@
                                 StudentID: this.currentStudentID,
                                 Domain: item.PlnMasDomain,
                                 Goals: item.PlnMasGoals,
-                                KeySkill: item.PlnMasKeySkill,
-                                CLD: item.PlnMasCLD,
+                                KeySkillOrCLD: item.KeySkillOrCLD,
                                 SemID: this.currentSemID,
                                 CrsID: this.currentCrsID,
                                 levelType: this.currentLevelType,
@@ -513,6 +485,7 @@
                                 this.$refs.assignStudentPlannerModel.hide();
                             }
                         }
+                        this.$vs.loading.close();
                     }
                 } catch (e) {
                     this.results = e;
@@ -560,43 +533,53 @@
                             title: 'Required',
                             message: 'Required All Fields...',
                         });
-                    } else if ((this.masterKeySkill === true && this.ddlKeySkill === '') || (this.masterKeySkill === false && this.inputKeySkill === '')) {
-                        this.$notify({
-                            title: 'Required',
-                            message: 'Required All Fields...',
-                        });
-                    } else if ((this.masterCLD === true && this.ddlCLD === '') || (this.masterCLD === false && this.inputCLD === '')) {
+                    } else if ((this.masterKeySkillCLD === true && this.ddlKeySkillCLD === '') || (this.masterKeySkillCLD === false && this.inputKeySkillCLD === '')) {
                         this.$notify({
                             title: 'Required',
                             message: 'Required All Fields...',
                         });
                     } else {
-                        let keySkill, cld;
+                        let keySkillCLD;
+                        let duplicated = false;
 
-                        if (this.masterKeySkill === true) {
-                            keySkill = this.ddlKeySkill;
+                        if (this.masterKeySkillCLD === true) {
+                            keySkillCLD = this.ddlKeySkillCLD;
                         } else {
-                            keySkill = this.inputKeySkill;
+                            keySkillCLD = this.inputKeySkillCLD;
                         }
 
-                        if (this.masterCLD === true) {
-                            cld = this.ddlCLD;
-                        } else {
-                            cld = this.inputCLD;
+                        this.addStudentPlannerListInt.forEach(item => {
+                            if (item.KeySkillOrCLD.trim() === keySkillCLD.trim()) {
+                                duplicated = true;
+                            }
+                        });
+
+                        if (this.studentPlannerDetailsInt.length > 0) {
+                            this.studentPlannerDetailsInt.forEach(item => {
+                                if (item.PlnStaKeySkillCLD.trim() === keySkillCLD.trim()) {
+                                    duplicated = true;
+                                }
+                            });
                         }
 
-                        let addNewRowList = {
-                            PlnMasDomain: this.ddlDomain,
-                            PlnMasGoals: this.ddlGoals,
-                            PlnMasKeySkill: keySkill,
-                            PlnMasCLD: cld,
-                            PlnMasID: 'No',
-                        };
+                        if (duplicated){
+                            this.$notify.error({
+                                title: 'Duplicated',
+                                message: 'Duplicated Key Skill or CLD value...',
+                            });
+                        } else {
+                            let addNewRowList = {
+                                PlnMasDomain: this.ddlDomain,
+                                PlnMasGoals: this.ddlGoals,
+                                KeySkillOrCLD: keySkillCLD,
+                                PlnMasID: 'No',
+                            };
 
-                        this.addStudentPlannerListInt.push(addNewRowList);
+                            this.addStudentPlannerListInt.push(addNewRowList);
 
-                        this.clearAddStudentPlanner(false);
-                        this.checkRule();
+                            this.clearAddStudentPlanner(false);
+                            this.checkRule();
+                        }
                     }
                 } catch (e) {
                     this.results = e;
@@ -610,21 +593,18 @@
                 this.ddlDomain = '';
                 this.ddlGoalsList = [];
                 this.ddlGoals = '';
-                this.ddlKeySkillList = [];
-                this.ddlKeySkill = '';
-                this.ddlCLDList = [];
-                this.ddlCLD = '';
-                this.inputKeySkill = '';
-                this.inputCLD = '';
+                this.masterKeySkillCLD = true;
+                this.ddlKeySkillCLD = '';
+                this.inputKeySkillCLD = '';
+                this.ddlKeySkillCLDList = [];
             },
             newDllChange(value) {
                 if (value === 'Domain') {
                     this.ddlGoalsList = [];
                     this.ddlGoals = '';
-                    this.ddlKeySkillList = [];
-                    this.ddlKeySkill = '';
-                    this.ddlCLDList = [];
-                    this.ddlCLD = '';
+                    this.ddlKeySkillCLDList = [];
+                    this.ddlKeySkillCLD = '';
+                    this.inputKeySkillCLD = '';
 
                     this.plannerMasterList.forEach((m, index) => {
                         if (m.PlnMasDomain === this.ddlDomain) {
@@ -632,49 +612,25 @@
                         }
                     });
                 } else if (value === 'Goals') {
-                    this.ddlKeySkillList = [];
-                    this.ddlKeySkill = '';
-                    this.ddlCLDList = [];
-                    this.ddlCLD = '';
+                    this.ddlKeySkillCLDList = [];
+                    this.ddlKeySkillCLD = '';
+                    this.inputKeySkillCLD = '';
 
                     this.plannerMasterList.forEach((m, index) => {
                         if (m.PlnMasDomain === this.ddlDomain && m.PlnMasGoals === this.ddlGoals) {
-                            this.ddlKeySkillList.push(m.PlnMasKeySkill)
-                        }
-                    });
-                } else if (value === 'KeySkill') {
-                    this.ddlCLDList = [];
-                    this.ddlCLD = '';
-
-                    this.plannerMasterList.forEach((m, index) => {
-                        if (m.PlnMasDomain === this.ddlDomain && m.PlnMasGoals === this.ddlGoals && m.PlnMasKeySkill === this.ddlKeySkill) {
-                            this.ddlCLDList.push(m.PlnMasCLD)
+                            this.ddlKeySkillCLDList.push(m.KeySkillOrCLD)
                         }
                     });
                 }
             },
-            masterKeySkillManual(){
-                this.ddlKeySkill = '';
-                this.ddlCLD = '';
-                this.inputCLD = '';
-                this.inputKeySkill = '';
+            masterKeySkillCLDManual () {
+                this.ddlKeySkillCLD = '';
+                this.inputKeySkillCLD = '';
 
-                if (this.masterKeySkill === true) {
-                    this.masterKeySkill = false;
-                    this.masterCLD = false;
+                if (this.masterKeySkillCLD === true) {
+                    this.masterKeySkillCLD = false;
                 } else {
-                    this.masterKeySkill = true;
-                    this.masterCLD = true;
-                }
-            },
-            masterCLDManual () {
-                this.ddlCLD = '';
-                this.inputCLD = '';
-
-                if (this.masterCLD === true) {
-                    this.masterCLD = false;
-                } else {
-                    this.masterCLD = true;
+                    this.masterKeySkillCLD = true;
                 }
             },
             checkRule() {

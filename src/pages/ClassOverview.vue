@@ -1,6 +1,6 @@
 <template>
     <div id="studentpaymentplan">
-        <div class="container">
+        <div class="container-fluid">
             <div>
                 <el-select v-model="ddlSelectedAcademicYearID" placeholder="Select Academic Year"
                            @change="getSelectedAcademicYearValue()"
@@ -17,21 +17,37 @@
                             active-tab-class="font-weight-bold text-success"
                             content-class="mt-3"
                             card>
-                        <b-tab v-for="(item,index) in classListInt" :key="index" :title="item.ArrObj_Items.length+' '+item.Str_SortBy"
-                               @click="getClassTabClick(item.ArrObj_Items,item.ArrObj_Items.length,item.Str_SortBy)" >
+                        <b-tab v-for="(item,index) in classListInt" :key="index" :title="item.Str_SortBy"
+                               @click="getClassTabClick(item.ArrObj_Items)" >
                         </b-tab>
                         <!-- Render this if no tabs -->
-                        <div slot="empty" class="text-center text-muted">
-                            <h1>There are no open tabs</h1><br>
-                        </div>
+<!--                        <div slot="empty" class="text-center text-muted">-->
+<!--                            <div class="empty-list_image"-->
+<!--                                 v-if="classListInt.length<1">-->
+<!--                                <strong>{{startupText}}</strong>-->
+<!--                                <img src="../assets/notfound.png"/>-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </b-tabs>
-                    <div v-if="selectedClassListInt.length>0" class="datatable_group col-lg-12">
-                        <data-tables :data="selectedClassListInt"
-                                     ref="selectedClassListTable">
-                            <el-table-column v-for="item in selectedClassList" :prop="item.prop"
-                                             :label="item.label" :key="item.prop">
-                            </el-table-column>
-                        </data-tables>
+
+                    <div v-if="fullListByClassNameObj.length>0" class="datatable_group col-lg-12">
+<!--                        <div class="datatable-form__submit text-right" v-if="fullListByClassNameObj.length>0">-->
+<!--                            <button class="btn btn-success" id="btnClassOverviewDownload" v-on:click="DownloadClick()">Download</button><br><br>-->
+<!--                        </div>-->
+                        <div v-for="(classBatchItem,i) in fullListByClassNameObj">
+                            <label>Batch: {{classBatchItem[i].CLS_batch}}</label>
+                            <data-tables :data="classBatchItem">
+                                <el-table-column v-for="studentItem in classBatchItemList" :prop="studentItem.prop"
+                                                 :label="studentItem.label" :key="studentItem.prop"
+                                                 sortable="custom">
+                                </el-table-column>
+                            </data-tables>
+                        </div>
+                    </div>
+                    <div class="empty-list_image"
+                         v-if="fullListByClassNameObj.length<1">
+                        <strong>{{startupText}}</strong>
+                        <img src="../assets/notfound.png"/>
                     </div>
                 </b-card>
 
@@ -42,20 +58,22 @@
 
 <script>
     import DataSource from "../data/datasource";
+    import XLSX from 'xlsx';
     export default {
         name: "ClassOverview",
 
         async created(){
             await this.getAcademicYear();
-            // await this.getParentClassList();
             await this.getLevel();
             await this.getClassType();
-           // await this.getClass();
         },
         async mounted(){},
         data()
         {
             return{
+                classBatch:'',
+                classCount:0,
+                startupText:'',
                 ddlSelectedAcademicYearID:'',
                 currentClassProgs: [],
                 classListInt:[],
@@ -69,8 +87,9 @@
                 levelList:[],
                 classTypeList:[],
                 tempClassList:[],
-                selectedClassListInt:[],
-                selectedClassList:[{
+                fullListByClassNameObj:[],
+
+                classBatchItemList:[{
                     prop: "Student_Name",
                     label: "Student Name"
                 }, {
@@ -107,43 +126,56 @@
                     prop: "St_House",
                     label: "House No"
                 }],
-                selectedClassListAction:[],
             }
 
         },
         methods:{
-            async getSelectedAcademicYearValue(){
-                    try{
-                        await this.getClass(this.ddlSelectedAcademicYearID);
-                        //todo:To get 1st class list when academic year selected, Start
-                        let className='';
-                        className=this.ddlSelectedAcademicYearID+','+this.classListInt[0].ArrObj_Items[0].PK_Course_ID+','+this.classListInt[0].Str_SortBy;
-                        const totalStudentsInClassResponse = await DataSource.shared.getClassStudentByClassName(className);
-                        if(totalStudentsInClassResponse){
-                            if(totalStudentsInClassResponse.code==='2'){
-                                this.$notify.error({
-                                    title: 'Message',
-                                    message: 'No student in this class'
-                                });
-                            }
-                            else if(totalStudentsInClassResponse.code==='99'){
-                                this.$notify.error({
-                                    title: 'Message',
-                                    message: 'Error 99'
-                                });
-                            }
-                            else{
-                                this.selectedClassListInt=totalStudentsInClassResponse.Table;
-                                //todo:To get 1st class list when academic year selected, End
-                            }
+            clearTableList(){
+                this.fullListByClassNameObj=[];
+            },
+            async getAcademicYear() {
+                try {
+                    const response = await DataSource.shared.getAcademicYear('');
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else {
+                            this.semesterList = response.Table;
                         }
-
                     }
-                    catch (e) {
-                        this.results = e;
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async getLevel() {
+                try {
+                    const response = await DataSource.shared.getLevel('');
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else {
+                            this.levelList = response.Table;
+                        }
                     }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async getClassType() {
+                try {
+                    const response = await DataSource.shared.getClassType('');
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else {
+                            this.classTypeList = response.Table;
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
 
-                },
             async getClass(semesterID) {
                 try {
                     const response = await DataSource.shared.getClass(semesterID);
@@ -160,96 +192,56 @@
                 }
             },
 
-            async getClassStudentListByClassName(){
+            async getSelectedAcademicYearValue(){
+                    try{
+                        this.$vs.loading();
+                        await this.getClass(this.ddlSelectedAcademicYearID);
+
+                            //todo:To get 1st class list when academic year selected, Start
+                                //Reserved
+                            //todo:To get 1st class list when academic year selected, End
+                    }
+                    catch (e) {
+                        this.results = e;
+                    }
+                    this.$vs.loading.close();
+                },
+
+            async getStudentListByClassID(value) {
                 try{
-                    let classValue = '';
-                    classValue = this.ddlSelectedAcademicYearID+','+this.classListCourseID+','+this.classListClassName;
-                    const totalStudentsInClassResponse = await DataSource.shared.getClassStudentByClassName(classValue);
-                   if (totalStudentsInClassResponse) {
-                       if (totalStudentsInClassResponse.code === '88') {
-                           window.location.replace('/');
-                       } else if (totalStudentsInClassResponse.code === '99') {
-                           console.log('Error! in getClassStudentList');
-                           this.selectedClassListInt = [];
-                           this.$notify.error({
-                               title: 'Message',
-                               message: 'Error! in getClassStudentList'
-                           });
-                       } else if (totalStudentsInClassResponse.code === '2') {
-                           console.log('No student in this class');
-                           this.selectedClassListInt = [];
-                           this.$notify.error({
-                               title: 'Message',
-                               message: 'No student in this class'
-                           });
-                       } else {
-                           this.totalNumberOfStudentAssignedToClass = totalStudentsInClassResponse.Table.length;
-                           this.selectedClassListInt = totalStudentsInClassResponse.Table;
-                       }
-                   }
-
-                } catch (e) {
-                    this.results = e;
-                }
-            },
-
-            async getAcademicYear() {
-                try {
-                    const response = await DataSource.shared.getAcademicYear('');
-                    if (response) {
-                        if (response.code === '88') {
-                            window.location.replace('/');
-                        } else {
-                            this.semesterList = response.Table;
+                    this.$vs.loading();
+                    let classValue = this.ddlSelectedAcademicYearID+','+value.PK_Course_ID+','+value.PK_Class_ID;
+                    const resp = await DataSource.shared.getClassStudentByClassID(classValue);
+                    if (resp){
+                        if(resp.Table){
+                            this.fullListByClassNameObj.push(resp.Table);
                         }
                     }
-                } catch (e) {
+                }
+                catch (e) {
                     this.results = e;
                 }
+                this.$vs.loading.close();
             },
 
-            async getLevel() {
-                try {
-                    const response = await DataSource.shared.getLevel('');
-                    if (response) {
-                        if (response.code === '88') {
-                            window.location.replace('/');
-                        } else {
-                            this.levelList = response.Table;
-                        }
+            async getClassTabClick(objValue){
+                try{
+                    this.clearTableList();
+                    if(objValue){
+                        objValue.forEach(m=>{
+                            this.getStudentListByClassID(m);
+                        });
                     }
-                } catch (e) {
-                    this.results = e;
-                }
-            },
-
-            async getClassType() {
-                try {
-                    const response = await DataSource.shared.getClassType('');
-                    if (response) {
-                        if (response.code === '88') {
-                            window.location.replace('/');
-                        } else {
-                            this.classTypeList = response.Table;
-                        }
+                    else{
+                        this.$notify.error({
+                            title: 'Message',
+                            message: 'Class not found!',
+                        });
                     }
-                } catch (e) {
+                }
+                catch (e) {
                     this.results = e;
                 }
-            },
-
-            async getClassTabClick(objValue,lengthValue,classNameValue){
-                if(lengthValue>1){
-                    this.classListClassName=classNameValue;
-                    this.classListClassID=objValue[0].PK_Class_ID;
-                    this.classListCourseID=objValue[0].PK_Course_ID;
-                }
-                else{
-                    this.classListClassName=classNameValue;
-                    this.classListClassID=objValue[0].PK_Class_ID;
-                    this.classListCourseID=objValue[0].PK_Course_ID;
-                }
-                await this.getClassStudentListByClassName(this.classListClassName);
             },
 
             async sortByClassName(){
@@ -291,6 +283,44 @@
                 }
 
                 return ArrObj_Sorted;
+            },
+
+            exportExcel () {
+                let exportExcelObject = [];
+
+                var currentDateWithFormat = new Date().toJSON().slice(0,10).replace(/-/g,'/');
+
+                    this.fullListByClassNameObj.forEach(m=>{
+                        let templist =[];
+                        m.forEach(n=>{
+                            let list={
+                                Student_Name: n.Student_Name,
+                                Index_No: n.Index_No,
+                                // First_CommDate : n.First_CommDate,
+                                Student_Type: n.Student_Type,
+                                fatherMobile: n.fatherMobile,
+                                motherMobile: n.motherMobile,
+                                Sex: n.Sex,
+                                Nationality: n.Nationality,
+                                DOB: n.DOB,
+                                Bus_No:n.Bus_No,
+                                St_Comment:n.St_Comment,
+                                St_House:n.St_House,
+                            };
+                            templist.push(list);
+                        });
+                        exportExcelObject.push(templist);
+                    });
+                    console.log('exportExcelObject',exportExcelObject);
+
+                var sheet1WS = XLSX.utils.json_to_sheet(exportExcelObject)
+                var wb = XLSX.utils.book_new() // make Workbook of Excel
+                XLSX.utils.book_append_sheet(wb, sheet1WS, 'sheet1') // sheetAName is name of Worksheet
+                XLSX.writeFile(wb, 'ClassOverview - '+currentDateWithFormat+'.xlsx') // name of the file is 'book.xlsx'
+            },
+
+            async DownloadClick(){
+                this.exportExcel();
             },
         },
     }

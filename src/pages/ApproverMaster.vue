@@ -343,7 +343,7 @@
             async getStaffList() {
                 this.$vs.loading();
                 try {
-                    const response = await DataSource.shared.getAllStaffList();
+                    const response = await DataSource.shared.getAllStaffListBySchool();
                     if (response) {
                         switch (response.code) {
                             case "88":

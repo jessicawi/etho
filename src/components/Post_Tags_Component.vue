@@ -12,10 +12,7 @@
                                             <input type="checkbox" class="test cb_CheckAll"/>
                                             <span class="span-checkbox"></span>
                                         </label>
-                                        <span>{{tempobj_Year.Str_Display}} </span>
-                                        <div v-for="tempobj_Level of tempobj_Year.ArrObj_Items"  v-if="arrobj_Levels[0].ArrObj_Items.length < 2">
-                                            <span v-for="tempobj_Class of tempobj_Level.ArrObj_Items">&nbsp;{{tempobj_Class.Str_Display}}</span>
-                                        </div>
+                                        <span>{{tempobj_Year.Str_Display}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -26,10 +23,10 @@
                             <header class="" role="tab">
                                 <div class="row">
                                     <!--<div class="col-12 sub-tag option-tag">-->
-                                        <!--<label class="label-checkbox float-right">-->
-                                            <!--<input type="checkbox" class="cb_CheckAll"/>-->
-                                            <!--<span class="span-checkbox"></span>-->
-                                        <!--</label>-->
+                                    <!--<label class="label-checkbox float-right">-->
+                                    <!--<input type="checkbox" class="cb_CheckAll"/>-->
+                                    <!--<span class="span-checkbox"></span>-->
+                                    <!--</label>-->
                                     <!--</div>-->
                                     <div class="col-lg-12">
                                         <div>
@@ -56,143 +53,78 @@
 
                         </div>
                     </div>
-                    <b-collapse :id="tempobj_Year.Str_SortBy" visible role="tabpanel" v-else>
-                        <div>
-                            <div class="" v-for="tempobj_Level of tempobj_Year.ArrObj_Items"
-                                 :key="tempobj_Level.id">
-                                <header class="" role="tab">
-                                    <div class="row">
-                                        <div class="col-12 sub-tag">
-                                            <div v-b-toggle="tempobj_Level.Str_SortBy" class="sub-tag__child">
-                                                <span>{{tempobj_Level.Str_Display}}</span>
+                    <div v-if="arrobj_Levels[0].ArrObj_Items.length > 2">
 
-                                                <label class="label-checkbox float-right">
-                                                    <input type="checkbox" class="cb_CheckAll"/>
-                                                    <span class="span-checkbox"></span>
-                                                </label>
+                        <b-collapse :id="tempobj_Year.Str_SortBy" visible role="tabpanel" >
+                            <div>
+                                <div class="" v-for="tempobj_Level of tempobj_Year.ArrObj_Items"
+                                     :key="tempobj_Level.id">
+                                    <header class="" role="tab">
+                                        <div class="row">
+                                            <div class="col-12 sub-tag">
+                                                <div v-b-toggle="tempobj_Level.Str_SortBy" class="sub-tag__child">
+                                                    <span>{{tempobj_Level.Str_Display}}</span>
+
+                                                    <label class="label-checkbox float-right">
+                                                        <input type="checkbox" class="cb_CheckAll"/>
+                                                        <span class="span-checkbox"></span>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </header>
-                                <b-collapse :id="tempobj_Level.Str_SortBy" accordion="level" role="tabpanel">
-                                    <div>
-                                        <div class="" v-for="tempobj_Class of tempobj_Level.ArrObj_Items"
-                                             :key="tempobj_Class.id">
-                                            <header class="" role="tab">
-                                                <div class="row">
-                                                    <div class="col-12 sub-tag option-tag">
-                                                        <div v-b-toggle="(tempobj_Level.Str_SortBy + tempobj_Class.Str_SortBy).replace(' ', '_')" class="sub-tag__child">
-                                                            <span>{{tempobj_Class.Str_Display}}</span>
+                                    </header>
+                                    <b-collapse :id="tempobj_Level.Str_SortBy" accordion="level" role="tabpanel">
+                                        <div>
+                                            <div class="" v-for="tempobj_Class of tempobj_Level.ArrObj_Items"
+                                                 :key="tempobj_Class.id">
+                                                <header class="" role="tab">
+                                                    <div class="row">
+                                                        <div class="col-12 sub-tag option-tag">
+                                                            <div v-b-toggle="(tempobj_Level.Str_SortBy + tempobj_Class.Str_SortBy).replace(' ', '_')" class="sub-tag__child">
+                                                                <span>{{tempobj_Class.Str_Display}}</span>
 
-                                                            <label class="label-checkbox float-right">
-                                                                <input type="checkbox" class="cb_CheckAll"/>
-                                                                <span class="span-checkbox"></span>
-                                                            </label>
+                                                                <label class="label-checkbox float-right">
+                                                                    <input type="checkbox" class="cb_CheckAll"/>
+                                                                    <span class="span-checkbox"></span>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </header>
-                                            <b-collapse
-                                                    :id="(tempobj_Level.Str_SortBy + tempobj_Class.Str_SortBy).replace(' ', '_')"
-                                                    accordion="class"
-                                                    role="tabpanel">
-                                                <div>
-                                                    <div class="row student-tag">
-                                                        <div class="div_Student uncheck"
-                                                             v-for="tempobj_Student of tempobj_Class.ArrObj_Items"
-                                                             :key="tempobj_Student.id">
-                                                            <label class="col- text-center"
-                                                                   :for="tempobj_Student.Student_ID">
-                                                                <img class="student" :src="getSource(tempobj_Student)"/>
-                                                                <input type="checkbox"
-                                                                       :value="tempobj_Student.Student_ID"
-                                                                       v-model="arrobj_SelectedStudents"
-                                                                       :id="tempobj_Student.Student_ID"/>
-                                                                <br/>
-                                                                <span>{{tempobj_Student.First_Name.split(" ")[0]}}</span>
-                                                            </label>
+                                                </header>
+                                                <b-collapse
+                                                        :id="(tempobj_Level.Str_SortBy + tempobj_Class.Str_SortBy).replace(' ', '_')"
+                                                        accordion="class"
+                                                        role="tabpanel">
+                                                    <div>
+                                                        <div class="row student-tag">
+                                                            <div class="div_Student uncheck"
+                                                                 v-for="tempobj_Student of tempobj_Class.ArrObj_Items"
+                                                                 :key="tempobj_Student.id">
+                                                                <label class="col- text-center"
+                                                                       :for="tempobj_Student.Student_ID">
+                                                                    <img class="student" :src="getSource(tempobj_Student)"/>
+                                                                    <input type="checkbox"
+                                                                           :value="tempobj_Student.Student_ID"
+                                                                           v-model="arrobj_SelectedStudents"
+                                                                           :id="tempobj_Student.Student_ID"/>
+                                                                    <br/>
+                                                                    <span>{{tempobj_Student.First_Name.split(" ")[0]}}</span>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </b-collapse>
+                                                </b-collapse>
+                                            </div>
                                         </div>
-                                    </div>
-                                </b-collapse>
+                                    </b-collapse>
+                                </div>
                             </div>
-                        </div>
-                    </b-collapse>
+                        </b-collapse>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!--#region sort and display only by class-->
-        <!--<div class="row">
-            <div class="col-12">
-                <b-card no-body class="mb-1" v-for="tempobj_Year of arrobj_Classes" :key="tempobj_Year.id">
-                    <b-card-header header-tag="header" class="p-1" role="tab">
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="btn btn-info btn-block">
-                                    <div v-b-toggle="tempobj_Year.Str_SortBy">
-                                        {{tempobj_Year.Str_Display}}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <label class="label-checkbox float-right">
-                                    <input type="checkbox" class="cb_CheckAll"/>
-                                    <span class="span-checkbox"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </b-card-header>
-                    <b-collapse :id="tempobj_Year.Str_SortBy" visible role="tabpanel">
-                        <b-card-body>
-                            <b-card no-body class="mb-1" v-for="tempobj_Classes of tempobj_Year.ArrObj_Items"
-                                    :key="tempobj_Classes.id">
-                                <b-card-header header-tag="header" class="p-1" role="tab">
-                                    <div class="row">
-                                        <div class="col-10">
-                                            <div class="btn btn-info btn-block">
-                                                <div v-b-toggle="tempobj_Classes.Str_SortBy">
-                                                    {{tempobj_Classes.Str_Display}}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-2">
-                                            <label class="label-checkbox float-right">
-                                                <input type="checkbox" class="cb_CheckAll"/>
-                                                <span class="span-checkbox"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </b-card-header>
-                                <b-collapse :id="tempobj_Classes.Str_SortBy" accordion="class2" role="tabpanel">
-                                    <b-card-body>
-                                        <div class="row">
-                                            <div class="div_Student uncheck"
-                                                 v-for="tempobj_Student of tempobj_Classes.ArrObj_Items"
-                                                 :key="tempobj_Student.id">
-                                                <label class="col- text-center"
-                                                       :for="tempobj_Student.Student_ID">
-                                                    <img class="student" :src="getSource(tempobj_Student)"/>
-                                                    <input type="checkbox" :value="tempobj_Student"
-                                                           v-model="arrobj_SelectedStudents"
-                                                           :id="tempobj_Student.Student_ID" @change="isCheck"/>
-                                                    <br/>
-                                                    <span v-if="!isNull(tempobj_Student.First_Name)">{{tempobj_Student.First_Name.split(" ")[0]}}</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </b-card-body>
-                                </b-collapse>
-                            </b-card>
-                        </b-card-body>
-                    </b-collapse>
-                </b-card>
-            </div>
-        </div>-->
-        <!--#endregion-->
     </div>
 </template>
 

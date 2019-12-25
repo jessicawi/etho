@@ -51,22 +51,11 @@
         </div>
         <b-modal id="newPlannerModel" size="lg" title="New Planner Master" ok-only ok-variant="secondary" ok-title="Cancel" ref="newPlannerModel" hide-footer>
             <div class="row">
-                <div class="col-lg-12">
+                <div class="col-lg-9">
                     <label>Domain</label>
                     <input type="text" class="form-control" v-model="inputNewDomain">
                 </div>
-                <div class="col-lg-6">
-                    <label>Type</label>
-                    <el-select v-model="ddlNewType" placeholder="Select Type" class="newTypeSelect">
-                        <el-option
-                                v-for="item in plannerType"
-                                :key="item"
-                                :label="item"
-                                :value="item">
-                        </el-option>
-                    </el-select>
-                </div>
-                <div class="col-lg-6">
+                <div class="col-lg-3">
                     <label>Level</label>
                     <el-select v-model="ddlNewLevel" placeholder="Select Level" class="newLevelSelect">
                         <el-option
@@ -77,17 +66,46 @@
                         </el-option>
                     </el-select>
                 </div>
-                <div class="col-lg-12">
+                <div class="col-lg-9">
                     <label>Goals</label>
                     <input type="text" class="form-control" v-model="inputNewGoals">
                 </div>
-                <div class="col-lg-12">
-                    <label>Key Skills</label>
-                    <input type="text" class="form-control" v-model="inputNewKeySkills">
+                <div class="col-lg-3">
+                    <label>Type</label>
+                    <el-select v-model="ddlNewGoalsType" placeholder="Select Type" class="newTypeSelect">
+                        <el-option
+                                v-for="item in plannerType"
+                                :key="item"
+                                :label="item"
+                                :value="item">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div class="col-lg-6">
+                    <label>Key Skills or CLD</label>
+                    <el-select v-model="ddlNewKeySkillOrCLD" placeholder="Select Key Skill or CLD" class="newTypeSelect">
+                        <el-option
+                                v-for="item in keySkillOrCLDList"
+                                :key="item"
+                                :label="item"
+                                :value="item">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div class="col-lg-6">
+                    <label>Type</label>
+                    <el-select v-model="ddlNewKeySkillsOrCLDType" placeholder="Select Type" class="newTypeSelect">
+                        <el-option
+                                v-for="item in plannerType"
+                                :key="item"
+                                :label="item"
+                                :value="item">
+                        </el-option>
+                    </el-select>
                 </div>
                 <div class="col-lg-12">
-                    <label>Goals: We "see" children's learning and development in this area when they...</label>
-                    <input type="text" class="form-control" v-model="inputNewCLD">
+                    <label>Key Skills or Goals: We "see" children's learning and development in this area when they...</label>
+                    <input type="text" class="form-control" v-model="inputNewKeySkillOrCLD">
                 </div>
                 <div class="col-lg-12">
                     <el-button type="primary" class="mt-2 mb-2" @click="saveNewPlannerMaster()">
@@ -107,13 +125,15 @@
         data() {
             return {
                 plannerType: ['ITL', 'NEL'],
+                keySkillOrCLDList: ['Key Skill', 'CLD'],
                 plannerLevel: [],
                 inputNewDomain: '',
                 inputNewGoals: '',
-                inputNewKeySkills: '',
-                inputNewCLD: '',
-                ddlNewType: '',
+                ddlNewGoalsType: '',
                 ddlNewLevel: '',
+                ddlNewKeySkillOrCLD: [],
+                ddlNewKeySkillsOrCLDType: [],
+                inputNewKeySkillOrCLD: '',
 
                 plannerMasterListInt: [],
                 plannerMasterList: [{
@@ -123,14 +143,14 @@
                     prop: "PlnMasGoals",
                     label: "Goals"
                 }, {
-                    prop: "PlnMasKeySkill",
-                    label: "Key Skills"
+                    prop: "PlnMasGoalsType",
+                    label: "Goals Type"
                 }, {
-                    prop: "PlnMasCLD",
-                    label: "CLD"
+                    prop: "KeySkillOrCLD",
+                    label: "Key Skills Or CLD"
                 }, {
-                    prop: "PlnMasType",
-                    label: "Type"
+                    prop: "KeySkillOrCLDType",
+                    label: "Key Skills Or CLD Type"
                 }, {
                     prop: "PlnMasLevel",
                     label: "Level"
@@ -209,7 +229,7 @@
             },
             async saveNewPlannerMaster () {
                 try {
-                    if (this.inputNewDomain === '' || this.inputNewGoals === '' || this.inputNewKeySkills === '' || this.inputNewCLD === '' || this.ddlNewType === '' || this.ddlNewLevel === '') {
+                    if (this.inputNewDomain === '' || this.inputNewGoals === '' || this.ddlNewGoalsType === '' || this.ddlNewLevel === '' || this.ddlNewKeySkillOrCLD === '' || this.ddlNewKeySkillsOrCLDType === '' || this.inputNewKeySkillOrCLD === '') {
                         this.$notify({
                             title: 'Require',
                             message: 'All Fields Required...',
@@ -218,10 +238,12 @@
                         let newPlannerMasterObjJson = {
                             Domain : this.inputNewDomain,
                             Goals : this.inputNewGoals,
-                            KeySkill : this.inputNewKeySkills,
-                            CLD : this.inputNewCLD,
-                            Type : this.ddlNewType,
+                            GoalsType : this.ddlNewGoalsType,
                             Level: this.ddlNewLevel,
+                            KeySkillOrCLD: this.ddlNewKeySkillOrCLD,
+                            KeySkillCLD: this.inputNewKeySkillOrCLD,
+                            KeySkillCLDType: this.ddlNewKeySkillsOrCLDType,
+
                         };
 
                         const response = await DataSource.shared.savePlannerMaster(JSON.stringify(newPlannerMasterObjJson));
@@ -277,9 +299,10 @@
             clearNewMasterPlannerModelInput(){
                 this.inputNewDomain = '';
                 this.inputNewGoals = '';
-                this.inputNewKeySkills = '';
-                this.inputNewCLD = '';
-                this.ddlNewType = '';
+                this.ddlNewGoalsType = '';
+                this.ddlNewKeySkillOrCLD = '';
+                this.ddlNewKeySkillsOrCLDType = '';
+                this.inputNewKeySkillOrCLD = '';
                 this.ddlNewLevel = '';
             },
             assignSchool(){

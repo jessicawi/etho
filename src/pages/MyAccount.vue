@@ -1132,7 +1132,7 @@
                     if (Cookies.get('userIDSession') !== null || Cookies.get('userIDSession') !== undefined) {
                         this.lblParentID = Cookies.get('userIDSession');
 
-                        const response = await DataSource.shared.getParent(Cookies.get('userIDSession'), "");
+                        const response = await DataSource.shared.getParent(Cookies.get('userIDSession'), "", "");
                         if (response) {
                             if (response.code === "2") {
                                 this.$notify.error({

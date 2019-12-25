@@ -6,6 +6,7 @@ import moment from "moment";
 import Cookies from "js-cookie";
 
 const API_HOST = process.env.VUE_APP_ROOT_API || "http://local.emsv2";
+const API_HOST2 = process.env.VUE_APP_ROOT_API2;
 let GoogleGeocodeAPIKey = 'AIzaSyBSjzdBEO1Akg0aZfKpglWYBtdqLMHJLzM';
 
 function getMs() {
@@ -100,18 +101,26 @@ export default class DataSource {
             //     }
             // }
 
+            // console.log(" data.token", data.token);
             // console.log(new Date(nowMs), "now");
-            // console.log(new Date(Number(extendTime)), "extendTime");
-            // console.log(new Date(Number(expireTime)), "expireTime");
+            // if (extendTime) {
+            //     console.log(new Date(Number(extendTime)), "extendTime");
+            // }
+            //
+            // if (expireTime) {
+            //     console.log(new Date(Number(expireTime)), "expireTime");
+            // }
+
 
             //expire date after login
-            if (nowMs > extendTime && nowMs < expireTime) {
-                const newExtendDate = new Date(Number(extendTime) + (180 * 60 * 1000));
+            if (nowMs >= extendTime && nowMs < expireTime) {
+                const newExtendDate = new Date(Number(expireTime) + (120 * 60 * 1000));
+                // const newExtendDate = new Date(Number(extendTime) + (1 * 60 * 1000));
                 // console.log('first extend check');
                 // console.log(newExtendDate, "new extend");
                 // console.log(newExtendDate.getTime() + " " + Number(expireTime));
                 if (newExtendDate.getTime() >= Number(expireTime)) {
-                    const newExpireDate = new Date(Number(expireTime) + (150 * 60 * 1000));
+                    const newExpireDate = new Date(Number(expireTime) + (180 * 60 * 1000));
                     this.extendCookies(newExpireDate, newExtendDate);
                     // alert('extend!');
                     // console.log(newExpireDate, "later");
@@ -182,10 +191,12 @@ export default class DataSource {
         try {
             // Cookies.set('alert', alertExpireDate, {expires: expireDate});
             //set expire date onlogin
-            let extendDate = new Date(new Date().getTime() + 180 * 60 * 1000);
-            let expireDate = new Date(new Date().getTime() + 150 * 60 * 1000);
+            let extendDate = new Date(new Date().getTime() + 120 * 60 * 1000);
+            let expireDate = new Date(new Date().getTime() + 180 * 60 * 1000);
             const extendMs = extendDate.getTime();
             const expiredMs = expireDate.getTime();
+
+            // console.log("login", extendMs);
 
             const response = await this.callWebService("/controller/Login.asmx/checkLogin", data, "POST", false);
             Cookies.set('authToken', response.token, {expires: expireDate}); //expire in 3 hour);
@@ -216,7 +227,7 @@ export default class DataSource {
             const UserName_Session = Cookies.get('userNameSession');
             const expiredMs = expireDate.getTime();
             const extendMs = extendTime.getTime();
-
+            console.log("extendCookies extendMs", extendMs);
 
             Cookies.set('authToken', token, {expires: expireDate}); //expire in 3 hour);
             Cookies.set('schoolSession', UserSchool_Session, {expires: expireDate}); //expire in 3 hour);
@@ -501,6 +512,30 @@ export default class DataSource {
         return result;
     }
 
+    async oneMapCommonApiSearchVal(value) {
+        //https://docs.onemap.sg/#search
+
+        const request = {
+            url: 'https://developers.onemap.sg/commonapi/search?searchVal=' + value + '&returnGeom=Y&getAddrDetails=Y',
+            cache: false,
+            type: 'GET',
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            async: false,
+            json: false,
+            success: function (response) {
+                return response;
+            }
+        };
+
+        let response = await jQuery.ajax(request);
+        if (typeof response === "string") {
+            response = JSON.parse(response);
+        }
+        return response;
+    }
+
     async saveStudent(files, jsonString, jsonString2, familyID, parentID, allergiesList) {
         const data = new FormData();
         data.append('token', Cookies.get('authToken'));
@@ -637,10 +672,11 @@ export default class DataSource {
         return response;
     }
 
-    async getParent(parentID, familyID) {
+    async getParent(parentID, familyID, emailJsonString) {
         const data = {
             parentID: parentID,
             familyID: familyID,
+            emailJsonString: emailJsonString,
         };
         const response = await this.callWebService("/controller/Parents.asmx/getParent", data, "POST");
         return response;
@@ -965,7 +1001,7 @@ export default class DataSource {
         return response;
     }
 
-    async savePortfolioPost(files, porTitle, porObservation, porAnalysisReflection, porDevelopmentDomain, porDevelopmentGoals, tagUserID, tagClassID, tagLevelID, postLinkID) {
+    async savePortfolioPost(files, porTitle, porObservation, porAnalysisReflection, porDevelopmentObject, tagUserID, tagClassID, tagLevelID, postLinkID) {
         const postType = "PORTFOLIO";
         const formData = new FormData();
         formData.append('token', Cookies.get('authToken'));
@@ -974,8 +1010,7 @@ export default class DataSource {
         formData.append("porTitle", porTitle);
         formData.append("porObservation", porObservation);
         formData.append("porAnalysisReflection", porAnalysisReflection);
-        formData.append("porDevelopmentDomain", porDevelopmentDomain);
-        formData.append("porDevelopmentGoals", porDevelopmentGoals);
+        formData.append("porDevelopmentObject", porDevelopmentObject);
         formData.append("postLinkID", postLinkID);
 
         if (files && files.length > 1) {
@@ -1568,7 +1603,7 @@ export default class DataSource {
         const response = await this.callWebService("/controller/Students.asmx/getIntakeYear", data, "POST");
         return response;
     }
-    
+
 // SAMPLE 2 using axios
     async PostToGetDataWEIRD() {
         const options = {
@@ -2547,7 +2582,7 @@ export default class DataSource {
         return response;
     }
 
-    async sendEvent(eventID,Obj) {
+    async sendEvent(eventID, Obj) {
         const data = {
             eventID: eventID,
             Obj: Obj
@@ -2904,13 +2939,13 @@ export default class DataSource {
         return response;
     }
 
-    async getLeftOverPaymentReceipt(Obj, studentID, invoiceName, studentCourseID,action) {
+    async getLeftOverPaymentReceipt(Obj, studentID, invoiceName, studentCourseID, action) {
         const data = {
             receiptNameListObj: Obj,
             studentID: studentID,
             invoiceName: invoiceName,
             studentCourseID: studentCourseID,
-            action:action,
+            action: action,
         };
         const response = await this.callWebService("/controller/Billing.asmx/getLeftoverPayment", data, "POST");
         return response;
@@ -3141,11 +3176,15 @@ export default class DataSource {
         }
     }
 
-    async getReceiptList(invoiceName, receiptName) {
+    async getReceiptList(invoiceName, receiptName, receiptDateFrom, receiptDateTo, studentIndexNo, studentName) {
         try {
             const data = {
                 receiptName: receiptName,
                 invoiceName: invoiceName,
+                receiptDateFrom:receiptDateFrom,
+                receiptDateTo:receiptDateTo,
+                studentIndexNo:studentIndexNo,
+                studentName:studentName,
             };
             const response = await this.callWebService("/controller/Billing.asmx/getReceiptList", data, "POST");
             return response;
@@ -3195,10 +3234,11 @@ export default class DataSource {
         }
     }
 
-    async cancelReceipt(receiptID) {
+    async cancelReceipt(receiptID, remarks) {
         try {
             const data = {
                 receiptID: receiptID,
+                remarks: remarks,
             };
             const response = await this.callWebService("/controller/Billing.asmx/cancelReceipt", data, "POST");
             return response;
@@ -3414,8 +3454,8 @@ export default class DataSource {
         }
     }
 
-    async getInvoiceList(invoiceDateFrom, invoiceDateTo, invoiceDueDateFrom, invoiceDueDateTo,
-                         studentIndexNo, invoiceNo, studentName,type) {
+    async getInvoiceCNList(invoiceDateFrom, invoiceDateTo, invoiceDueDateFrom, invoiceDueDateTo,
+                         studentIndexNo, invoiceNo, studentName, type) {
         try {
             const data = {
                 invoiceDateFrom: invoiceDateFrom,
@@ -3425,9 +3465,9 @@ export default class DataSource {
                 studentIndexNo: studentIndexNo,
                 invoiceNo: invoiceNo,
                 studentName: studentName,
-                type:type,
+                type: type,
             };
-            const response = await this.callWebService("/controller/Billing.asmx/getInvoiceList", data, "POST");
+            const response = await this.callWebService("/controller/Billing.asmx/getInvoiceCNList", data, "POST");
             return response;
         } catch (e) {
             console.log(e);
@@ -3499,6 +3539,15 @@ export default class DataSource {
             classValue: classValue,
         };
         const response = await this.callWebService("/controller/Class.asmx/getClassStudentByClassName", data, "POST");
+        return response;
+    }
+
+    async getClassStudentByClassID(classValue) {
+
+        const data = {
+            classValue: classValue,
+        };
+        const response = await this.callWebService("/controller/Class.asmx/getClassStudentByClassID", data, "POST");
         return response;
     }
 
@@ -3879,6 +3928,263 @@ export default class DataSource {
                 crsID: crsID,
             };
             const response = await this.callWebService("/controller/Secret_Admin_Config_Token.asmx/updateStudentEmptyCourseIDInStudentCourse", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPendingStudentMovementStatusAction(studentID) {
+        try {
+            const data = {
+                studentID: studentID
+            };
+            const response = await this.callWebService("/controller/Students.asmx/getPendingStudentMovementStatusAction", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getTransactionListing(inputFromDate,inputToDate,dateRange,type){
+        try {
+            const data = {
+                dateFrom:inputFromDate,
+                dateTo:inputToDate,
+                type: type,
+                dateRange:dateRange,
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/getTransactionListing", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getStudentListReport() {
+        try {
+            const data = {
+            };
+            const response = await this.callWebService("/controller/Students.asmx/getStudentListReport", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async sendEmailReceipt(obj) {
+        try {
+            const data = {
+                obj: obj,
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/sendEmailReceipt", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getDebugAutoGetLevelAcademicYear(userID, userPassword, commencementDate, dateOfBirth, schoolID) {
+        try {
+            const data = {
+                userID: userID,
+                userPassword: userPassword,
+                commencementDate: commencementDate,
+                dateOfBirth: dateOfBirth,
+                schoolID: schoolID,
+            };
+            const response = await this.callWebService("/controller/Secret_Admin_Config_Token.asmx/getDebugAutoGetLevelAcademicYear", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getAllSchools() {
+        try {
+            const data = {
+            };
+            const response = await this.callWebService("/controller/Secret_Admin_Config_Token.asmx/getAllSchools", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getSalesLedger(type,dateRange,inputFromDate,inputToDate) {
+        try {
+            const data = {
+                type:type,
+                dateRange:dateRange,
+                dateFrom:inputFromDate,
+                dateTo:inputToDate
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/getSalesLedger", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async studentEmailAction(mode, studentIndexNo) {
+        try {
+            const data = {
+                mode: mode,
+                studentIndexNo: studentIndexNo,
+            };
+            const response = await this.callWebService("/controller/Students.asmx/studentEmailAction", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPostLearningMoment(portfolioDetailsPostID) {
+        try {
+            const data = {
+                portfolioDetailsPostID: portfolioDetailsPostID,
+            };
+            const response = await this.callWebService("/controller/Posting.asmx/getPostLearningMoment", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getZipFiles(obj, type) {
+        try {
+            const data = {
+                obj:obj,
+                type:type,
+            };
+            const response = await this.callWebService("/controller/Billing.asmx/getZipFiles", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getHubSpotDetails(dealID) {
+        try {
+            const data = {
+                dealId:dealID,
+            };
+
+            const request = {
+                url: `${API_HOST2}/hubspot/getHubspotDetail`,
+                data: JSON.stringify(data),
+                cache: false,
+                type: 'POST',
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                async: false,
+                json: false,
+                success: function (response) {
+                    return response;
+                }
+            };
+
+            let response = await jQuery.ajax(request);
+            if (typeof response === "string") {
+                response = JSON.parse(response);
+            }
+
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getStudentHubSpotDetials(studentID, dealID) {
+        try {
+            const data = {
+                studentID: studentID,
+                dealID: dealID,
+            };
+            const response = await this.callWebService("/controller/Students.asmx/getStudentHubSpotDetials", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getStudentHubSpotAttachment(HsdItemID) {
+        try {
+            const data = {
+                HsdItemID: HsdItemID,
+            };
+            const response = await this.callWebService("/controller/Students.asmx/getStudentHubSpotAttachment", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async saveBatchItem(studentCourseObj,itemObj) {
+        try {
+            const data = {
+                studentCourseObj: studentCourseObj,
+                itemObj:itemObj,
+            };
+            const response = await this.callWebService("/controller/billing.asmx/saveBatchItem", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getActiveStudentsBySemSchool(semID,levelID,classID,studentCourseStatus) {
+        try {
+            const data = {
+                semID: semID,
+                levelID: levelID,
+                classID: classID,
+                studentCourseStatus: studentCourseStatus,
+            };
+            const response = await this.callWebService("/controller/students.asmx/getActiveStudentsBySemSchool", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getBatchPaymentPlanMasterList(schoolID,courseID,classID) {
+        try {
+            const data = {
+                schoolID: schoolID,
+                courseID: courseID,
+                classID: classID,
+            };
+            const response = await this.callWebService("/controller/billing.asmx/getBatchPaymentPlanMasterList", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async saveBatchPaymentPlan(studentCourseObj,paymentPlanObj) {
+        try {
+            const data = {
+                studentCourseObj: studentCourseObj,
+                paymentPlanObj: paymentPlanObj,
+            };
+            const response = await this.callWebService("/controller/billing.asmx/saveBatchPaymentPlan", data, "POST");
+            return response;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getBatchPaymentStartDate(semesterID,courseID,classID,studentCourseStatus) {
+        try {
+            const data = {
+                semesterID: semesterID,
+                courseID: courseID,
+                classID: classID,
+                studentCourseStatus: studentCourseStatus,
+            };
+            const response = await this.callWebService("/controller/billing.asmx/getBatchPaymentStartDate", data, "POST");
             return response;
         } catch (e) {
             console.log(e);

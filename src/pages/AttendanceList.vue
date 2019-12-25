@@ -57,18 +57,18 @@
                     <!--</div>-->
                     <table class="attTable">
                         <tr>
-                            <th>
-                                <vs-checkbox ref="isCheckAll" v-model="selectallStudent"
-                                             @change="(e)=>checkAllStudent(e)">
-                                </vs-checkbox>
-                            </th>
+                            <!--<th>-->
+                                <!--<vs-checkbox ref="isCheckAll" v-model="selectallStudent"-->
+                                             <!--@change="(e)=>checkAllStudent(e)">-->
+                                <!--</vs-checkbox>-->
+                            <!--</th>-->
                             <!--<th>Student ID</th>-->
                             <th>Student Name</th>
                             <!--<th>Attendance <br> <input type="checkbox" @click="checkAll()" ref="checkAllBox"></th>-->
                             <th>
                                 <span v-if="bundleAttendance === false">Attendance</span>
                                 <el-select placeholder="Select Attendance For All" v-model="studentCheck"
-                                           @change="selectedAttendance()" class="" v-if="selectallStudent === true">
+                                           @change="selectedAttendance()" class="" v-if="selectallStudent === false">
                                     <el-option
                                             v-for="itemCheckList in checkListSelect"
                                             :key="itemCheckList"
@@ -87,10 +87,10 @@
                             :key="item.Student_ID + item.markingStatus">
                             <td style="display:none;"><input type="text" class="form-control" :value="item.Index_No"
                                                              ref="studentIndexNo"></td>
-                            <td>
-                                <vs-checkbox ref="chkitems" v-model="item.checked"
-                                             @change="showBundleAttendance(item)" :value="item.checked"></vs-checkbox>
-                            </td>
+                            <!--<td>-->
+                                <!--<vs-checkbox ref="chkitems" v-model="item.checked"-->
+                                             <!--@change="showBundleAttendance(item)" :value="item.checked"></vs-checkbox>-->
+                            <!--</td>-->
                             <td style="display:none;">{{item.checked}}</td>
                             <!--<td><label>{{item.AttDtlStudentIndexNo}}</label></td>-->
                             <td><label class="lblStudentName">{{item.Student_Name}}</label></td>
@@ -265,9 +265,11 @@
             selectedAttendance() {
                 this.studentList.forEach(m => {
 
-                    if (m.checked === true) {
-                        m.markingStatus = this.studentCheck;
-                    }
+                    // if (m.checked === true) {
+                    //     m.markingStatus = this.studentCheck;
+                    // }
+
+                    m.markingStatus = this.studentCheck;
                 });
             },
             AttendanceByStudent(value, item) {
@@ -408,8 +410,16 @@
                     let attendanceList = [];
 
                     this.$refs.studentList_Update.forEach((m, index) => {
+                        let status = '';
+
+                        if (this.$refs.studentCheckList[index].value === undefined || this.$refs.studentCheckList[index].value === null || this.$refs.studentCheckList[index].value === '')  {
+                            status = '';
+                        } else {
+                            status = this.$refs.studentCheckList[index].value;
+                        }
+
                         let attendanceDetials = {
-                            status: this.$refs.studentCheckList[index].value,
+                            status: status,
                             remark: this.$refs.studentRemark[index].value
                         };
 
@@ -417,10 +427,10 @@
                             studentIndexNo: this.$refs.studentIndexNo[index].value,
                             attDetails: attendanceDetials
                         };
-                        if (this.$refs.chkitems[index].value === true) {
-                            attendanceList.push(attendanceListTemp);
-
-                        }
+                        // if (this.$refs.chkitems[index].value === true) {
+                        //     attendanceList.push(attendanceListTemp);
+                        // }
+                        attendanceList.push(attendanceListTemp);
                     });
 
                     if (attendanceList.length < 1) {
@@ -431,7 +441,7 @@
                     } else {
                         const response = await DataSource.shared.updateAttendanceList(JSON.stringify(attendanceList));
                         if (response) {
-                            if (response.code == '1') {
+                            if (response.code === '1') {
                                 this.$notify({
                                     title: 'Success',
                                     message: 'Successfully saved',
@@ -451,7 +461,6 @@
                             }
                         }
                     }
-
                 } catch (e) {
                     this.results = e;
                 }

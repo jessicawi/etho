@@ -83,6 +83,12 @@
                 }, {
                     prop: "SchoolNameThatGoingToTransfer",
                     label: "Transfer To"
+                }, {
+                    prop: "STUSCH_EffectiveDate_convert",
+                    label: "Effective Date"
+                }, {
+                    prop: "TrasnferCreatedBy",
+                    label: "Created By"
                 }],
                 pendingListActionCol: {
                     label: 'Delete',
@@ -122,6 +128,12 @@
                 }, {
                     prop: "CLS_ClassName",
                     label: "Class"
+                }, {
+                    prop: "WithdrawnGraduatedDate",
+                    label: "Effective Date"
+                }, {
+                    prop: "WithdrawnGraduatedCreatedBy",
+                    label: "Created By"
                 }],
                 pendingListWGFilters: [
                     {

@@ -1,9 +1,31 @@
 <template>
-    <div id="studentpaymentplan" class="">
+    <div id="studentpaymentplan">
         <div class="col-lg-12">
+<!--            pp = student payment plan-->
+<!--            sd = student/staff discount-->
+<!--            items =  add items-->
+<!--            gi = generate invoice-->
+<!--            gr =  generate receipt-->
+<!--            cn = generate credit note-->
+<!--            rf = refund-->
+            <div>
+                <template>
+                    <el-select v-on:change="studentPaymentPlanTourStart(tourPageControl)" v-model="tourPageControl" clearable placeholder="Select Tour">
+                        <el-option  v-for="item in TourOptions" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </template>
+<!--                <button @click="studentPaymentPlanTourStart('pp')">apply payment plan tour</button>-->
+<!--                <button @click="studentPaymentPlanTourStart('sd')">sibling/staff discount tour</button><br>-->
+<!--                <button @click="studentPaymentPlanTourStart('items')">add items tour</button>-->
+<!--                <button @click="studentPaymentPlanTourStart('gi')">generate invoice tour</button><br>-->
+<!--                <button @click="studentPaymentPlanTourStart('gr')">generate receipt tour</button>-->
+<!--                <button @click="studentPaymentPlanTourStart('cn')">generate credit note tour</button><br>-->
+<!--                <button @click="studentPaymentPlanTourStart('rf')">Refund Tour</button>-->
+            </div>
             <div class="payment-title-wrap container mt-2">
                 <h5 class="text-left payment-title" id="StudentInformation">
-                    Student Information</h5>
+                    <b>Student Information</b></h5>
             </div>
             <div class="payment-header">
                 <div class="container">
@@ -21,6 +43,10 @@
                             <span>Meal Preferences</span>
                         </div>
                         <div class="payment-student-object">
+                            <h4>{{inputStudentClassBatch}}</h4>
+                            <span>Class/Programme</span>
+                        </div>
+                        <div class="payment-student-object">
                             <h4>{{inputPayeeName}}</h4>
                             <span>Payee Name</span>
                         </div>
@@ -28,34 +54,59 @@
                 </div>
             </div>
             <div class="student-course-list container mt-5">
-                <h5 class="text-left payment-title" id="StudentSibling">
-                    Siblings
-                </h5>
-                <div v-if="siblingListTableInt.length>0" class="datatable_group">
-                    <data-tables :data="siblingListTableInt">
-                        <el-table-column v-for="siblingItem in siblingListTableList" :prop="siblingItem.prop"
-                                         :label="siblingItem.label" :key="siblingItem.prop">
-                        </el-table-column>
-                    </data-tables>
-                </div>
-                <div v-else class="siblingNoRecordArea">
-                    <label>No Sibling...</label>
-                </div>
+
+                <template>
+                    <div>
+                        <b-card no-body>
+                            <b-tabs content-class="mt-3">
+                                <b-tab title="Siblings" active>
+                                    <div v-if="siblingListTableInt.length>0" class="datatable_group">
+                                        <data-tables :data="siblingListTableInt" :action-col="siblingListAction">
+                                            <el-table-column v-for="siblingItem in siblingListTableList" :prop="siblingItem.prop"
+                                                             :label="siblingItem.label" :key="siblingItem.prop">
+                                            </el-table-column>
+                                        </data-tables>
+                                    </div>
+                                    <div v-else class="siblingNoRecordArea">
+                                        <label>No Sibling...</label>
+                                    </div>
+                                </b-tab>
+                                <b-tab title="Parent Info">
+                                    <div v-if="parentListTableInt.length>0" class="datatable_group">
+                                        <b>Family Number: {{familyNumber}}</b>
+                                        <data-tables :data="parentListTableInt">
+                                            <el-table-column v-for="Item in parentListTable" :prop="Item.prop"
+                                                             :label="Item.label" :key="Item.prop">
+                                            </el-table-column>
+                                        </data-tables>
+                                    </div>
+                                    <div v-else class="parentNoRecordArea">
+                                        <label>Parent info not found...</label>
+                                    </div>
+                                </b-tab>
+                            </b-tabs>
+                        </b-card>
+                    </div>
+                </template>
+
                 <div class="row payment-list-header">
                     <div class="col-lg-6"><h5 class="text-left payment-title" id="Payment_List">
-                        Payment List
+                       <b>Payment List</b>
                     </h5></div>
                     <div class="col-lg-6 text-right">
-                        <div class="paymentList-button-group">
+                        <div class="paymentList-button-group" >
                             <span>Generate / Preview</span>
                             <el-button-group v-if="PaymentListInt.length>0">
-                                <el-button v-on:click="showGenerateInvoice" :disabled="btnDisabled" type="primary"
+                                <el-button data-v-step="app01"
+                                           v-on:click="showGenerateInvoice" :disabled="btnDisabled" type="primary"
                                            size="small">
                                     <i class="material-icons">
                                         attach_money
                                     </i> Invoice
                                 </el-button>
-                                <el-button v-on:click="showGenerateReceipt" :disabled="btnDisabled" type="primary"
+
+                                <el-button  data-v-step="gr01"
+                                            v-on:click="showGenerateReceipt" :disabled="btnDisabled" type="primary"
                                            size="small">
                                     <i class="material-icons">
                                         receipt
@@ -63,6 +114,7 @@
                                 </el-button>
                             </el-button-group>
                         </div>
+
                     </div>
                 </div>
                 <div class="empty-list_icon" v-if="PaymentListInt&&PaymentListInt.length<1">
@@ -104,6 +156,7 @@
                                         </el-tooltip>
                                     </a>
                                     <a href="#" class="payment-icon paymentIcon-transaction"
+                                       data-v-step="rfMaster01"
                                        @click="showRefund(scope.row)"  v-if="scope.row.refundFlag =='Yes'">
                                         <el-tooltip class="item" effect="dark" content="Show Refund"
                                                     placement="top-start">
@@ -116,7 +169,7 @@
                                        class="payment-icon paymentIcon-receipt"
                                        @click="showGenerateReceiptByHistory(scope.row)">
                                         <el-tooltip class="item" effect="dark" content="Generate Receipt"
-                                                    placement="top-start">
+                                                placement="top-start">
                                             <i class="material-icons">
                                                 receipt
                                             </i>
@@ -124,7 +177,8 @@
                                     </a>
                                     <a href="#" v-if="scope.row.generateCNFlag=='Yes'&&btnDisabled==false"
                                        class="payment-icon paymentIcon-CreditNote"
-                                       @click="showGenerateCreditNote(scope.row)">
+                                       @click="showGenerateCreditNote(scope.row)"
+                                       data-v-step="gcn01">
                                         <el-tooltip class="item" effect="dark" content="Generate CreditNote"
                                                     placement="top-start">
                                             <i class="fa fa-money" aria-hidden="true"></i>
@@ -176,18 +230,18 @@
 
                                             <el-button v-on:click="showPaymentReminder('2nd',scope.row.DocumentNo)" :disabled="btnDisabled" type="primary"
                                                        size="small">
-                                                    <i class="tiny material-icons" style="color:red">
-                                                        add_alert
-                                                    </i> 2
+                                                <i class="tiny material-icons" style="color:red">
+                                                    add_alert
+                                                </i> 2
                                             </el-button>
 
                                             <el-button v-on:click="showPaymentReminder('3rd',scope.row.DocumentNo)" :disabled="btnDisabled" type="primary"
-                                                                           size="small">
-                                            <i class="tiny material-icons" style="color:red">
-                                                add_alert
-                                            </i> 3
+                                                       size="small">
+                                                <i class="tiny material-icons" style="color:red">
+                                                    add_alert
+                                                </i> 3
 
-                                        </el-button>
+                                            </el-button>
                                         </el-button-group>
                                     </div>
                                 </template>
@@ -204,7 +258,7 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <div class="row">
                         <div class="col-lg-6"><label>* Payment Plan</label></div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-6" data-v-step="ppBmodal02">
                             <!--<button v-on:click="viewPaymentPlan()"-->
                             <!--class="btn btn-primary waves-effect waves-light float-right">View Payment Plan-->
                             <!--</button>-->
@@ -213,7 +267,7 @@
                                 Payment Plan <i class="fa fa-eye" aria-hidden="true"></i></el-button>
                         </div>
                     </div>
-                    <el-select class="float-left fullwidth" v-model="ddlPaymentPlan">
+                    <el-select class="float-left fullwidth" v-model="ddlPaymentPlan" data-v-step="ppBmodal01">
                         <el-option
                                 v-for="item in paymentPlanList"
                                 :key="item.PK_Course_Fee_Scheme_ID"
@@ -297,10 +351,45 @@
                     <b-btn @click="closePaymentPlanModal()" class="float-left btn-secondary">Cancel</b-btn>
                 </div>
                 <div class="col-lg-6">
-                    <button v-on:click="savePaymentPlanClick()"
+                    <button v-on:click="savePaymentPlanClick()" data-v-step="ppBmodal03"
                             class="btn btn-primary waves-effect waves-light float-right">Add Payment Plan
                     </button>
                 </div>
+
+                <v-tour name="ppModalTourName" :steps="ppModalTourSteps"
+                        :options="MasterPageTourOptions" :callbacks="ppModalTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToInvModalPPTour()" class="v-step__button">Previous step</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next step</button>
+                                    </div>
+                                </template>
+
+                                <template v-if="tour.currentStep === 2">
+                                    <div slot="actions">
+                                        <button @click="tour.previousStep" class="v-step__button">Previous</button>
+                                        <button @click="ppModalTourStop()" class="v-step__button">Finish</button>
+                                    </div>
+                                </template>
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+
             </div>
         </b-modal>
         <b-modal id="newApplyDiscountPlanModal" size="lg" title="Add Discount Plan" ok-only ok-variant="secondary"
@@ -316,12 +405,13 @@
                             <span>
                                 <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"
                                                                                  fill="none" stroke="white"
-                                                                                 d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>
+                                                                                 d="M1.73,12.91 8.1,19.28 22.79,4.59" data-v-step="sdmodal02"></path></svg>
                             </span>
                         </span>
                         </label>
+
                         <input type="text" class="form-control EligibleColor" v-model="inputEligible"
-                               readonly="readonly">
+                               readonly="readonly" data-v-step="sdmodal01">
                         <!--<input type="text" class="form-control NotEligibleColor" v-model="inputNotEligible"-->
                         <!--v-show="isSiblingDiscountNotEligible" readonly="readonly">-->
                     </div>
@@ -329,6 +419,7 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label><span v-show="isDdlSiblingDiscRequired">* </span>Rule to Apply</label>
                     <el-select v-model="ddlPaymentPlanRuleApplySiblings" class="fullwidth"
+                               data-v-step="sdmodal03"
                                :disabled="disablePaymentPlanRuleApplySiblings"
                                @change="onchangePaymentPlanRuleSiblings()">
                         <el-option
@@ -404,10 +495,42 @@
                 </div>
                 <hr class="custom-hr"/>
                 <div class="col-lg-6">
-                    <button v-on:click="addDiscountPlanClick()"
+                    <button v-on:click="addDiscountPlanClick()" data-v-step="sdmodal04"
                             class="btn btn-primary waves-effect waves-light">Add Discount Plan
                     </button>
                 </div>
+                <v-tour name="sdModalTourName" :steps="sdModalTourSteps" :options="MasterPageTourOptions"
+                        :callbacks="sdModalTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToInvModalSDTour()" class="v-step__button">Previous</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next</button>
+                                    </div>
+                                </template>
+                                <template v-if="tour.currentStep === 3">
+                                    <div slot="actions">
+                                        <button class="v-step__button" @click="tour.previousStep">Previous</button>
+                                        <button class="v-step__button" @click="sdModalTourStop()">Finish</button>
+                                    </div>
+                                </template>
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
             </div>
         </b-modal>
         <b-modal id="viewPaymentPlanModal" size="lg" title="View Payment Plan" ok-only ok-variant="secondary"
@@ -516,12 +639,12 @@
                 </data-tables>
             </div>
         </b-modal>
-        <b-modal id="newAddItemModal" size="lg" title="Add Item" ok-only ok-variant="secondary" hide-footer
-                 ref="newAddItemShowModal">
+        <b-modal id="newAddItemModal" size="lg" title="Add Item" ok-only ok-variant="secondary"
+                 hide-footer ref="newAddItemShowModal">
             <div class="row ml-2 mr-2">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
                     <label>* Item</label>
-                    <el-select v-model="ddlAddItem" class="fullwidth" @change="onchangeAddItem()">
+                    <el-select v-model="ddlAddItem" class="fullwidth" @change="onchangeAddItem()" data-v-step="aimodal01">
                         <el-option v-for="item in addItemList" v-bind:value="item.OPTvalue.trim()">{{
                             item.OPTvalue.trim() }}
                         </el-option>
@@ -532,14 +655,14 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>* Payment Date</label>
                     <div class="date">
-                        <el-date-picker v-model="inputAddItemPaymentDate" format="dd/MM/yyyy"
+                        <el-date-picker v-model="inputAddItemPaymentDate" format="dd/MM/yyyy" data-v-step="aimodal02"
                                         value-format="dd/MM/yyyy" type="date"
                                         placeholder="Pick a day"></el-date-picker>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>* Amount</label>
-                    <input type="text" class="form-control" v-model="inputAddItemAmount" @keypress="onlyNumber">
+                    <input type="text" class="form-control" v-model="inputAddItemAmount" @keypress="onlyNumber" data-v-step="aimodal03">
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>Currency</label>
@@ -552,7 +675,7 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>* Payment Schedule</label>
                     <el-select v-model="ddlAddItemPaymentSchedule" class="fullwidth"
-                               @change="onchangeAddItemPaymentSchedule()">
+                               @change="onchangeAddItemPaymentSchedule()" data-v-step="aimodal04">
                         <el-option v-for="item in addItemPaymentScheduleList" v-bind:value=" item.OPTvalue.trim()">{{
                             item.OPTvalue.trim() }}
                         </el-option>
@@ -560,7 +683,7 @@
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <label>* Payment Item Type</label>
-                    <el-select v-model="ddlAddItemPaymentItemType" class="fullwidth">
+                    <el-select v-model="ddlAddItemPaymentItemType" class="fullwidth" data-v-step="aimodal05">
                         <el-option v-for="item in addItemPaymentItemTypeList" v-bind:value="item.OPTvalue.trim()">{{
                             item.OPTvalue.trim() }}
                         </el-option>
@@ -602,11 +725,45 @@
                             class="btn btn-secondary close-modal-btn float-left">Close
                     </button>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-6" data-v-step="aimodal06">
                     <button v-on:click="saveItemClick()"
                             class="btn btn-primary waves-effect waves-light float-right">Add
                     </button>
                 </div>
+
+                <v-tour name="aiModalTourName" :steps="aiModalTourSteps" :options="MasterPageTourOptions"
+                        :callbacks="aiModalTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToInvModalAITour()" class="v-step__button">Previous</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next</button>
+                                    </div>
+                                </template>
+                                <template v-if="tour.currentStep === 5">
+                                    <div slot="actions">
+                                        <button class="v-step__button" @click="tour.previousStep">Previous</button>
+                                        <button class="v-step__button" @click="aiModalTourStop()">Finish</button>
+                                    </div>
+                                </template>
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+
             </div>
         </b-modal>
         <b-modal id="creditNoteModal" size="lg" title="Credit Note" ok-only ok-variant="secondary" hide-footer
@@ -625,17 +782,13 @@
                     <br>
                     <div v-if="studentReceiptLeftOverPaymentListInt.length>0" class="datatable_group">
                         <data-tables :data="studentReceiptLeftOverPaymentListInt" @selection-change="changeSelection"
+                                     data-v-step="cr01" v-bind:class="{divBorderClass:studentCreditNoteListAreaBorder}">
                                      ref="ReceiptGenerationByTransactionHistoryTable">
                             <el-table-column type="selection" width="55" :reserve-selection="false">
                             </el-table-column>
                             <el-table-column v-for="item in studentReceiptLeftOverPaymentList" :prop="item.prop"
                                              :label="item.label" :key="item.prop">
                             </el-table-column>
-                            <!--                                <el-table-column label="Pay Amount" min-width="100px">-->
-                            <!--                                    <template slot-scope="scope">-->
-                            <!--                                        <el-input v-model="scope.row.newPayAmount" type="number" placeholder="Amount"></el-input>-->
-                            <!--                                    </template>-->
-                            <!--                                </el-table-column>-->
                         </data-tables>
                     </div>
                     <br>
@@ -643,13 +796,49 @@
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 mb3">
                     <label>Remarks *</label>
                     <b-form-textarea rows="3" class="textArea" v-model="taCnRemarks" placeholder="Please enter comment"
-                                     :state="taCnRemarks.length >=1"></b-form-textarea>
+                                     :state="taCnRemarks.length >=1" data-v-step="cr02"></b-form-textarea>
                 </div>
                 <div class="col-lg-12">
-                    <button v-on:click="generateCNClick()"
+                    <button v-on:click="generateCNClick()" data-v-step="cr03"
                             class="btn btn-primary waves-effect waves-light float-right">Generate CN
                     </button>
                 </div>
+
+                <v-tour name="cnModalTourName" :steps="CnModalTourSteps" :options="MasterPageTourOptions"
+                        :callbacks="CnModalTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToMasterCNPageTour()" class="v-step__button">Previous</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next</button>
+                                    </div>
+                                </template>
+                                <template v-if="tour.currentStep === 2">
+                                    <div slot="actions">
+                                        <div slot="actions">
+                                            <button @click="tour.previousStep" class="v-step__button">Previous</button>
+                                            <button @click="cnModalTourStop()" class="v-step__button">Finish</button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+
             </div>
         </b-modal>
         <b-modal id="generateReceiptModal" size="xl" title="Generate Receipt" ok-only ok-variant="secondary" hide-footer
@@ -658,7 +847,7 @@
             <div class="row mt-3">
                 <div class="col-lg-6 ">
                     <label>Payment Mode</label>
-                    <select v-model="ddlPaymentMode" v-on:click="validatePaymentMode()"
+                    <select v-model="ddlPaymentMode" v-on:click="validatePaymentMode()" data-v-step="grmodal01"
                             class="form-control pro-edt-select form-control-primary">
                         <option v-for="item in paymentModeList" v-bind:value="item.OPTvalue.trim()">{{
                             item.OPTvalue.trim() }}
@@ -667,7 +856,7 @@
                 </div>
                 <div class="col-lg-6" v-if="this.ddlPaymentMode!='CASH'">
                     <label>Cheque/DD No & Bank Name</label>
-                    <input type="text" class="form-control" v-model="inputChequeNoBankName">
+                    <input type="text" class="form-control" v-model="inputChequeNoBankName" data-v-step="grmodal02">
                 </div>
                 <div class="col-lg-6">
                     <label>Receipt Date</label>
@@ -679,11 +868,11 @@
                 </div>
                 <div class="col-lg-6">
                     <label>Remarks</label>
-                    <input type="text" class="form-control" v-model="inputRemarks">
+                    <input type="text" class="form-control" v-model="inputRemarks" data-v-step="grmodal03">
                 </div>
                 <div class="col-lg-6">
                     <el-checkbox v-model="requiredInvoice" label="Does this receipt required Invoice??"
-                                                         class="float-left"></el-checkbox>
+                                 class="float-left" data-v-step="grmodal04"></el-checkbox>
                 </div>
             </div>
             <div class="row">
@@ -694,8 +883,9 @@
                         </el-button>
                     </el-button-group>
                 </div>
-                <div v-if="studentReceiptGenerationListInt.length>0" class="datatable_group col-lg-12">
-                    <data-tables :data="studentReceiptGenerationListInt" @selection-change="changeSelection"
+                <div v-if="studentReceiptGenerationListInt.length>0" class="datatable_group col-lg-12"
+                     v-bind:class="{divBorderClass:studentReceiptListAreaBorder}">
+                    <data-tables :data="studentReceiptGenerationListInt" @selection-change="changeSelection" data-v-step="grmodal05"
                                  :action-col="studentReceiptItemListAction"
                                  ref="receiptGenerationTable">
                         <el-table-column type="selection" width="55">
@@ -719,13 +909,84 @@
                 <div class="col-lg-6">
                     <el-button-group>
                         <el-button type="primary" v-on:click="previewReceiptClick()">
-                            <span>Preview</span>
+                            <span data-v-step="grmodal06">Preview</span>
                         </el-button>
                         <el-button type="primary" v-on:click="generateReceiptClick('AdhocReceipt')">
-                            <span>Generate</span>
+                            <span data-v-step="grmodal07">Generate</span>
                         </el-button>
                     </el-button-group>
                 </div>
+
+                <v-tour name="grModalTourName" :steps="grModalTourSteps"
+                        :options="MasterPageTourOptions" :callbacks="grModalTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToMasterPageTour()" class="v-step__button">Previous</button>
+                                        <button v-if="ddlPaymentMode!=='CASH'" @click="tour.nextStep" class="v-step__button">Next</button>
+                                        <button v-else @click="RecModalGRTourNextSteps()" class="v-step__button">Next</button>
+                                    </div>
+                                </template>
+
+                                <template v-if="tour.currentStep === 6">
+                                    <div slot="actions">
+                                        <button @click="tour.previousStep" class="v-step__button">Previous</button>
+                                        <button @click="grModalTourStop()" class="v-step__button">Finish</button>
+                                    </div>
+                                </template>
+
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+                <v-tour name="grModalTourCuztomizeName" :steps="grModalTourCuztomizeSteps"
+                        :options="MasterPageTourOptions" :callbacks="grModalTourCuztomizeCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToMasterPageTour()" class="v-step__button">Previous</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next</button>
+                                    </div>
+                                </template>
+
+                                <template v-if="tour.currentStep === 5">
+                                    <div slot="actions">
+                                        <button @click="tour.previousStep" class="v-step__button">Previous</button>
+                                        <button @click="grModalTourStop()" class="v-step__button">Finish</button>
+                                    </div>
+                                </template>
+
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+
             </div>
         </b-modal>
         <b-modal id="generateInvoiceModal" size="xl" title="Generate Invoice" ok-only ok-variant="secondary" hide-footer
@@ -734,16 +995,146 @@
                 <div class="col-lg-6">
                     <h5 class="text-left payment-title">INVOICING</h5>
                 </div>
+
+                <v-tour name="InvModalPPTourName" :steps="InvModalPPTourSteps" :options="MasterPageTourOptions"
+                        :callbacks="InvModalPPTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToMasterPageTour()" class="v-step__button">Previous step</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next step</button>
+                                    </div>
+                                </template>
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+                <v-tour name="InvModalSDTourName" :steps="InvModalSDTourSteps" :options="MasterPageTourOptions"
+                        :callbacks="InvModalSDTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToMasterPageTour()" class="v-step__button">Previous step</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next step</button>
+                                    </div>
+                                </template>
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+                <v-tour name="InvModalAITourName" :steps="InvModalAITourSteps" :options="MasterPageTourOptions"
+                                 :callbacks="InvModalAITourCallbacks">
+                <template slot-scope="tour">
+                    <transition name="fade">
+                        <v-step
+                                v-if="tour.currentStep === index"
+                                v-for="(step, index) of tour.steps"
+                                :key="index"
+                                :step="step"
+                                :previous-step="tour.previousStep"
+                                :next-step="tour.nextStep"
+                                :stop="tour.stop"
+                                :is-first="tour.isFirst"
+                                :is-last="tour.isLast"
+                                :labels="tour.labels"
+                        >
+                            <template v-if="tour.currentStep === 0">
+                                <div slot="actions">
+                                    <button @click="backToMasterPageTour()" class="v-step__button">Previous step</button>
+                                    <button @click="tour.nextStep" class="v-step__button">Next step</button>
+                                </div>
+                            </template>
+                        </v-step>
+                    </transition>
+                </template>
+            </v-tour>
+                <v-tour name="InvModalGITourName" :steps="InvModalGITourSteps" :options="MasterPageTourOptions"
+                        :callbacks="InvModalGITourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                    <div slot="actions">
+                                        <button @click="backToMasterPageTour()" class="v-step__button">Previous</button>
+                                        <button @click="tour.nextStep" class="v-step__button">Next</button>
+                                    </div>
+                                </template>
+                                <template v-if="tour.currentStep === 2">
+                                    <div slot="actions">
+                                        <div slot="actions">
+                                            <button @click="tour.previousStep" class="v-step__button">Previous</button>
+                                            <button @click="tour.nextStep" class="v-step__button">Next</button>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-if="tour.currentStep === 3">
+                                    <div slot="actions">
+                                        <div slot="actions">
+                                            <button @click="tour.previousStep" class="v-step__button">Previous</button>
+                                            <button @click="giModalTourStop()" class="v-step__button">Finish</button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
+
+<!--                dummy-->
+                <div data-v-step="InvApp03"></div>
+                <div data-v-step="InvSd04"></div>
+                <div data-v-step="InvAi02"></div>
+                <div data-v-step="InvGi05"></div>
+<!--                dummy-->
+
                 <div class="col-lg-6">
                     <el-checkbox v-model="cbPrintMonthlyBreakdown" label="Print monthly breakdown" border
-                                 class="float-right"></el-checkbox>
+                                 data-v-step="InvGi01" class="float-right"></el-checkbox>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-lg-6">
                     <div class="date">
                         <label>* Payment Due Date</label>
-                        <el-date-picker v-model="inputPaymentDueDate" format="dd/MM/yyyy"
+                        <el-date-picker data-v-step="InvApp01"
+                                        v-model="inputPaymentDueDate" format="dd/MM/yyyy"
                                         value-format="dd/MM/yyyy" type="date"
                                         placeholder="Pick a day"></el-date-picker>
                     </div>
@@ -751,20 +1142,20 @@
                 </div>
                 <div class="col-lg-6 ">
                     <label>Remarks</label>
-                    <input type="text" class="form-control" v-model="inputRemarks">
+                    <input data-v-step="InvSd02" type="text" class="form-control" v-model="inputRemarks">
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-12 actionDiv mb-3">
                     <el-button-group>
-                        <el-button type="primary" variant="primary" v-on:click="showDiscountPlanClick()"
+                        <el-button type="primary" variant="primary" v-on:click="showDiscountPlanClick()" data-v-step="InvSd03"
                                    v-if="isSiblingDiscountEligible||isStaffDiscountEligible">
                             Apply Discount plan
                         </el-button>
-                        <el-button type="primary" variant="primary" v-on:click="applyPaymentPlanClick()">
+                        <el-button type="primary" variant="primary" v-on:click="applyPaymentPlanClick()" data-v-step="InvApp02">
                             Apply Payment Plan
                         </el-button>
-                        <el-button type="primary" variant="primary" v-on:click="addItemClick()">
+                        <el-button type="primary" variant="primary" v-on:click="addItemClick()" data-v-step="InvAi01">
                             Add Item
                         </el-button>
                     </el-button-group>
@@ -777,22 +1168,28 @@
                         </el-table-column>
                     </data-tables>
                 </div>
-                <div v-if="studentInvoiceGenerationListInt.length>0" class="datatable_group col-lg-12">
+                    <div v-if="studentInvoiceGenerationListInt.length>0" class="datatable_group col-lg-12" data-v-step="InvGi02"
+                         v-bind:class="{divBorderClass:studentInvoiceListAreaBorder}">
                     <data-tables :data="studentInvoiceGenerationListInt" @selection-change="changeSelection"
                                  :action-col="studentInvoiceItemListAction"
                                  ref="invoiceGenerationTable">
                         <el-table-column type="selection" width="55" :selectable="canSelectRow">
                         </el-table-column>
                         <el-table-column v-for="item in studentInvoiceGenerationList" :prop="item.prop"
-                                         :label="item.label" :key="item.prop">
+                                         :label="item.label" :key="item.prop" >
                         </el-table-column>
-                        <el-table-column label="GST Value" min-width="100px">
+                        <el-table-column label="GST Value" min-width="80px">
                             <template slot-scope="scope">
                                 <el-input v-model="scope.row.newGSTAmount" type="number"
                                           v-on:change="updateTotalClick(scope.row.newGSTAmount,scope.row.SPPD_PaymentAmount,scope.row)"
                                           :min="adjustmentMin(scope.row.SPPD_GstValue)"
                                           :max="adjustmentMax(scope.row.SPPD_GstValue)"
                                           :step="0.01" placeholder="GST"></el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="Total Amount" min-width="80px">
+                            <template slot-scope="scope">
+                                {{scope.row.SPPD_TotalValue}}
                             </template>
                         </el-table-column>
                     </data-tables>
@@ -804,10 +1201,10 @@
                 </div>
                 <div class="col-lg-6">
                     <el-button-group>
-                        <el-button type="primary" v-on:click="previewInvoiceClick()">
+                        <el-button type="primary" v-on:click="previewInvoiceClick()" data-v-step="InvGi03">
                             <span>Preview</span>
                         </el-button>
-                        <el-button type="primary" v-on:click="generateInvoiceClick('')">
+                        <el-button type="primary" v-on:click="generateInvoiceClick('')" data-v-step="InvGi04">
                             <span>Generate</span>
                         </el-button>
                     </el-button-group>
@@ -858,7 +1255,7 @@
                         </option>
                     </select>
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="this.ddlPaymentMode!='CASH'">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" v-if="ddlPaymentMode!='CASH'">
                     <label>Cheque/DD No & Bank Name</label>
                     <input type="text" class="form-control" v-model="inputChequeNoBankName">
                 </div>
@@ -932,17 +1329,17 @@
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <!--<label>Letterhead (Hong Kong only):</label>-->
-<!--                            <label>-->
-<!--                                <input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">-->
-<!--                                Print monthly breakdown-->
-<!--                                <span>-->
-<!--                                    <span>-->
-<!--                                        <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"-->
-<!--                                                                                         fill="none" stroke="white"-->
-<!--                                                                                         d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>-->
-<!--                                    </span>-->
-<!--                                </span>-->
-<!--                            </label>-->
+                            <!--                            <label>-->
+                            <!--                                <input type="checkbox" class="form-control" v-model="cbPrintMonthlyBreakdown">-->
+                            <!--                                Print monthly breakdown-->
+                            <!--                                <span>-->
+                            <!--                                    <span>-->
+                            <!--                                        <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path"-->
+                            <!--                                                                                         fill="none" stroke="white"-->
+                            <!--                                                                                         d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg>-->
+                            <!--                                    </span>-->
+                            <!--                                </span>-->
+                            <!--                            </label>-->
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <label>Remarks</label>
@@ -975,25 +1372,25 @@
             <b-button class="mt-2" variant="danger" block v-on:click="overPaymentClick('No')">No</b-button>
         </b-modal>
         <b-modal id="showPaymentReminderModal" size="lg" title="" ok-only ok-variant="secondary" ok-title="Cancel"
-                ref="showPaymentReminderModal">
+                 ref="showPaymentReminderModal">
             <label>{{ lblPaymentReminder }} Payment Reminder</label> <br>
 
-                    <div class="row ml-1 mr-1">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                <label>Email To:</label>
-                                <input type="text" class="form-control" v-model="inputEmailTo">
-                        </div>
+            <div class="row ml-1 mr-1">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label>Email To:</label>
+                    <input type="text" class="form-control" v-model="inputEmailTo">
+                </div>
 
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                            <label>Title</label>
-                            <input type="text" class="form-control" v-model="inputEmailSubject">
-                        </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label>Title</label>
+                    <input type="text" class="form-control" v-model="inputEmailSubject">
+                </div>
 
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                            <label>Description</label>
-                            <textarea rows="12" class="form-control" v-model="inputEmailMessage" placeholder="Enter something..."></textarea>
-                        </div>
-                    </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label>Description</label>
+                    <textarea rows="12" class="form-control" v-model="inputEmailMessage" placeholder="Enter something..."></textarea>
+                </div>
+            </div>
 
             <div>
                 <button v-on:click="sendEmailReminderClick()"
@@ -1007,7 +1404,10 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div v-if="refundListInt.length>0" class="datatable_group col-lg-12">
-                        <data-tables :data="refundListInt" ref="refundGenerationTable" @selection-change="changeSelection">
+                        <data-tables :data="refundListInt" ref="refundGenerationTable"
+                                     data-v-step="rf01"
+                                     v-bind:class="{divBorderClass:studentRefundListAreaBorder}"
+                                     @selection-change="changeSelection">
                             <el-table-column type="selection" width="55">
                             </el-table-column>
                             <el-table-column v-for="item in refundList" min-width="50px"
@@ -1023,19 +1423,54 @@
                             </el-table-column>
                         </data-tables>
 
-                        <div class="row actionDiv">
-                            *Remarks
-                            <el-input type="text" v-model="inputRefundRemarks"></el-input>
-                            <div class="col-lg-6">
+                        <div class="row">
+                            <div class="col-lg-1">*Remarks</div>
+                            <div class="col-lg-12"><el-input data-v-step="rf02" type="text" v-model="inputRefundRemarks"></el-input></div>
+                            <div class="col-lg-2">
                                 <el-button-group>
                                     <el-button type="primary" v-on:click="generateRefundClick()">
-                                        <span>Refund!</span>
+                                        <span data-v-step="rf03">Refund!</span>
                                     </el-button>
                                 </el-button-group>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <v-tour name="rfModalTourName" :steps="rfModalTourSteps"
+                        :options="MasterPageTourOptions" :callbacks="rfModalTourCallbacks">
+                    <template slot-scope="tour">
+                        <transition name="fade">
+                            <v-step
+                                    v-if="tour.currentStep === index"
+                                    v-for="(step, index) of tour.steps"
+                                    :key="index"
+                                    :step="step"
+                                    :previous-step="tour.previousStep"
+                                    :next-step="tour.nextStep"
+                                    :stop="tour.stop"
+                                    :is-first="tour.isFirst"
+                                    :is-last="tour.isLast"
+                                    :labels="tour.labels"
+                            >
+                                <template v-if="tour.currentStep === 0">
+                                <div slot="actions">
+                                    <button @click="backToMasterPageTour()" class="v-step__button">Previous</button>
+                                    <button @click="tour.nextStep" class="v-step__button">Next</button>
+                                </div>
+                                </template>
+
+                                <template v-if="tour.currentStep === 2">
+                                    <div slot="actions">
+                                        <button @click="tour.previousStep" class="v-step__button">Previous</button>
+                                        <button @click="rfModalTourStop()" class="v-step__button">Finish</button>
+                                    </div>
+                                </template>
+
+                            </v-step>
+                        </transition>
+                    </template>
+                </v-tour>
 
             </div>
         </b-modal>
@@ -1047,16 +1482,535 @@
             <b-button class="mt-2" variant="success" block v-on:click="SiblingConfirmationClick('Yes')">Yes</b-button>
             <b-button class="mt-2" variant="danger" block v-on:click="SiblingConfirmationClick('No')">No</b-button>
         </b-modal>
+
+        <v-tour name="MasterPageTourName" :steps="MasterPageTourSteps" :options="MasterPageTourOptions" :callbacks="MasterPageTourCallbacks">
+            <template slot-scope="tour">
+                <transition name="fade">
+                    <v-step
+                            v-if="tour.currentStep === index"
+                            v-for="(step, index) of tour.steps"
+                            :key="index"
+                            :step="step"
+                            :previous-step="tour.previousStep"
+                            :next-step="tour.nextStep"
+                            :stop="tour.stop"
+                            :is-first="tour.isFirst"
+                            :is-last="tour.isLast"
+                            :labels="tour.labels"
+                    >
+                        <template v-if="tour.currentStep === 0">
+                            <div slot="actions">
+                                <button @click="stopTour()" class="v-step__button">Skip Tour</button>
+                                <button @click="sppTourNextSteps()" class="v-step__button">Next step</button>
+                            </div>
+                        </template>
+                    </v-step>
+                </transition>
+            </template>
+        </v-tour>
+        <v-tour name="MasterPageGRTourName" :steps="MasterPageGRTourSteps" :options="MasterPageTourOptions" :callbacks="MasterPageGRTourCallbacks">
+            <template slot-scope="tour">
+                <transition name="fade">
+                    <v-step
+                            v-if="tour.currentStep === index"
+                            v-for="(step, index) of tour.steps"
+                            :key="index"
+                            :step="step"
+                            :previous-step="tour.previousStep"
+                            :next-step="tour.nextStep"
+                            :stop="tour.stop"
+                            :is-first="tour.isFirst"
+                            :is-last="tour.isLast"
+                            :labels="tour.labels"
+                    >
+                        <template v-if="tour.currentStep === 0">
+                            <div slot="actions">
+                                <button @click="stopTour()" class="v-step__button">Skip Tour</button>
+                                <button @click="sppTourNextSteps()" class="v-step__button">Next step</button>
+                            </div>
+                        </template>
+                    </v-step>
+                </transition>
+            </template>
+        </v-tour>
+        <v-tour name="MasterPageCNTourName" :steps="MasterPageCNTourSteps" :options="MasterPageTourOptions" :callbacks="MasterPageCNTourCallbacks">
+            <template slot-scope="tour">
+                <transition name="fade">
+                    <v-step
+                            v-if="tour.currentStep === index"
+                            v-for="(step, index) of tour.steps"
+                            :key="index"
+                            :step="step"
+                            :previous-step="tour.previousStep"
+                            :next-step="tour.nextStep"
+                            :stop="tour.stop"
+                            :is-first="tour.isFirst"
+                            :is-last="tour.isLast"
+                            :labels="tour.labels"
+                    >
+                        <template v-if="tour.currentStep === 0">
+                            <div slot="actions">
+                                <button @click="stopTour()" class="v-step__button">Skip Tour</button>
+                                <button @click="MasterPageCNTourNextSteps()" class="v-step__button">Next step</button>
+                            </div>
+                        </template>
+                    </v-step>
+                </transition>
+            </template>
+        </v-tour>
+        <v-tour name="MasterPageRFTourName" :steps="MasterPageRFTourSteps" :options="MasterPageTourOptions" :callbacks="MasterPageRFTourCallbacks">
+            <template slot-scope="tour">
+                <transition name="fade">
+                    <v-step
+                            v-if="tour.currentStep === index"
+                            v-for="(step, index) of tour.steps"
+                            :key="index"
+                            :step="step"
+                            :previous-step="tour.previousStep"
+                            :next-step="tour.nextStep"
+                            :stop="tour.stop"
+                            :is-first="tour.isFirst"
+                            :is-last="tour.isLast"
+                            :labels="tour.labels"
+                    >
+                        <template v-if="tour.currentStep === 0">
+                            <div slot="actions">
+                                <button @click="tour.stop" class="v-step__button">Skip Tour</button>
+                                <button @click="MasterPageRFTourNextSteps()" class="v-step__button">Next step</button>
+                            </div>
+                        </template>
+                    </v-step>
+                </transition>
+            </template>
+        </v-tour>
+        <div data-v-step="app02"></div>
+        <div data-v-step="gr02"></div>
+
     </div>
 </template>
 <script>
+    import $ from 'jquery';
     import DataSource from "../data/datasource";
+    import VueTour from 'vue-tour';
+    import Vue from 'vue';
+    require('vue-tour/dist/vue-tour.css');
+    Vue.use(VueTour);
 
     export default {
         name: "StudentPaymentPlan",
-
         data() {
             return {
+                familyNumber:'',
+                parentListTableInt:[],
+                parentListTable:[{
+                    prop: "PAR_Father_FirstName",
+                    label: "Father Name"
+                }, {
+                    prop: "PAR_Father_Email",
+                    label: "Father Email"
+                }, {
+                    prop: "PAR_Mother_FirstName",
+                    label: "Mother Name"
+                },{
+                    prop: "PAR_Mother_Email",
+                    label: "Mother Email"
+                }],
+                //Tour Guide: start
+                TourOptions: [{
+                    value: 'pp',
+                    label: 'apply payment plan tour'
+                }, {
+                    value: 'sd',
+                    label: 'sibling/staff discount tour'
+                }, {
+                    value: 'items',
+                    label: 'add items tour'
+                }, {
+                    value: 'gi',
+                    label: 'generate invoice tour'
+                }, {
+                    value: 'gr',
+                    label: 'generate receipt tour'
+                },{
+                    value: 'cn',
+                    label: 'generate credit note tour'
+                },{
+                    value: 'rf',
+                    label: 'Refund Tour'
+                 }],
+                TourRefundFlag:[],
+                TourGenerateCNFlag:[],
+                studentInvoiceListAreaBorder: false,
+                studentReceiptListAreaBorder: false,
+                studentLeftOverPaymentListAreaBorder: false,
+                studentCreditNoteListAreaBorder: false,
+                studentRefundListAreaBorder: false,
+                tourPageControl:'',
+
+                MasterPageTourOptions: {
+                    useKeyboardNavigation: true,
+                    labels: {
+                        buttonSkip: 'Skip tour',
+                        buttonPrevious: 'Previous',
+                        buttonNext: 'Next',
+                        buttonStop: 'Finish'
+                    }
+                },
+
+                MasterPageTourCallbacks: {
+                    onNextStep: this.sppTourNextSteps,
+                    onPreviousStep: this.sppTourPreviousSteps
+                },
+                MasterPageGRTourCallbacks: {
+                    onNextStep: this.sppTourNextSteps,
+                    onPreviousStep: this.sppTourPreviousSteps
+                },
+                MasterPageTourSteps:[{
+                    target: '[data-v-step="app01"]',
+                    content: `<div>Click invoice button</div>`,
+                    params: {
+                        placement: 'top'
+                    }
+                }],
+                MasterPageGRTourSteps:[{
+                    target: '[data-v-step="gr01"]',
+                    content: `<div>Click receipt button</div>`,
+                    params: {
+                        placement: 'top'
+                    }
+                }],
+
+                MasterPageCNTourSteps:[{
+                    target: '[data-v-step="gcn01"]',
+                    content: `<div>Click generate credit note button</div>`,
+                    params: {
+                        placement: 'top'
+                    }
+                }],
+                MasterPageCNTourCallbacks:{
+                    onNextStep: this.MasterPageCNTourNextSteps,
+                    onPreviousStep: this.InvModalPPTourPreviousSteps,
+                },
+
+                CnModalTourSteps:[{
+                    target: '[data-v-step="cr01"]',
+                    content: `<div>Step 1 / 3 <br>Select at least 1 items in list above</div>`,
+                    params: {
+                        placement: 'bottom'
+                    }
+                }, {
+                    target: '[data-v-step="cr02"]',
+                    content: `<div>Step 2 / 3 <br>enter remark</div>`,
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="cr03"]',
+                    content: `<div>Step 2 / 3 <br>Click CN button</div>`,
+                    params: {
+                        placement: 'bottom'
+                    }
+                }],
+                CnModalTourCallbacks:{
+                    onNextStep: this.CNModalTourNextSteps,
+                    onPreviousStep: this.CNModalTourPreviousSteps,
+                },
+
+                InvModalPPTourSteps:[
+                    {
+                    target: '[data-v-step="InvApp02"]',
+                    content:  `<div>Step 2 <br> Click apply payment plan</div>`,
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="InvApp03"]',
+                    content: 'OK',
+                    params: {
+                        placement: 'top'
+                    }
+                }],
+                InvModalPPTourCallbacks:{
+                    onNextStep: this.InvModalPPTourNextSteps,
+                    onPreviousStep: this.InvModalPPTourPreviousSteps,
+                },
+                InvModalSDTourSteps:[
+                    {
+                    target: '[data-v-step="InvSd03"]',
+                    content: 'Click on Apply discount plan',
+                    params: {
+                        placement: 'bottom'
+                    }
+                }, {
+                    target: '[data-v-step="InvSd04"]',
+                    content: 'OK',
+                    params: {
+                        placement: 'top'
+                    }
+                }],
+                InvModalSDTourCallbacks:{
+                    onNextStep: this.InvModalSDTourNextSteps,
+                    onPreviousStep: this.InvModalSDTourPreviousSteps,
+                },
+                InvModalAITourSteps:[{
+                    target: '[data-v-step="InvAi01"]',
+                    content: 'Click on Add Item button',
+                    params: {
+                        placement: 'bottom'
+                    }
+                }, {
+                    target: '[data-v-step="InvAi02"]',
+                    content: 'OK',
+                    params: {
+                        placement: 'top'
+                    }
+                }],
+                InvModalAITourCallbacks:{
+                    onNextStep: this.InvModalAITourNextSteps,
+                    onPreviousStep: this.InvModalAITourPreviousSteps,
+                },
+                InvModalGITourSteps:[
+                    {
+                        target: '[data-v-step="InvGi01"]',
+                        content: 'If you need the invoice breakdown, please check here. *****Only eligible for course fees item*****',
+                        params: {
+                            placement: 'bottom'
+                        }
+                    }, {
+                        target: '[data-v-step="InvGi02"]',
+                        content: 'Please check at least 1 items in table below, you can adjust $0.01 up/down to overcome the rounding issue',
+                        params: {
+                            placement: 'top'
+                        }
+                    },{
+                        target: '[data-v-step="InvGi03"]',
+                        content: 'Preview the items before generate invoice',
+                        params: {
+                            placement: 'top'
+                        }
+                    },{
+                        target: '[data-v-step="InvGi04"]',
+                        content: 'Click on generate invoice',
+                        params: {
+                            placement: 'top'
+                        }
+                    }],
+                InvModalGITourCallbacks:{
+                    onNextStep: this.InvModalGITourNextSteps,
+                    onPreviousStep: this.InvModaGITourPreviousSteps,
+                    },
+                ppModalTourSteps:[{
+                    target: '[data-v-step="ppBmodal01"]',
+                    content: 'Select payment plan',
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="ppBmodal02"]',
+                    content: 'Check/View payment plan',
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="ppBmodal03"]',
+                    content: 'Here you go!',
+                    params: {
+                        placement: 'bottom'
+                    }
+                }],
+
+                grModalTourSteps:[{
+                    target: '[data-v-step="grmodal01"]',
+                    content: `<div>Step 1 / 7 <br> Select payment mode</div>`,
+                    params: {
+                        placement: 'right'
+                    }
+                },{
+                    target: '[data-v-step="grmodal02"]',
+                    content: `<div>Step 2 / 7 <br> Please update your cheque detail here if available</div>`,
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="grmodal03"]',
+                    content: `<div>Step 3 / 7 <br> Enter remark(Optional)</div>`,
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="grmodal04"]',
+                    content: `<div>Step 4 / 7 <br> Select this checkbox, if you need to generate invoice together with your receipt.</div>`,
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="grmodal05"]',
+                    content: `<div>Step 5 / 7 <br> Select items to generate/preview receipt and key in your pay amount according.</div>`,
+                    params: {
+                        placement: 'left'
+                    }
+                },{
+                    target: '[data-v-step="grmodal06"]',
+                    content: `<div>Step 6 / 7 <br> Preview receipt</div>`,
+                    params: {
+                        placement: 'right'
+                    }
+                },{
+                    target: '[data-v-step="grmodal07"]',
+                    content: `<div>Step 7 / 7 <br> Click on generate, OK </div>`,
+                    params: {
+                        placement: 'right'
+                    }
+                }],
+                grModalTourCuztomizeSteps:[{
+                    target: '[data-v-step="grmodal03"]',
+                    content: `<div>Step 3 / 7 <br> Enter remark(Optional)</div>`,
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="grmodal04"]',
+                    content: `<div>Step 4 / 7 <br> Select this checkbox, if you need to generate invoice together with your receipt.</div>`,
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="grmodal05"]',
+                    content: `<div>Step 5 / 7 <br> Select items to generate/preview receipt and key in your pay amount according.</div>`,
+                    params: {
+                        placement: 'right'
+                    }
+                },{
+                    target: '[data-v-step="grmodal06"]',
+                    content: `<div>Step 6 / 7 <br> Preview receipt</div>`,
+                    params: {
+                        placement: 'right'
+                    }
+                },{
+                    target: '[data-v-step="grmodal07"]',
+                    content: `<div>Step 7 / 7 <br> Click on generate, OK </div>`,
+                    params: {
+                        placement: 'left'
+                    }
+                }],
+                grModalTourCallbacks:{
+                    onNextStep: this.RecModalGRTourNextSteps,
+                    onPreviousStep: this.RecModalGRTourPreviousSteps,
+                },
+
+                sdModalTourSteps:[{
+                    target: '[data-v-step="sdmodal01"]',
+                    content: 'Check sibling discount eligibility, else you cant apply discount',
+                    params: {
+                        placement: 'right'
+                    }
+                },{
+                    target: '[data-v-step="sdmodal02"]',
+                    content: 'Click here.',
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="sdmodal03"]',
+                    content: 'Select rules',
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="sdmodal04"]',
+                    content: 'Add Discount plan. Done!',
+                    params: {
+                        placement: 'top'
+                    }
+                }],
+
+                aiModalTourSteps:[{
+                    target: '[data-v-step="aimodal01"]',
+                    content: 'Select items',
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="aimodal02"]',
+                    content: 'Check payment date',
+                    params: {
+                        placement: 'top'
+                    }
+                },{
+                    target: '[data-v-step="aimodal03"]',
+                    content: 'Enter Amount',
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="aimodal04"]',
+                    content: 'Select Payment Schedule',
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="aimodal05"]',
+                    content: 'Select Payment Item Type',
+                    params: {
+                        placement: 'bottom'
+                    }
+                },{
+                    target: '[data-v-step="aimodal06"]',
+                    content: 'Click on Add button',
+                    params: {
+                        placement: 'right'
+                    }
+                }],
+                aiModalTourCallbacks:{
+
+                },
+                ppModalTourCallbacks:{
+
+                },
+                sdModalTourCallbacks:{
+
+                },
+                grModalTourCuztomizeCallbacks:{
+                    onNextStep: this.RecModalGRTourCuztomizeNextSteps,
+                    onPreviousStep: this.RecModalGRTourCuztomizePreviousSteps,
+                },
+
+                MasterPageRFTourSteps:[{
+                    target: '[data-v-step="rfMaster01"]',
+                    content: 'Click on refund button',
+                    params: {
+                        placement: 'bottom'
+                    }
+                }],
+                MasterPageRFTourCallbacks:{
+                    onNextStep: this.MasterPageRFTourNextSteps,
+                    onPreviousStep: this.MasterPageRFTourPreviousSteps,
+                },
+                rfModalTourSteps:[{
+                    target: '[data-v-step="rf01"]',
+                    content: 'Select at least 1 items below and check your refund amount',
+                    params: {
+                                placement: 'bottom'
+                            }
+                    },{
+                    target: '[data-v-step="rf02"]',
+                    content: 'Remark(Mandatory)',
+                    params: {
+                                placement: 'left'
+                            }
+                    },{
+                    target: '[data-v-step="rf03"]',
+                    content: 'Click on refund button',
+                    params: {
+                                placement: 'bottom'
+                            }
+                    }],
+                rfModalTourCallbacks:{
+                    onNextStep: this.rfModalTourNextSteps,
+                    onPreviousStep: this.rfModalTourPreviousSteps,
+                },
+                //Tour Guide:end
+
                 //For Sibling data-table
                 siblingListTableInt: [],
                 siblingListTableList: [{
@@ -1081,6 +2035,23 @@
                     prop: "SCH_Name",
                     label: "Center Name"
                 }],
+                siblingListAction:{
+                    label: 'Details',
+                    props: {
+                        align: 'center',
+                    },
+                    buttons: [{
+                        props: {
+                            type: 'primary',
+                            icon: 'el-icon-more'
+                        },
+                        handler: row => {
+                            this.$router.push('studentCourse-List?id=' + row.Student_ID);
+                        },
+                        label: 'More'
+                    },]
+                },
+
                 //start:InvoiceOverPaymentItemInt
                 invoiceOverPaymentResponse:[],
                 InvoiceOverPaymentItemInt:[],
@@ -1100,7 +2071,6 @@
                 //End:InvoiceOverPaymentItemInt
 
                 //student info
-                test: '',
                 leftOverListCount: '',
                 receiptListCount: '',
                 countLeftOverTotalAmount: '',
@@ -1120,19 +2090,19 @@
                 inputMealPreferences: '-',
                 sponsor_type: '',
                 studentDetail: [],
+                inputStudentClassBatch:'',
                 //
 
                 //Email
                 invoiceNoForEmailReminder:'',
                 emailReminderList:[],
-                inputEmailTo:'teckkuen.ann@etonhouse.com.sg',
+                inputEmailTo:'',
                 inputEmailSubject:'',
                 inputEmailMessage:'',
                 //Email End
 
                 //temp
                 lblPaymentReminder:'',
-                testonloadvmodel:'',
                 readonly:'',
                 tempList: '',
                 btnDisabled: true,
@@ -1205,9 +2175,6 @@
                 }, {
                     prop: "SPPD_PaymentAmount",
                     label: "Amount"
-                },{
-                    prop: "SPPD_TotalValue",
-                    label: "Total Amount"
                 }],
                 //Invoice End
 
@@ -1615,12 +2582,14 @@
                 //adhoc receipt generation
                 siblingItemsCount:'',
                 siblingConfirmationFlag:'',
+
             };
         },
 
         async created() {
             await this.BindStudentInfo();
             await this.BindStudentSibling();
+            await this.BindParentInfo();
             await this.getPaymentList();
             await this.BindPaymentModeDropdown();
             await this.BindPaymentTermPrintBreakdown();
@@ -1636,7 +2605,7 @@
         },
 
         async mounted() {
-            //For receipt
+
         },
 
         methods: {
@@ -1670,13 +2639,13 @@
 
                 total = gst +amount;
 
-                    this.studentInvoiceGenerationListInt.forEach(m => {
+                this.studentInvoiceGenerationListInt.forEach(m => {
 
-                        if(m.PK_SPD_ID==rowData.PK_SPD_ID)
-                        {
-                            m.SPPD_TotalValue = total.toFixed(2);
-                        }
-                    });
+                    if(m.PK_SPD_ID==rowData.PK_SPD_ID)
+                    {
+                        m.SPPD_TotalValue = total.toFixed(2);
+                    }
+                });
             },
 
             async overPaymentClick(value) {
@@ -1688,12 +2657,15 @@
 
                     if (receiptResp.code === '88') {
                         window.location.replace('/');
-                    } else if (receiptResp.code === '99' || receiptResp.code === '2') {
+                    }
+                    else if (receiptResp.code === '99' || receiptResp.code === '2')
+                    {
                         this.$notify.error({
                             title: 'Error',
                             message: 'Failed to preview receipt!'
                         });
-                    } else {
+                    }
+                    else {
 
                         this.$refs.showOverPaymentConfirmationModal.hide();
                         this.displayPdf(receiptResp.code);
@@ -1710,7 +2682,7 @@
                             this.inputReceiptDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
 
                         }
-                        this.clearSelect();
+                        // this.clearSelect();
 
                     }
 
@@ -1757,7 +2729,26 @@
                     });
 
                     const PayeeResp = await DataSource.shared.getPayee(this.inputStudentNO);
-                    this.inputPayeeName = PayeeResp.PAR_Father_FirstName + ' ' + PayeeResp.PAR_Father_MiddleName + ' ' + PayeeResp.PAR_Father_LastName;
+                    if(this.sponsor_type==="Father")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Father_FirstName + ' ' + PayeeResp.PAR_Father_LastName;
+                    }
+                    else if(this.sponsor_type==="Mother")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Mother_FirstName + ' ' + PayeeResp.PAR_Mother_LastName;
+                    }
+                    else if(this.sponsor_type==="Father Company")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Father_CompanyName;
+                    }
+                    else if(this.sponsor_type==="Mother Company")
+                    {
+                        this.inputPayeeName = PayeeResp.PAR_Mother_CompanyName;
+                    }
+                    else
+                    {
+                        this.inputPayeeName = '';
+                    }
 
                 } catch (e) {
                     this.results = e;
@@ -1765,9 +2756,7 @@
             },
 
             async clearSelect() {
-                // this.$refs.invoiceGenerationTable.clearSelection();
-                // this.$refs.ReceiptGenerationByTransactionHistoryTable.clearSelection();
-                // this.$refs.ReceiptLeftOverPaymentTable.clearSelection();
+
                 this.inputRemarks = '';
                 this.ddlPaymentMode = '';
                 this.inputReceiptDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
@@ -1776,6 +2765,7 @@
                 this.reInvoiceName = '';
                 this.inputInvoiceDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
                 this.Re_InvoiceName = '';
+
             },
 
             async BindPaymentModeDropdown() {
@@ -2064,10 +3054,21 @@
                         } else {
                             if (response.Table.length > 0) {
                                 this.siblingListTableInt = response.Table;
+                                this.familyNumber = this.siblingListTableInt[0].PAR_Family_Number;
                             }
                         }
                     }
                 } catch (e) {
+                    this.results = e;
+                }
+            },
+
+            async BindParentInfo(){
+                try{
+                    const resp = await DataSource.shared.getParentList(this.familyNumber,'','');
+                    this.parentListTableInt = resp.Table;
+                }
+                catch (e) {
                     this.results = e;
                 }
             },
@@ -2161,6 +3162,7 @@
                         this.paymentPlanStartDateResponse = response.Table;
                         this.paymentPlanStartDateResponse.forEach(m => {
                             this.inputPaymentPlanStartDate = m.SCRS_From_Date_convert;
+                            this.inputStudentClassBatch = m.ClassName+'-'+m.Batch;
                         });
                     }
                 }
@@ -2439,7 +3441,7 @@
                                 });
                                 this.$refs.newAddItemShowModal.hide();
                                 this.clearAddItemField();
-                                this.clearSelect();
+                                // this.clearSelect();
                             }
                         }
                     }
@@ -2572,6 +3574,7 @@
 
                                 this.$refs.newApplyPaymentPlanShowModal.hide();
                                 this.clearAddPaymentPlanField();
+                                this.showGenerateInvoice();
                             }
                         }
                     }
@@ -2673,6 +3676,7 @@
 
                                         this.$refs.newApplyDiscountPlanShowModal.hide();
                                         this.clearAddPaymentPlanField();
+                                        this.showGenerateInvoice();
                                     }
                                 }
                             } else if (response.code === '2') {
@@ -2777,7 +3781,6 @@
                             {
                                 countNegativeItem++;
                                 countNegativeValue+=parseFloat(item.SPPD_TotalValue);
-                                // console.log(countNegativeItem,countNegativeValue);
                             }
 
                             let spdDetail = {
@@ -2828,7 +3831,7 @@
                             }
                         }
                         else
-                            {
+                        {
 
                             if (countOverPaymentItems > 0) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
@@ -2848,7 +3851,7 @@
                                 } else {
 
                                     this.displayPdf(receiptResp.code);
-                                    this.clearSelect();
+                                    // this.clearSelect();
                                 }
 
                             }
@@ -2880,7 +3883,6 @@
                         let countNegativeValue = 0;
 
                         this.spdSelection.forEach(item => {
-
                             //to assign invoiceName='' for adhoc receipt without invoice generated
                             if(value==='AdhocReceipt')
                             {
@@ -2894,7 +3896,6 @@
                             {
                                 countNegativeItem++;
                                 countNegativeValue+=parseFloat(item.SPPD_TotalValue);
-                                // console.log(countNegativeItem,countNegativeValue);
                             }
 
                             let spdDetail = {
@@ -2936,22 +3937,18 @@
                             });
                         }
                         else if(countTotalPaidAmount < countTotalNewPayAmount) {
-                            if (this.receiptListCount === selectedItemCount) {
+                            if (this.receiptListCount === selectedItemCount||this.receiptListCount > selectedItemCount) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
-
-                            } else if (this.receiptListCount > selectedItemCount) {
-                                this.overPaymentItemsCount = countOverPaymentItems;
-                                this.$refs.showOverPaymentConfirmationModal.show();
-
                             }
-                        } else {
+                        } else
+                        {
                             if (countOverPaymentItems > 0) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
                             }
                             else
-                                {
+                            {
                                 if(value==='AdhocReceipt'&&this.requiredInvoice==true)
                                 {
                                     //todo:get payment due date start
@@ -3026,7 +4023,7 @@
                                         let ListToGetInvoiceName=[];
                                         SPD_List.forEach(m=>{
 
-                                                m.IH_Invoice_Name=invoiceResponse.code;
+                                            m.IH_Invoice_Name=invoiceResponse.code;
 
                                             ListToGetInvoiceName.push(m);
                                         });
@@ -3060,7 +4057,6 @@
                                 }
                                 else
                                 {
-
                                     //to get receipt detail
                                     this.$vs.loading();
                                     const receiptResponse = await DataSource.shared.generateReceipt(JSON.stringify(SPD_List), this.studentID, this.studentCourseID, 'Generate');
@@ -3078,6 +4074,7 @@
                                     else
                                     {
                                         this.displayPdf(receiptResponse.code);
+                                        await this.clearSelect();
                                         await this.getStudentReceiptGenerationList();
                                         await this.getPaymentList();
                                         await this.getleftOverPaymentReceipt();
@@ -3086,7 +4083,6 @@
                                         this.inputRemarks = '';
                                         this.inputChequeNoBankName = '';
                                         this.inputReceiptDate = new Date().getDate() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getFullYear();
-                                        this.clearSelect();
                                     }
 
                                 }
@@ -3115,7 +4111,6 @@
                         let selectedItemCount = 0;
                         let countTotalPaidAmount = 0;
                         let countTotalNewPayAmount = 0;
-                        console.log('this.receiptInvoiceName',this.receiptInvoiceName);
                         this.spdSelection.forEach(item => {
                             selectedItemCount++;
                             countTotalPaidAmount += parseFloat(item.totalValue);
@@ -3155,7 +4150,7 @@
                             });
                         }
 
-                        if (countTotalPaidAmount < countTotalNewPayAmount) {
+                        else if (countTotalPaidAmount < countTotalNewPayAmount) {
                             if (this.leftOverListCount === selectedItemCount) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
@@ -3183,7 +4178,7 @@
                                     });
                                 } else {
                                     this.displayPdf(receiptResp.code);
-                                    this.clearSelect();
+                                    // this.clearSelect();
                                 }
                             }
                         }
@@ -3196,20 +4191,18 @@
                 this.$vs.loading.close();
             },
 
-            async generateLeftOverReceiptClick() {
+            async generateLeftOverReceiptClick(){
                 try {
                     this.overPaymentFlag = 'Generate';
                     if (!this.ddlPaymentMode) {
                         alert('Please select payment mode.');
                     } else {
-
                         let SPD_List = [];
                         let countOverPaymentItems = 0;
                         let selectedItemCount = 0;
                         let countTotalPaidAmount = 0;
                         let countTotalNewPayAmount = 0;
-                        console.log('this.receiptInvoiceName',this.receiptInvoiceName);
-                        this.spdSelection.forEach(item => {
+                        this.spdSelection.forEach(item =>{
                             selectedItemCount++;
                             countTotalPaidAmount += parseFloat(item.totalValue);
                             countTotalNewPayAmount += parseFloat(item.newPayAmount);
@@ -3218,7 +4211,6 @@
                                 remarks: this.inputRemarks,
                                 receiptDate: this.inputReceiptDate,
                                 RD_Cheque_No: this.inputChequeNoBankName,
-
                                 //left Over Payment
                                 RD_GST_Applicable: item.GST_Applicable,
                                 RD_Item_Description: item.Item_Description,
@@ -3246,7 +4238,7 @@
                                 message: 'Please select at least 1 payment item'
                             });
                         }
-                        if (countTotalPaidAmount < countTotalNewPayAmount) {
+                        else if (countTotalPaidAmount < countTotalNewPayAmount) {
                             if (this.leftOverListCount === selectedItemCount) {
                                 this.overPaymentItemsCount = countOverPaymentItems;
                                 this.$refs.showOverPaymentConfirmationModal.show();
@@ -3273,12 +4265,11 @@
                                         message: 'Failed to generate receipt!'
                                     });
                                 } else {
-
                                     this.displayPdf(receiptResponse.code);
                                     await this.getStudentReceiptGenerationList();
-
                                     await this.getPaymentList();
                                     await this.getleftOverPaymentReceipt();
+                                    await this.clearSelect();
                                     this.$refs.showGenerateReceiptByHistoryModal.hide();
                                     this.ddlPaymentMode = '';
                                     this.inputRemarks = '';
@@ -3318,9 +4309,6 @@
                                 SPD_ID: item.SPD_ID,
                                 ID_GSTValue: item.gstValue,
                                 ID_Item_Amount: item.itemAmount,
-                                // totalValue: item.totalValue,
-                                // newAmount:item.newPayAmount,
-
                                 InvHeaderID: this.InvHeaderID,
                                 IH_Invoice_Name: this.cnInvoiceName,
                                 studentCourseID: this.studentCourseID,
@@ -3434,7 +4422,7 @@
                             breakdownCounter++;
                         }
                     });
-                    console.log(breakdownCounter,'this.cbPrintMonthlyBreakdown=',this.cbPrintMonthlyBreakdown);
+
                     if(breakdownCounter===0){
                         this.cbPrintMonthlyBreakdown = true;
                         this.breakdownFlag='N';
@@ -3496,7 +4484,6 @@
                             this.breakdownFlag='N';
                         }
                         //check breakdown
-
 
                         InvoiceType = 'Preview';
                         // let countSiblingKeyWord = 0;
@@ -3583,9 +4570,8 @@
                                         message: 'Failed to preview invoice!'
                                     });
                                 } else {
-
                                     this.displayPdf(invoiceResponse.code);
-                                    await this.clearSelect();
+                                    // await this.clearSelect();
                                 }
                             }
                         }
@@ -3727,7 +4713,8 @@
                                     await this.getPaymentList();
                                     await this.getStudentInvoiceGenerationList();
                                     this.$refs.generateInvoiceModal.hide();
-                                    this.clearSelect();
+                                    this.$refs.showReInvoiceModal.hide();
+                                    await this.clearSelect();
                                     this.cbPrintMonthlyBreakdown = false;
                                 }
                             }
@@ -3868,16 +4855,16 @@
                                 this.tempRefundResp = resp.Table;
                                 let SPList=[];
                                 this.tempRefundResp.forEach(m=>{
-                                        let spdDetail = {
-                                            FK_RD_SPD_ID: m.FK_RD_SPD_ID,
-                                            RD_GST_Applicable: m.RD_GST_Applicable,
-                                            RD_Item_Description: m.RD_Item_Description,
-                                            newRefundAmount: m.totalAmount,
-                                            totalAmount: m.totalAmount,
-                                            itemAmount: m.itemAmount,
-                                            gstValue: m.gstValue,
-                                            IH_Currency:m.RH_Receipt_Currency,
-                                        };
+                                    let spdDetail = {
+                                        FK_RD_SPD_ID: m.FK_RD_SPD_ID,
+                                        RD_GST_Applicable: m.RD_GST_Applicable,
+                                        RD_Item_Description: m.RD_Item_Description,
+                                        newRefundAmount: m.totalAmount,
+                                        totalAmount: m.totalAmount,
+                                        itemAmount: m.itemAmount,
+                                        gstValue: m.gstValue,
+                                        IH_Currency:m.RH_Receipt_Currency,
+                                    };
                                     SPList.push(spdDetail);
                                 });
                                 this.refundListInt=SPList;
@@ -4018,7 +5005,6 @@
 
                             default:
                                 this.studentReceiptGenerationByTransactionHistoryListInt = resp.Table;
-                                ;
                         }
                     }
                 } catch (e) {
@@ -4093,29 +5079,27 @@
                     this.leftOverActionFlag = 'receipt';
                     await this.getReceiptWithTransactionHistory(value);
                     await this.getleftOverPaymentReceipt(value);
+                    await this.clearSelect();
+                    this.spdSelection = [];
                     this.$refs.showGenerateReceiptByHistoryModal.show();
-
-                    console.log(this.leftOverActionFlag);
-
                 } catch (e) {
                     this.results = e;
                 }
             },
 
             async showGenerateCreditNote(value) {
-
+                this.spdSelection = [];
                 this.leftOverActionFlag = 'cn';
                 await this.getReceiptWithTransactionHistory(value);
                 await this.getleftOverPaymentReceipt(value);
                 this.$refs.creditNoteModal.show();
-
-                console.log(this.leftOverActionFlag);
 
             },
 
             async showReInvoice(value) {
                 await this.getReInvoice(value);
                 this.Re_InvoiceName = value.IH_Invoice_Name;
+                this.spdSelection = [];
                 this.$refs.showReInvoiceModal.show();
             },
 
@@ -4123,8 +5107,9 @@
             async showGenerateReceipt() {
                 try {
                     await this.getStudentReceiptGenerationList();
+                    this.spdSelection = [];
                     this.$refs.generateReceiptModal.show();
-
+                    await this.clearSelect();
                 } catch (e) {
                     this.results = e;
                 }
@@ -4134,7 +5119,9 @@
             async showGenerateInvoice() {
                 try {
                     await this.getStudentInvoiceGenerationList();
+                    this.spdSelection = [];
                     this.$refs.generateInvoiceModal.show();
+                    await this.clearSelect();
                 } catch (e) {
                     this.results = e;
                 }
@@ -4179,7 +5166,7 @@
                                 this.emailReminderList = resp.Table;
 
                                 this.emailReminderList.forEach(m=>{
-                                    // this.inputEmailTo=m.toEmail;
+                                    this.inputEmailTo=m.toEmail;
                                     this.inputEmailSubject=m.emailSubject;
                                     this.inputEmailMessage=m.emailMessage;
                                 })
@@ -4216,7 +5203,6 @@
                             });
                             this.$refs.showPaymentReminderModal.hide();
                             break;
-
                     }
 
                 }
@@ -4239,7 +5225,7 @@
 
             SiblingConfirmationClick(value){
                 try{
-                    console.log(value);
+
                     if(value==='Yes'){
                         //cont
                     }
@@ -4253,6 +5239,482 @@
                 }
             },
 
+            //Vue Tour :Start
+            //todo:Apply payment plan Tour guide:start
+            studentPaymentPlanTourStart(value) {
+                this.tourPageControl = value ;
+                if(value=='pp')
+                {
+                    this.$tours['MasterPageTourName'].start();
+                }
+                else if(value=='sd')
+                {
+                    if(this.isSiblingDiscountEligible){
+                        this.$tours['MasterPageTourName'].start();
+                    }
+                    else{
+
+                        alert('No sibling/staff discount!!');
+                    }
+                }
+                else if(value=='items')
+                {
+                    this.$tours['MasterPageTourName'].start();
+                }
+                else if(value=='gi')
+                {
+                    this.$tours['MasterPageTourName'].start();
+                }
+                else if(value=='gr')
+                {
+                    this.$tours['MasterPageGRTourName'].start();
+                }
+                else if(value=='cn')
+                {
+                    this.TourGenerateCNFlag = [];
+                    let list =[];
+                    let CNFlagCount = 0;
+                    this.PaymentListInt.forEach(m=>{
+                        if(m.generateCNFlag=='Yes')
+                        {
+                            list.push(m);
+                            CNFlagCount++;
+                        }
+                    });
+
+                    this.TourGenerateCNFlag = list[0];
+
+                    if(CNFlagCount<1)
+                    {
+                        alert('No credit note available');
+                    }
+                    else
+                    {
+                        this.$tours['MasterPageCNTourName'].start();
+                    }
+                }
+                else if(value=='rf')
+                {
+                    this.TourRefundFlag = [];
+                    let list =[];
+                    let RefundFlagCount = 0;
+                    this.PaymentListInt.forEach(m=>{
+                        if(m.refundFlag=='Yes')
+                        {
+                            list.push(m);
+                            RefundFlagCount++;
+                        }
+                    });
+
+                    this.TourRefundFlag = list[0];
+
+                    if(RefundFlagCount<1)
+                    {
+                        alert('No refund available');
+                    }
+                    else
+                    {
+                        this.$tours['MasterPageRFTourName'].start();
+                    }
+                }
+            },
+            sppTourPreviousSteps (currentStep) {
+                let finalSteps = currentStep - 1;
+                this.tourCallBackStepsFunc(finalSteps);
+            },
+            sppTourNextSteps (currentStep) {
+                try{
+                    if(this.tourPageControl=='pp')
+                    {
+                        setTimeout(() =>{
+                            this.$tours['MasterPageTourName'].stop();
+                        },500);
+                        this.showGenerateInvoice();
+                        setTimeout(() =>{
+                            this.$tours['InvModalPPTourName'].start()
+                        },500);
+                    }
+                    else if(this.tourPageControl=='sd')
+                    {
+                        setTimeout(() =>{
+                            this.$tours['MasterPageTourName'].stop();
+                        },500);
+                        this.showGenerateInvoice();
+                        setTimeout(() =>{
+                            this.$tours['InvModalSDTourName'].start()
+                        },500);
+                    }
+                    else if(this.tourPageControl=='items')
+                    {
+                        setTimeout(() =>{
+                            this.$tours['MasterPageTourName'].stop();
+                        },500);
+                        this.showGenerateInvoice();
+                        setTimeout(() =>{
+                            this.$tours['InvModalAITourName'].start()
+                        },500);
+                    }
+                    else if(this.tourPageControl=='gi')
+                    {
+                        this.studentInvoiceListAreaBorder = false;
+                        setTimeout(() =>{
+                            this.$tours['MasterPageTourName'].stop();
+                        },500);
+                        this.showGenerateInvoice();
+                        setTimeout(() =>{
+                            if(this.studentInvoiceGenerationListInt.length>0)
+                            {
+                                this.$tours['InvModalGITourName'].start();
+                            }
+                            else
+                            {
+                                alert('Not invoice items to generate!,please add items/payment plan');
+                                this.$refs.generateInvoiceModal.hide();
+                            }
+                        },500);
+                    }
+                    else if(this.tourPageControl=='gr')
+                    {
+                        this.studentReceiptListAreaBorder = false;
+                        setTimeout(() =>{
+                            this.$tours['MasterPageGRTourName'].stop();
+                        },500);
+                        this.showGenerateReceipt();
+                        setTimeout(() =>{
+                            this.$tours['grModalTourName'].start();
+                            this.ddlPaymentMode = '';
+                        },500);
+                    }
+                    else if(this.tourPageControl=='cn')
+                    {
+                        setTimeout(() =>{
+                            this.getleftOverPaymentReceipt(objValue);
+                            this.$tours['MasterPageCNTourName'].start();
+                        },500);
+                    }
+                    else if(this.tourPageControl=='rf')
+                    {
+                        setTimeout(() =>{
+                            this.showRefund(objValue);
+                            this.$tours['MasterPageRFTourName'].start();
+                        },500);
+                    }
+                }
+                catch (e) {
+                    this.results = e;
+                }
+            },
+            InvModalPPTourPreviousSteps (currentStep){
+                setTimeout(() =>{
+                },500);
+                // let finalSteps = currentStep - 1;
+                // this.tourCallBackStepsFunc(finalSteps);
+            },
+            InvModalPPTourNextSteps(currentStep){
+                let finalSteps = currentStep + 1;
+                if(currentStep==0)
+                {
+                    setTimeout(() =>{
+                        this.$tours['InvModalPPTourName'].stop()
+                    },500);
+                    this.$refs.generateInvoiceModal.hide();
+                    this.applyPaymentPlanClick();
+                    setTimeout(() =>{
+                        this.$tours['ppModalTourName'].start();
+                    },500);
+                }
+
+            },
+            InvModalSDTourPreviousSteps (currentStep){
+                setTimeout(() =>{
+                },500);
+            },
+            InvModalSDTourNextSteps(currentStep){
+                let finalSteps = currentStep + 1;
+                if(currentStep==0)
+                {
+                    setTimeout(() =>{
+                        this.$tours['InvModalSDTourName'].stop()
+                    },500);
+                    this.$refs.generateInvoiceModal.hide();
+                    this.showDiscountPlanClick();
+                    setTimeout(() =>{
+                        this.$tours['sdModalTourName'].start();
+                    },500);
+                }
+            },
+            InvModalAITourPreviousSteps (currentStep){
+                setTimeout(() =>{
+                },500);
+            },
+            InvModalAITourNextSteps(currentStep){
+                let finalSteps = currentStep + 1;
+                if(currentStep==0)
+                {
+                    setTimeout(() =>{
+                        this.$tours['InvModalAITourName'].stop()
+                    },500);
+                    this.$refs.generateInvoiceModal.hide();
+                    this.addItemClick();
+                    setTimeout(() =>{
+                        this.$tours['aiModalTourName'].start();
+                    },500);
+                }
+            },
+            InvModaGITourPreviousSteps(currentStep){
+                if(currentStep==0)
+                {
+                    this.studentInvoiceListAreaBorder = true;
+                }
+                else{
+                    this.studentInvoiceListAreaBorder = false;
+                }
+            },
+            InvModalGITourNextSteps(currentStep){
+                if(currentStep==0)
+                {
+                    this.studentInvoiceListAreaBorder = true;
+                }
+                else{
+                    this.studentInvoiceListAreaBorder = false;
+                }
+            },
+            RecModalGRTourNextSteps(currentStep){
+                let ddlPaymentModeValue = this.ddlPaymentMode;
+                if(ddlPaymentModeValue=='CASH'){
+                        setTimeout(() =>{
+                            this.$tours['grModalTourName'].stop();
+                            this.$tours['grModalTourCuztomizeName'].start();
+                        },500);
+                    if(currentStep==2)
+                    {
+                        this.studentReceiptListAreaBorder = true;
+                    }
+                    else{
+                        this.studentReceiptListAreaBorder = false;
+                    }
+                }
+                else{
+                    if(currentStep==3)
+                    {
+                        this.studentReceiptListAreaBorder = true;
+                    }
+                    else{
+                        this.studentReceiptListAreaBorder = false;
+                    }
+                }
+            },
+            RecModalGRTourPreviousSteps(currentStep){
+                    if(currentStep==4)
+                    {
+                        this.studentReceiptListAreaBorder = false;
+                    }
+                    else if(currentStep==5){
+                        this.studentReceiptListAreaBorder = true;
+                    }
+                    else{
+                        this.studentReceiptListAreaBorder = false;
+                    }
+
+            },
+            RecModalGRTourCuztomizePreviousSteps(currentStep){
+                if(currentStep==2)
+                {
+                    this.studentReceiptListAreaBorder = false;
+                }
+                else if(currentStep==3){
+                    this.studentReceiptListAreaBorder = true;
+                }
+                else{
+                    this.studentReceiptListAreaBorder = false;
+                }
+            },
+            RecModalGRTourCuztomizeNextSteps(currentStep){
+                    if(currentStep==1)
+                    {
+                        this.studentReceiptListAreaBorder = true;
+                    }
+                    else{
+                        this.studentReceiptListAreaBorder = false;
+                    }
+            },
+            MasterPageCNTourNextSteps(){
+                setTimeout(() =>{
+                    this.$tours['MasterPageCNTourName'].stop();
+                },500);
+                setTimeout(() =>{
+                    this.showGenerateCreditNote(this.TourGenerateCNFlag);
+                },500);
+                setTimeout(() =>{
+                    this.$tours['cnModalTourName'].start();
+                    this.studentCreditNoteListAreaBorder = true;
+                },1500);
+            },
+            MasterPageRFTourNextSteps(){
+                setTimeout(() =>{
+                    this.$tours['MasterPageRFTourName'].stop();
+                },500);
+                setTimeout(() =>{
+                    this.showRefund(this.TourRefundFlag);
+                },500);
+                setTimeout(() =>{
+                    this.$tours['rfModalTourName'].start();
+                    this.studentRefundListAreaBorder = true;
+                },1500);
+            },
+            MasterPageRFTourPreviousSteps(){},
+            rfModalTourNextSteps(currentStep){
+                    this.studentRefundListAreaBorder = false;
+            },
+            rfModalTourPreviousSteps(currentStep){
+                if(currentStep==1){
+                    this.studentRefundListAreaBorder = true;
+                }
+                else {
+                    this.studentRefundListAreaBorder = false;
+                }
+            },
+            CNModalTourNextSteps(currentStep){
+                this.studentCreditNoteListAreaBorder = false;
+            },
+            CNModalTourPreviousSteps(currentStep){
+                if(currentStep==1){
+                    this.studentCreditNoteListAreaBorder = true;
+                }
+                else{
+                    this.studentCreditNoteListAreaBorder = false;
+                }
+
+            },
+            tourCallBackStepsFunc (finalSteps) {
+
+            },
+            backToMasterPageTour()
+            {
+                this.$refs.generateInvoiceModal.hide();
+                this.$refs.generateReceiptModal.hide();
+                this.$refs.viewRefundModal.hide();
+                if(this.tourPageControl=='gr'){
+                    setTimeout(() =>{
+                        this.$tours['grModalTourName'].stop();
+                        this.$tours['MasterPageGRTourName'].start();
+                    },500);
+                }
+                else if(this.tourPageControl=='rf')
+                {
+                    setTimeout(() =>{
+                        this.$tours['rfModalTourName'].stop();
+                        this.$tours['MasterPageRFTourName'].start();
+                    },500);
+                }
+                else{
+                    setTimeout(() =>{
+                        this.$tours['InvModalPPTourName'].stop();
+                        this.$tours['MasterPageTourName'].start();
+                    },500);
+                }
+
+            },
+            backToInvModalPPTour()
+            {
+                this.$refs.newApplyPaymentPlanShowModal.hide();
+                this.$refs.generateInvoiceModal.show();
+                setTimeout(() =>{
+                    this.$tours['ppModalTourName'].stop();
+                    this.$tours['InvModalPPTourName'].start();
+                },500);
+            },
+            backToInvModalSDTour()
+            {
+                this.$refs.newApplyDiscountPlanShowModal.hide();
+                this.$refs.generateInvoiceModal.show();
+                setTimeout(() =>{
+                    this.$tours['sdModalTourName'].stop();
+                    this.$tours['InvModalSDTourName'].start();
+                },500);
+            },
+            backToInvModalAITour()
+            {
+                setTimeout(() =>{
+                    this.$refs.newAddItemShowModal.hide();
+                    this.$refs.generateInvoiceModal.show();
+                },500);
+
+                setTimeout(() =>{
+                    this.$tours['aiModalTourName'].stop();
+                    this.$tours['InvModalAITourName'].start();
+                },500);
+            },
+            backToMasterCNPageTour()
+            {
+                this.studentCreditNoteListAreaBorder = false;
+                setTimeout(() =>{
+                    this.$tours['cnModalTourName'].stop();
+                },500);
+
+                setTimeout(() =>{
+                    this.$refs.creditNoteModal.hide();
+                    this.$tours['MasterPageCNTourName'].start();
+                },600);
+            },
+            sdModalTourStop(){
+                setTimeout(() =>{
+                    this.$tours['sdModalTourName'].stop();
+                    // this.$refs.generateInvoiceModal.show();
+                },500);
+                this.$refs.newApplyDiscountPlanShowModal.hide();
+            },
+            ppModalTourStop(){
+                setTimeout(() =>{
+                    this.$tours['ppModalTourName'].stop();
+                    // this.$refs.generateInvoiceModal.show();
+                },500);
+                this.$refs.newApplyPaymentPlanShowModal.hide();
+            },
+            aiModalTourStop(){
+                setTimeout(() =>{
+                    this.$tours['aiModalTourName'].stop();
+                },500);
+                this.$refs.newAddItemShowModal.hide();
+            },
+            giModalTourStop(){
+                setTimeout(() =>{
+                    this.$tours['InvModalGITourName'].stop();
+                },500);
+                this.$refs.generateInvoiceModal.hide();
+            },
+            grModalTourStop(){
+                setTimeout(() =>{
+                    this.$tours['grModalTourName'].stop();
+                    },500);
+                    this.$refs.generateReceiptModal.hide();
+            },
+            cnModalTourStop(){
+                setTimeout(() =>{
+                this.$tours['cnModalTourName'].stop();
+                },500);
+                this.$refs.creditNoteModal.hide();
+            },
+            rfModalTourStop(){
+                setTimeout(() =>{
+                    this.$tours['rfModalTourName'].stop();
+                },500);
+                this.$refs.viewRefundModal.hide();
+            },
+            stopTour()
+            {
+                if(this.tourPageControl=='gr')
+                {
+                    this.$tours['MasterPageGRTourName'].stop();
+                }
+                else
+                {
+                    this.$tours['MasterPageTourName'].stop();
+                    this.$tours['MasterPageCNTourName'].stop();
+                }
+            }
+            //todo:Apply payment plan Tour guide:end
+            //Vue Tour :End
         },
     };
 </script>
@@ -4293,5 +5755,9 @@
     .textArea {
         width: 100%;
         resize: none;
+    }
+    .divBorderClass {
+        border-style: solid;
+        border-color: red;
     }
 </style>

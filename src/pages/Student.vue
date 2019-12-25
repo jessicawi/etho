@@ -79,6 +79,11 @@
                 <!--</b-btn>-->
             </div>
         </div>
+        <div v-if="changeStatusAction && PendingMovementStatusAction" class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12 pendingMovementStatusActionArea">
+            <div class="student-action-link container">
+                <label class="pendingMovementStatusAction">{{PendingMovementStatusAction}}</label>
+            </div>
+        </div>
         <div class="profilePictureArea form-group">
             <div class=" container ">
                 <div class="profile_wrap">
@@ -96,32 +101,62 @@
                 <div class="student-status" v-if="changeStatusAction">
                     <div class="d-flex align-items-center">
                         <span class="student-status-current">{{lblCurrentStatus}}</span>
-                        <el-popover
-                                placement="bottom"
-                                width="200"
-                                trigger="click"
-                                popper-class="student-status-popover">
-                            <label class="lblChangeStatusTo">Status Change To</label>
-                            <!--<select v-model="ddlChangeStatusTo"-->
-                            <!--class="form-control pro-edt-select form-control-primary ddlChangeStatusTo">-->
-                            <!--<option v-for="item in ddlChangeStatusToList" v-bind:value="item.StatusValue.trim()"-->
-                            <!--v-bind:text="item.Status.trim()">{{-->
-                            <!--item.Status.trim() }}-->
-                            <!--</option>-->
-                            <!--</select>-->
-                            <el-select v-model="ddlChangeStatusTo" placeholder="Select" class="ddlChangeStatusTo">
-                                <el-option
-                                        v-for="item in ddlChangeStatusToList"
-                                        :key="item.StatusValue.trim()"
-                                        :label="item.Status.trim()"
-                                        :value="item.StatusValue.trim()">
-                                </el-option>
-                            </el-select>
-                            <el-button type="primary" round v-on:click="StatusAction">Save</el-button>
-                            <!--<button v-on:click="StatusAction"-->
-                            <!--class="btn btn-primary waves-effect waves-light m-r-10 btnChangeStatus">Save-->
-                            <!--</button>-->
-                            <el-button type="primary" round slot="reference">Change Status</el-button>
+                        <div v-if="lblCurrentStatus !== 'Withdrawn' && lblCurrentStatus !== 'Graduated' && lblCurrentStatus !== 'Void'">
+                            <el-popover
+                                    placement="bottom"
+                                    width="200"
+                                    trigger="click"
+                                    popper-class="student-status-popover">
+                                <label class="lblChangeStatusTo">Status Change To</label>
+                                <!--<select v-model="ddlChangeStatusTo"-->
+                                <!--class="form-control pro-edt-select form-control-primary ddlChangeStatusTo">-->
+                                <!--<option v-for="item in ddlChangeStatusToList" v-bind:value="item.StatusValue.trim()"-->
+                                <!--v-bind:text="item.Status.trim()">{{-->
+                                <!--item.Status.trim() }}-->
+                                <!--</option>-->
+                                <!--</select>-->
+                                <el-select v-model="ddlChangeStatusTo" placeholder="Select" class="ddlChangeStatusTo">
+                                    <el-option
+                                            v-for="item in ddlChangeStatusToList"
+                                            :key="item.StatusValue.trim()"
+                                            :label="item.Status.trim()"
+                                            :value="item.StatusValue.trim()">
+                                    </el-option>
+                                </el-select>
+                                <el-button type="primary" round v-on:click="StatusAction">Save</el-button>
+                                <!--<button v-on:click="StatusAction"-->
+                                <!--class="btn btn-primary waves-effect waves-light m-r-10 btnChangeStatus">Save-->
+                                <!--</button>-->
+                                <el-button type="primary" round slot="reference">Change Status</el-button>
+                            </el-popover>
+                        </div>
+                        <div v-if="lblCurrentStatus === 'Withdrawn' || lblCurrentStatus === 'Graduated' || lblCurrentStatus === 'Void'">
+                            <el-button type="primary" round v-on:click="OpenReActivateModal">Re-Activate</el-button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="student-status schoolEmailDiv" v-if="lblCreateOrEdit === 'Edit' && lblStudentIndexNo">
+                    <div class="d-flex align-items-center">
+                        <!--<span v-if="inputStudentSchoolEmail" class="student-status-current">{{inputStudentSchoolEmail}}</span>-->
+                        <!--<span v-if="!inputStudentSchoolEmail" class="student-status-current">No School Email</span>-->
+
+                        <el-popover placement="bottom" width="200" trigger="click" popper-class="student-status-popover">
+                            <div v-if="!inputStudentSchoolEmail">
+                                <el-button v-if="!inputStudentSchoolEmail" type="primary" round v-on:click="studentEmailAction('Create')">Create</el-button>
+                            </div>
+
+                            <div v-if="inputStudentSchoolEmail">
+                                <el-button v-if="inputStudentSchoolEmail" type="primary" round v-on:click="studentEmailAction('Delete')">Delete</el-button>
+                            </div>
+
+                            <div v-if="inputStudentSchoolEmail" class="resetPasswordStudentSchoolEmailDiv">
+                                <el-button v-if="inputStudentSchoolEmail" type="primary" round v-on:click="studentEmailAction('Reset')">Reset Password</el-button>
+                            </div>
+
+                            <el-button v-if="inputStudentSchoolEmail && !inputStudentSchoolEmailPassword" type="primary" round slot="reference">{{inputStudentSchoolEmail}}</el-button>
+                            <el-button v-if="inputStudentSchoolEmail && inputStudentSchoolEmailPassword" type="primary" round slot="reference">{{inputStudentSchoolEmail}} - Password: {{inputStudentSchoolEmailPassword}}</el-button>
+                            <el-button v-if="!inputStudentSchoolEmail" type="primary" round slot="reference">No School Email</el-button>
                         </el-popover>
                     </div>
                 </div>
@@ -433,6 +468,19 @@
                                     <div class="requiredFieldsMsg" v-if="$v.ddlStudentPayer.$error">
                                         Payer required
                                     </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>Frequent Payments</label>
+                                    <select v-model="ddlStudentFrequentPayments"
+                                            class="form-control pro-edt-select form-control-primary">
+                                        <option v-for="item in studentFrequentPayments" v-bind:value="item">
+                                            {{ item }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div v-if="isIntPreSchool || isLocalSchool" class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <label>CDA</label>
+                                    <input type="text" class="form-control" v-model="inputStudentCda">
                                 </div>
                                 <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">-->
                                     <!--<label>Student ID</label>-->
@@ -1002,7 +1050,7 @@
                                     <label id="v-step-AddressesLRAPostalCode">* Postal Code</label>
                                     <input type="text" class="form-control" v-model="inputStudentPostalCode"
                                            :class="{ 'requiredFields': $v.inputStudentPostalCode.$error }"
-                                           v-on:blur="GetGoogleAPI('inputStudentPostalCode')"
+                                           v-on:blur="GetOneMapAPI('inputStudentPostalCode')"
                                            @change="onchangeCopyAdd()">
                                     <div class="requiredFieldsMsg" v-if="$v.inputStudentPostalCode.$error">
                                         Postal code required
@@ -1069,7 +1117,7 @@
                                            v-model="inputStudentCorrespondancePostalCode"
                                            :class="{ 'requiredFields': $v.inputStudentCorrespondancePostalCode.$error }"
                                            v-bind:disabled="stuCorAddCopy"
-                                           v-on:blur="GetGoogleAPI('inputStudentCorrespondancePostalCode')"
+                                           v-on:blur="GetOneMapAPI('inputStudentCorrespondancePostalCode')"
                                            @change="onchangeCopyAdd()">
                                     <div class="requiredFieldsMsg"
                                          v-if="$v.inputStudentCorrespondancePostalCode.$error">
@@ -1302,6 +1350,121 @@
                         </div>
                     </div>
                 </el-tab-pane>
+                <el-tab-pane name="Hubspot" v-if="lblCreateOrEdit === 'Edit' && hubSpotID">
+                    <span slot="label">
+                        Hubspot
+                    </span>
+                    <div class=" form-group ">
+                        <div class="hsAreaDiv">
+                            <div class="">
+                                <h5 class="text-left student-form__title">Hubspot</h5>
+                            </div>
+                            <div class="row form-group__wrapper">
+                                <el-tabs v-model="hubspotActiveTab" class="hubspotBTabs" stretch @tab-click="hubspotActiveTabHappen">
+                                    <el-tab-pane label="NOTE" name="NOTE" class="hubspotBTabs-pane">
+                                        <div v-for="item in studentHubSpotAll.Details" v-if="item.HsdType === 'NOTE' && hubspotNoteTabDetials">
+                                            <div class="hubSpotNote">
+                                                <div class="hubSpotNoteHeader">
+                                                    <label>Date: {{item.HsdEngagementCreatedOn_convert}}</label>
+                                                </div>
+                                                <div class="hubSpotNoteBody" v-html="item.HsdBody">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="!hubspotNoteTabDetials">
+                                            <label>No record found...</label>
+                                        </div>
+                                    </el-tab-pane>
+                                    <el-tab-pane label="TASK" name="TASK" class="hubspotBTabs-pane">
+                                        <div v-for="item in studentHubSpotAll.Details" v-if="item.HsdType === 'TASK' && hubspotTaskTabDetials">
+                                            <div class="hubSpotTask">
+                                                <div class="hubSpotTaskHeader">
+                                                    <label>Date: {{item.HsdEngagementCreatedOn_convert}}</label>
+                                                    <label>Subject: {{item.HsdSubject}}</label>
+                                                </div>
+                                                <div class="hubSpotTaskBody" v-html="item.HsdBody">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="!hubspotTaskTabDetials">
+                                            <label>No record found...</label>
+                                        </div>
+                                    </el-tab-pane>
+                                    <el-tab-pane label="EMAIL" name="EMAIL" class="hubspotBTabs-pane">
+                                        <div v-for="(item, index) in studentHubSpotAll.Details" v-if="(item.HsdType === 'EMAIL' || item.HsdType === 'INCOMING_EMAIL')&& hubspotEmailTabDetials">
+                                            <div class="hubSpotEmail">
+                                                <el-collapse v-model="accordionHubSpotEmail" accordion>
+                                                    <el-collapse-item :title="item.HsdEngagementCreatedOn_convert + ' : ' + item.HsdSubject" :name="index">
+                                                        <div v-for="attachmentItem in gethubSpotAttachmentLink(item.HsdID)">
+                                                            <label class="lblHubspotDownload" @click="downloadHubSpotAttachment(attachmentItem.HsdItemID)">
+                                                                <span class="el-icon-download hubspotDownloadIcon"></span>  {{attachmentItem.HsdItemFileName}}{{attachmentItem.HsdItemFileExt}}
+                                                            </label>
+                                                        </div>
+                                                        <div class="hubSpotEmailBody" v-html=gethubSpotFirstEmailInThread(item.HsdID)>
+
+                                                        </div>
+                                                    </el-collapse-item>
+                                                </el-collapse>
+                                            </div>
+                                        </div>
+                                        <div v-if="!hubspotEmailTabDetials">
+                                            <label>No record found...</label>
+                                        </div>
+                                    </el-tab-pane>
+                                    <el-tab-pane label="CALL" name="CALL" class="hubspotBTabs-pane">
+                                        <div v-for="item in studentHubSpotAll.Details" v-if="item.HsdType === 'CALL' && hubspotCallTabDetials">
+                                            <div class="hubSpotCall">
+                                                <div class="hubSpotCallHeader">
+                                                    <label>Date: {{item.HsdEngagementCreatedOn_convert}}</label>
+                                                </div>
+                                                <div class="hubSpotCallBody" v-html="item.HsdBody">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="!hubspotCallTabDetials">
+                                            <label>No record found...</label>
+                                        </div>
+                                    </el-tab-pane>
+                                    <el-tab-pane label="MEETING" name="MEETING" class="hubspotBTabs-pane">
+                                        <div v-for="item in studentHubSpotAll.Details" v-if="item.HsdType === 'MEETING' && hubspotMeetingTabDetials">
+                                            <div class="hubSpotMeeting">
+                                                <div class="hubSpotMeetingHeader">
+                                                    <label>Date: {{item.HsdEngagementCreatedOn_convert}}</label>
+                                                    <label>Subject: {{item.HsdSubject}}</label>
+                                                </div>
+                                                <div class="hubSpotMeetingBody" v-html="item.HsdBody">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="!hubspotMeetingTabDetials">
+                                            <label>No record found...</label>
+                                        </div>
+                                    </el-tab-pane>
+                                    <el-tab-pane label="DEAL STAGE" name="DEALSTAGE" class="hubspotBTabs-pane">
+                                        <div v-for="item in studentHubSpotAll.DealStage" v-if="studentHubSpotAll.DealStage.length>0">
+                                            <div class="hubSpotDealStage">
+                                                <div class="hubSpotDealStageHeader">
+                                                    <label>Date: {{item.HsdDealStageStageCreatedOn_convert}}</label>
+                                                </div>
+                                                <div class="hubSpotDealStageBody">
+                                                    <label>Stage: {{item.HsdDealStageStage}}</label>
+                                                    <label>Commited by: {{item.HsdDealStageUser}}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="studentHubSpotAll.DealStage.length<1">
+                                            <label>No record found...</label>
+                                        </div>
+                                    </el-tab-pane>
+                                </el-tabs>
+                            </div>
+                        </div>
+                    </div>
+                </el-tab-pane>
             </el-tabs>
             <div class="whitespace-30"></div>
             <div class="buttonArea">
@@ -1309,9 +1472,17 @@
                     <button v-on:click="backToPrevious" type="button"
                             class="btn btn-primary waves-effect waves-light m-r-10 float-left">Cancel
                     </button>
-                    <button v-on:click="Validation" type="button" id="v-step-SaveButton"
+                    <button v-if='btnSave' v-on:click="Validation" type="button" id="v-step-SaveButton"
                             class="btn btn-primary waves-effect waves-light m-r-10 float-right">
                         Save
+                    </button>
+                    <button v-if='btnNext' v-on:click="nextsaveButtonShow" type="button"
+                            class="btn btn-primary waves-effect waves-light m-r-10 float-right">
+                        Next
+                    </button>
+                    <button v-if='btnPrevious' v-on:click="previousButtonShow" type="button"
+                            class="btn btn-primary waves-effect waves-light m-r-10 float-right">
+                        Previous
                     </button>
                     <el-button type="primary" class="btn btn-primary waves-effect waves-light m-r-10 float-left"
                                style="display: none;"
@@ -1636,6 +1807,37 @@
                 </div>
             </div>
         </b-modal>
+        <b-modal id="reActivateModal" size="lg" title="Re-Activate" ok-only ok-variant="secondary" ok-title="Cancel"
+                 ref="reActivateShowModal" hide-footer>
+            <div class="row ">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label>Date of Commencement</label>
+                    <div class="date">
+                        <el-date-picker v-model="inputReActivateDateOfCommencement" format="dd/MM/yyyy"
+                                        value-format="dd/MM/yyyy" type="date" placeholder="Pick a date"></el-date-picker>
+                    </div>
+                </div>
+                <hr class="custom-hr"/>
+                <div class="col-lg-12">
+                    <button v-on:click="openReActivateConfirmModal()" class="btn btn-primary waves-effect waves-light m-r-10">
+                        Re-Activate
+                    </button>
+                </div>
+            </div>
+        </b-modal>
+        <b-modal id="reActivateConfirmModal" size="sm" title="Confirm Re-Active" ok-only ok-variant="secondary" ok-title="Cancel"
+                 ref="reActivateConfirmShowModal" hide-footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    Confirm ?
+                </div>
+                <div class="col-lg-12">
+                    <button v-on:click="reActive()" class="btn btn-primary waves-effect waves-light m-r-10">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </b-modal>
         <v-tour name="StudentPageVueTourName" :steps="studentPageVueTour" :options="studentPageVueTourOptions"
                 :callbacks="studentPageVueTourCallBacks">
             <template slot-scope="tour">
@@ -1749,9 +1951,12 @@
             await this.checkSchoolIsLocalOrInt();
         },
         async mounted() {
-
             await this.LoadStudentParentInfo();
             await this.onChangeNationalityBirthPlace();
+
+            if (this.hubSpotID) {
+                await this.getStudentHubSpotDetials();
+            }
 
             if (this.$route.query.tour === 'UpdateLevelClass') {
                 this.studentPageVueUpdateLevelClassTourStart();
@@ -1954,6 +2159,15 @@
                 inputStudentEnrolledCenterName: '',
                 divEnrolledinOtherCenterShow: '',
                 ddlStudentEnrolledCenterType: '',
+                hubSpotID: '',
+                hubspotActiveTab: 'NOTE',
+                studentHubSpotAll: [],
+                hubspotNoteTabDetials: false,
+                hubspotTaskTabDetials: false,
+                hubspotEmailTabDetials: false,
+                hubspotCallTabDetials: false,
+                hubspotMeetingTabDetials: false,
+                accordionHubSpotEmail: '1',
 
                 //For withdrawal and graduation
                 withdrawInternationalSchool: '',
@@ -2077,6 +2291,9 @@
                 }, {
                     prop: "SCRS_To_Date_convert",
                     label: "Level End Date"
+                }, {
+                    prop: "classNameWithBatch",
+                    label: "Class"
                 }, {
                     prop: "SCRS_Status",
                     label: "Status"
@@ -2334,6 +2551,16 @@
                 referralTransferMode: '',
                 referralTransferModeTitle: '',
                 autoLevel: '',
+                PendingMovementStatusAction: '',
+                inputStudentSchoolEmail: '',
+                inputStudentSchoolEmailPassword: '',
+                inputReActivateDateOfCommencement: '',
+                studentFrequentPayments: ['', 'Termly', 'Monthly'],
+                ddlStudentFrequentPayments: '',
+                inputStudentCda: '',
+                btnSave: false,
+                btnNext: false,
+                btnPrevious: false,
             };
         },
         computed: {
@@ -2435,7 +2662,6 @@
         components: {promotionComponent},
         methods: {
             hideModal() {
-                console.log("111");
                 this.withdrawShowModal = false;
                 this.transferModal = false;
             },
@@ -2606,6 +2832,9 @@
                         this.divFamilySearch = false;
                         this.divEditParentLink = true;
                         this.changeStatusAction = true;
+                        this.btnSave = true;
+                        this.btnNext = false;
+                        this.btnPrevious = false;
                         let parentID;
                         let courseID;
 
@@ -2660,7 +2889,7 @@
                                     parentID = m.PAR_ID;
                                 });
 
-                                const parRes = await DataSource.shared.getParent(parentID, "");
+                                const parRes = await DataSource.shared.getParent(parentID, "", "");
                                 if (parRes) {
                                     this.BindParentFields(parRes.Table);
 
@@ -2702,21 +2931,6 @@
                             }
                         }
 
-                        // const resStuClass = await DataSource.shared.getStudentClass(this.$route.query.id, courseID);
-                        // if (resStuClass) {
-                        //     if (resStuClass.code === '88') {
-                        //         window.location.replace('/');
-                        //     }
-                        //     else if (resStuClass.code === 2)
-                        //     {
-                        //         alert('No record found');
-                        //     }
-                        //     else
-                        //     {
-                        //         this.strClassIDLevelComponent = resStuClass.Table[0].PK_Class_ID;
-                        //     }
-                        // }
-
                         const alleRes = await DataSource.shared.getStudentAllergies(this.$route.query.id, '');
                         if (alleRes) {
                             if (alleRes.code === '88') {
@@ -2736,6 +2950,19 @@
                                 });
                             }
                         }
+
+                        const stuPenActRes = await DataSource.shared.getPendingStudentMovementStatusAction(this.$route.query.id);
+                        if (stuPenActRes) {
+                            if (stuPenActRes.code === '88') {
+                                window.location.replace('/');
+                            } else if (stuPenActRes.code === '99') {
+                                console.log('get getPendingStudentMovementStatusAction Error');
+                            } else if (stuPenActRes.code === '2') {
+                                this.PendingMovementStatusAction = '';
+                            } else {
+                                this.PendingMovementStatusAction = stuPenActRes.Table[0].Action + ' on ' + stuPenActRes.Table[0].EffectiveDate;
+                            }
+                        }
                     } else {
                         this.editModeDisable = false;
                         this.lblCreateOrEdit = "New";
@@ -2744,9 +2971,16 @@
                         this.divFamilySearch = true;
                         this.divEditParentLink = false;
                         this.changeStatusAction = false;
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = false;
 
                         this.ddlStudentAddressCountry = 'Singapore';
                         this.ddlStudentAddressCorrespondanceCountry = 'Singapore';
+
+                        if (this.$route.query.hsdid != null || this.$route.query.hsdid !== undefined) {
+                            this.getHubSpotDetails(this.$route.query.hsdid);
+                        }
                     }
                 } catch (e) {
                     this.results = e;
@@ -2868,6 +3102,10 @@
                         ;
                         this.inputStudentComment = m.St_Comment;
                         this.inputStudentHouse = m.St_House;
+                        this.inputStudentSchoolEmail = m.St_SchoolEmail;
+                        this.hubSpotID = m.St_HubSpotDealID;
+                        this.ddlStudentFrequentPayments = m.St_FrequentPayments;
+                        this.inputStudentCda = m.St_Cda;
                     });
                 } catch (e) {
                     this.results = e;
@@ -3055,6 +3293,9 @@
                         St_OtherCenter : this.ddlStudentEnrolledinOtherCenter,
                         St_Comment : this.inputStudentComment,
                         St_House : this.inputStudentHouse,
+                        St_HubSpotDealID : this.hubSpotID,
+                        St_FrequentPayments : this.ddlStudentFrequentPayments,
+                        St_Cda : this.inputStudentCda,
                     };
 
                     if (this.ddlStudentEnrolledinOtherCenter === 'Yes') {
@@ -3470,6 +3711,31 @@
                 }
             },
             activeTabHappen(tab, event) {
+                if (this.lblCreateOrEdit === 'New') {
+                    if (this.activeTab === 'Student') {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = false;
+                    } else if (this.activeTab === 'Parents') {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = true;
+                    } else if (this.activeTab === 'emergencyContact') {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = true;
+                    } else if (this.activeTab === 'Addresses') {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = true;
+                    } else {
+                        this.btnSave = true;
+                        this.btnNext = false;
+                        this.btnPrevious = true;
+                    }
+                }
+            },
+            hubspotActiveTabHappen(tab, event) {
                 console.log(tab, event);
             },
             async studentPromoteAction(PK_Semester_ID, PK_Course_ID, PK_Class_ID) {
@@ -3653,6 +3919,43 @@
                         const response = await DataSource.shared.getStudentAddressGoogleAPI(this.inputStudentCorrespondancePostalCode, this.ddlStudentAddressCorrespondanceCountry);
                         if (response !== '') {
                             this.inputStudentCorrespondanceAddress1 = response;
+                        }
+                    }
+
+                    this.onchangeCopyAdd();
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async GetOneMapAPI(postcodeModel) {
+                try {
+                    if (postcodeModel === 'inputStudentPostalCode' && this.inputStudentPostalCode !== '' && this.inputStudentAddress1 === '') {
+                        if (this.ddlStudentAddressCountry === 'Singapore') {
+                            //to take out S in front of postcode
+                            let postcode = this.inputStudentPostalCode;
+                            if (postcode.substring(0, 1).toUpperCase() === 'S') {
+                                postcode = postcode.substring(1, postcode.length);
+                            }
+                            //to take out S in front of postcode
+
+                            const response = await DataSource.shared.oneMapCommonApiSearchVal(postcode);
+                            if (response.found > 0) {
+                                this.inputStudentAddress1 = response.results[0].BLK_NO.trim() + ' ' + response.results[0].ROAD_NAME.trim();
+                            }
+                        }
+                    } else if (postcodeModel === 'inputStudentCorrespondancePostalCode' && this.inputStudentCorrespondancePostalCode !== '' && this.inputStudentCorrespondanceAddress1 === '') {
+                        if (this.ddlStudentAddressCorrespondanceCountry === 'Singapore') {
+                            //to take out S in front of postcode
+                            let postcode = this.inputStudentCorrespondancePostalCode;
+                            if (postcode.substring(0, 1).toUpperCase() === 'S') {
+                                postcode = postcode.substring(1, postcode.length);
+                            }
+                            //to take out S in front of postcode
+
+                            const response = await DataSource.shared.oneMapCommonApiSearchVal(postcode);
+                            if (response.found > 0) {
+                                this.inputStudentCorrespondanceAddress1 = response.results[0].BLK_NO.trim() + ' ' + response.results[0].ROAD_NAME.trim();
+                            }
                         }
                     }
 
@@ -3888,11 +4191,20 @@
                 this.$vs.loading();
                 try {
                     this.studentFileListInt = [];
+                    this.studentDocumentModel = 'Select Your File';
 
                     const response = await DataSource.shared.getStudentDocument(this.lblStudentID, 'DOCUMENT');
 
                     if (response) {
-                        this.studentFileListInt = response.Table;
+                        if (response.code === '99') {
+                            console.log('getStudentDocument: Error!');
+                        } else if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '2') {
+                            console.log('getStudentDocument: No record!');
+                        } else {
+                            this.studentFileListInt = response.Table;
+                        }
                     }
 
                     this.$refs.uploadDocumentShowModal.show();
@@ -3901,12 +4213,10 @@
                 }
                 this.$vs.loading.close();
             },
-            studentDocumentName(event) {
+            studentDocumentName() {
                 for (let file of event.target.files) {
                     this.studentDocumentModel = file.name;
                 }
-                console.log(event);
-                console.log(this.studentDocumentModel);
             },
             studentImmunizationName(event) {
                 for (let file of event.target.files) {
@@ -3969,7 +4279,7 @@
                                     message: 'File Successfuly saved!',
                                     type: 'success'
                                 });
-                                this.studentDocumentModel = "";
+                                this.studentDocumentModel = "Select Your File";
                                 this.showStudentDocumentModal();
                                 // this.$refs.uploadDocumentShowModal.hide();
                             }
@@ -4062,11 +4372,20 @@
                 this.$vs.loading();
                 try {
                     this.studentFileListInt = [];
+                    this.studentImmunizationModel = "Select Your File";
 
                     const response = await DataSource.shared.getStudentDocument(this.lblStudentID, 'IMMNUIZATION');
 
                     if (response) {
-                        this.studentFileListInt = response.Table;
+                        if (response.code === '99') {
+                            console.log('getStudentDocument: Error!');
+                        } else if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '2') {
+                            console.log('getStudentDocument: No record!');
+                        } else {
+                            this.studentFileListInt = response.Table;
+                        }
                     }
 
                     this.$refs.uploadImmunizationRecordsShowModal.show();
@@ -4121,7 +4440,7 @@
                                     message: 'File Successfuly saved!',
                                     type: 'success'
                                 });
-                                this.studentImmunizationModel = "";
+                                this.studentImmunizationModel = "Select Your File";
                                 this.showImmunizationRecordsModal();
 
 
@@ -4139,11 +4458,20 @@
                 this.$vs.loading();
                 try {
                     this.studentFileListInt = [];
+                    this.studentMeModel = 'Select Your File';
 
                     const response = await DataSource.shared.getStudentDocument(this.lblStudentID, 'ALLABOUTME');
 
                     if (response) {
-                        this.studentFileListInt = response.Table;
+                        if (response.code === '99') {
+                            console.log('getStudentDocument: Error!');
+                        } else if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '2') {
+                            console.log('getStudentDocument: No record!');
+                        } else {
+                            this.studentFileListInt = response.Table;
+                        }
                     }
 
                     this.$refs.uploadAllAboutMeShowModal.show();
@@ -4190,6 +4518,7 @@
                                 });
                             } else if (response.code === '1') {
                                 this.inputAllAboutMeDescription = '';
+                                this.studentMeModel = 'Select Your File';
                                 this.studentFileListInt = [];
                                 this.$refs.allAboutMe.value = null;
                                 this.$notify({
@@ -4375,6 +4704,20 @@
                     this.activeTab = 'Medical';
                 }
 
+                if (finalSteps >= 0 && finalSteps <= 8) {
+                    this.btnSave = false;
+                    this.btnNext = true;
+                } else {
+                    this.btnSave = true;
+                    this.btnNext = false;
+                }
+
+                if (finalSteps >= 0 && finalSteps <= 2) {
+                    this.btnPrevious = false;
+                } else {
+                    this.btnPrevious = true;
+                }
+
                 //setTimeout(() => window.scrollBy(0, -200), 500);
                 // let scrollOptions = {
                 //     left: 0,
@@ -4519,6 +4862,415 @@
                     this.results = e;
                 }
             },
+            async studentEmailAction(mode) {
+                try {
+                    this.$vs.loading();
+
+                    const response = await DataSource.shared.studentEmailAction(mode, this.lblStudentIndexNo);
+                    if (response) {
+                        if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '99') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Email Action Error!'
+                            });
+                        } else if (response.code === '2') {
+                            this.$notify.error({
+                                title: 'Error',
+                                message: 'Email Action Error!'
+                            });
+                        } else if (response.code === '3') {
+                            if (mode === 'Create') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Email is existing!'
+                                });
+                            } else if (mode === 'Delete') {
+                                this.$notify.error({
+                                    title: 'Error',
+                                    message: 'Email is not existing!'
+                                });
+                            }
+                        } else {
+                            if (mode === 'Create') {
+                                this.$notify({
+                                    title: 'Success',
+                                    message: 'Email successfully created!'
+                                });
+
+                                this.inputStudentSchoolEmailPassword = response.emailPassword;
+                                this.inputStudentSchoolEmail = response.emailAddress;
+                            } else if (mode === 'Delete') {
+                                this.$notify({
+                                    title: 'Success',
+                                    message: 'Email successfully deleted!'
+                                });
+
+                                this.inputStudentSchoolEmailPassword = '';
+                                this.inputStudentSchoolEmail = '';
+                            } else if (mode === 'Reset') {
+                                this.$notify({
+                                    title: 'Success',
+                                    message: 'Email password successfully reseted!'
+                                });
+
+                                this.inputStudentSchoolEmailPassword = response.emailPassword;
+                                this.inputStudentSchoolEmail = response.emailAddress;
+                            }
+                        }
+                    }
+
+                    this.$vs.loading.close();
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async getHubSpotDetails(dealID) {
+                try {
+                    this.hubSpotID = dealID;
+
+                    const response = await DataSource.shared.getHubSpotDetails(dealID);
+                    if (response) {
+                        // console.log(response.contact); //response.contact.properties
+                        // console.log(response.deal.properties);
+
+                        //student info
+                        if (response.deal.properties) {
+                            if (response.deal.properties.child_name_sw.value) {
+                                this.inputStudentFirstName = response.deal.properties.child_name_sw.value;
+                            }
+                            if (response.deal.properties.deal_last_name.value) {
+                                this.inputStudentLastName = response.deal.properties.deal_last_name.value;
+                            }
+                            if (response.deal.properties.commencement_date.value) {
+                                this.inputFirstCommencementDate = moment(response.deal.properties.commencement_date.value, "x").format("DD/MM/YYYY");
+                            }
+                            if (response.deal.properties.n1stdob.value) {
+                                this.inputStudentDateOfBirth = moment(response.deal.properties.n1stdob.value, "x").format("DD/MM/YYYY");
+                            }
+
+                            this.checkStudentAge(); //to check age for ic and show level
+                        }
+                        //student info
+
+                        //parent info
+                        let foundParent = true;
+                        let emailList = [];
+
+                        response.contact.forEach(m => {
+                            let newRow = {
+                                'Email': m.properties.email.value,
+                            };
+                            emailList.push(newRow);
+                        });
+
+                        if (emailList.length>0) {
+                            const checkParentsEmails = await DataSource.shared.getParent('', '', JSON.stringify(emailList));
+                            if (checkParentsEmails) {
+                                if (checkParentsEmails.code === '99') {
+                                    console.log('checkParentsEmails: Error!');
+                                } else if (checkParentsEmails.code === '88') {
+                                    window.location.replace('/');
+                                } else if (checkParentsEmails.code === '2') {
+                                    foundParent = false;
+                                    console.log('HubSpot no parent email found...');
+                                } else {
+                                    foundParent = true;
+
+                                    this.inputFamilyID = checkParentsEmails.Table[0].PAR_Family_Number;
+                                    this.inputFamilyParentID = checkParentsEmails.Table[0].PAR_ID;
+                                    this.divParent = false;
+                                }
+                            }
+                        }
+
+                        if (foundParent === false) {
+                            //set parent contact id
+                            let fatherContactID = '';
+                            let montherContactID = '';
+
+                            response.contact.forEach(m => {
+                                if (m.properties.relationship) {
+                                    if (fatherContactID === '' && m.properties.relationship.value === 'Father') {
+                                        fatherContactID = m.vid;
+                                    } else if (montherContactID === '' && m.properties.relationship.value === 'Mother') {
+                                        montherContactID = m.vid;
+                                    }
+                                }
+                            });
+
+                            if (fatherContactID === '') {
+                                response.contact.forEach(m => {
+                                    if (m.properties.relationship) {
+                                        if (fatherContactID === '' && m.properties.relationship.value !== 'Guardian' && m.properties.relationship.value !== 'Mother' && m.vid !== montherContactID) {
+                                            fatherContactID = m.vid;
+                                        }
+                                    } else {
+                                        if (fatherContactID === '' && m.vid !== montherContactID) {
+                                            fatherContactID = m.vid;
+                                        }
+                                    }
+                                });
+                            }
+
+                            if (montherContactID === '') {
+                                response.contact.forEach(m => {
+                                    if (m.properties.relationship) {
+                                        if (montherContactID === '' && m.properties.relationship.value !== 'Guardian' && m.properties.relationship.value !== 'Father' && m.vid !== fatherContactID) {
+                                            montherContactID = m.vid;
+                                        }
+                                    } else {
+                                        if (montherContactID === '' && m.vid !== fatherContactID) {
+                                            montherContactID = m.vid;
+                                        }
+                                    }
+                                });
+                            }
+                            //set parent contact id
+
+                            //insert to parent info to input
+                            if (fatherContactID !== '') {
+                                response.contact.forEach(m => {
+                                    if (m.vid === fatherContactID) {
+                                        this.inputFatherFirstName = m.properties.firstname.value;
+                                        this.inputFatherLastName = m.properties.lastname.value;
+                                        this.inputFatherMobileNo = m.properties.phone.value;
+                                        this.inputFatherEmail = m.properties.email.value;
+                                    }
+                                });
+                            }
+
+                            if (montherContactID !== '') {
+                                response.contact.forEach(m => {
+                                    if (m.vid === montherContactID) {
+                                        this.inputMotherFirstName = m.properties.firstname.value;
+                                        this.inputMotherLastName = m.properties.lastname.value;
+                                        this.inputMotherMobileNo = m.properties.phone.value;
+                                        this.inputMotherEmail = m.properties.email.value;
+                                    }
+                                });
+                            }
+                            //insert to parent info to input
+
+                            this.CheckParentDup(); //to check parent duplication
+                        }
+                        //parent info
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            async getStudentHubSpotDetials() {
+                try {
+                    const response = await DataSource.shared.getStudentHubSpotDetials(this.lblStudentID, this.hubSpotID);
+                    if (response) {
+                        if (response.code === '99') {
+                            console.log('getStudentHubSpotDetials: Error!');
+                        } else if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '2') {
+                            this.studentHubSpotAll = [];
+                            console.log('getStudentHubSpotDetials: No record!');
+                        } else {
+                            this.studentHubSpotAll = response;
+
+                            response.Details.forEach(m => {
+                                if (m.HsdType === 'NOTE') {
+                                    this.hubspotNoteTabDetials = true;
+                                } else if (m.HsdType === 'TASK') {
+                                    this.hubspotTaskTabDetials = true;
+                                } else if (m.HsdType === 'EMAIL' || m.HsdType === 'INCOMING_EMAIL') {
+                                    this.hubspotEmailTabDetials = true;
+                                } else if (m.HsdType === 'CALL') {
+                                    this.hubspotCallTabDetials = true;
+                                } else if (m.HsdType === 'MEETING') {
+                                    this.hubspotMeetingTabDetials = true;
+                                }
+                            });
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            gethubSpotFirstEmailInThread(hsdID) {
+                let result = '';
+
+                this.studentHubSpotAll.EmailThread.forEach(m => {
+                    if (m.HsdID === hsdID) {
+                        result = m.EmaiContent;
+                    }
+                });
+
+                return result;
+            },
+            gethubSpotAttachmentLink(hsdID) {
+                let result = [];
+
+                this.studentHubSpotAll.Item.forEach(m => {
+                    if (m.HsdItemHsdID === hsdID) {
+                        let newRow = {
+                            'HsdItemFileName': m.HsdItemFileName,
+                            'HsdItemID': m.HsdItemID,
+                            'HsdItemFileExt': m.HsdItemFileExt,
+                        };
+                        result.push(newRow);
+                    }
+                });
+
+                return result;
+            },
+            async downloadHubSpotAttachment(HsdItemID) {
+                try {
+                    const response = await DataSource.shared.getStudentHubSpotAttachment(HsdItemID);
+                    if (response) {
+                        if (response.code === '99') {
+                            console.log('getStudentHubSpotAttachment: Error!');
+                        } else if (response.code === '88') {
+                            window.location.replace('/');
+                        } else if (response.code === '2') {
+                            console.log('getStudentHubSpotAttachment: No record!');
+                        } else {
+                            this.$vs.loading.close();
+
+                            var byteChar = atob(response.Table[0].HsdItemFile);
+                            var byteNo = new Array(byteChar.length);
+                            for (var i = 0; i < byteChar.length; i++) {
+                                byteNo[i] = byteChar.charCodeAt(i);
+                            }
+
+                            var byteArray = new Uint8Array(byteNo);
+                            var file = new Blob([byteArray], {type: response.Table[0].HsdItemFileType + ';base64'});
+                            var fileUrl = URL.createObjectURL(file);
+                            // window.openBrowser(fileUrl);
+                            window.open(fileUrl, '_blank', 'width=500, height=500');
+
+                            this.$vs.loading.close();
+                        }
+                    }
+                } catch (e) {
+                    this.results = e;
+                }
+            },
+            OpenReActivateModal () {
+                this.inputReActivateDateOfCommencement = '';
+                this.$refs.reActivateShowModal.show();
+            },
+            openReActivateConfirmModal (){
+                if (this.inputReActivateDateOfCommencement === null || this.inputReActivateDateOfCommencement === '') {
+                    this.$notify({
+                        title: 'Require',
+                        message: 'Please select Date of Commencement...'
+                    });
+                } else {
+                    this.$refs.reActivateShowModal.hide();
+                    this.$refs.reActivateConfirmShowModal.show();
+                }
+            },
+            async reActive() {
+                const response = await DataSource.shared.setLevel('ReActivate', this.lblStudentID, '', '', this.inputReActivateDateOfCommencement, '');
+                if (response) {
+                    if (response.code === '88') {
+                        window.location.replace('/');
+                    } else if (response.code === '1') {
+                        this.$notify({
+                            title: 'Success',
+                            message: 'Re-Activate Successfully!',
+                            type: 'success'
+                        });
+                        window.location.replace('/student?id=' + this.lblStudentID);
+                    } else if (response.code === '3') {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Commencement Date out of range...'
+                        });
+                    } else {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Re-Activate: Error...'
+                        });
+                    }
+                }
+            },
+            nextsaveButtonShow() {
+                if (this.activeTab === 'Student') {
+                    if (this.divParent) {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = true;
+                        this.activeTab = 'Parents';
+                    } else {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = true;
+                        this.activeTab = 'emergencyContact';
+                    }
+
+                    this.windowsSrollToTabHeader();
+                } else if (this.activeTab === 'Parents') {
+                    this.btnSave = false;
+                    this.btnNext = true;
+                    this.btnPrevious = true;
+                    this.activeTab = 'emergencyContact';
+                    this.windowsSrollToTabHeader();
+                } else if (this.activeTab === 'emergencyContact') {
+                    this.btnSave = false;
+                    this.btnNext = true;
+                    this.btnPrevious = true;
+                    this.activeTab = 'Addresses';
+                    this.windowsSrollToTabHeader();
+                } else if (this.activeTab === 'Addresses') {
+                    this.btnSave = true;
+                    this.btnNext = false;
+                    this.btnPrevious = true;
+                    this.activeTab = 'Medical';
+                    this.windowsSrollToTabHeader();
+                } else {
+                    this.btnSave = true;
+                    this.btnNext = false;
+                    this.btnPrevious = true;
+                    this.btnPrevious = true;
+                }
+            },
+            previousButtonShow () {
+                if (this.activeTab === 'Medical') {
+                    this.btnSave = false;
+                    this.btnNext = true;
+                    this.btnPrevious = true;
+                    this.activeTab = 'Addresses';
+                    this.windowsSrollToTabHeader();
+                } else if (this.activeTab === 'Addresses') {
+                    this.btnSave = false;
+                    this.btnNext = true;
+                    this.btnPrevious = true;
+                    this.activeTab = 'emergencyContact';
+                    this.windowsSrollToTabHeader();
+                } else if (this.activeTab === 'emergencyContact') {
+                    if (this.divParent) {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = true;
+                        this.activeTab = 'Parents';
+                    } else {
+                        this.btnSave = false;
+                        this.btnNext = true;
+                        this.btnPrevious = false;
+                        this.activeTab = 'Student';
+                    }
+
+                    this.windowsSrollToTabHeader();
+                } else if (this.activeTab === 'Parents') {
+                    this.btnSave = false;
+                    this.btnNext = true;
+                    this.btnPrevious = false;
+                    this.activeTab = 'Student';
+                    this.windowsSrollToTabHeader();
+                }
+            },
+            windowsSrollToTabHeader() {
+                window.scrollTo(0, 400);
+            },
         },
     };
 </script>
@@ -4619,6 +5371,20 @@
         border: 2px solid #6171dc;
         margin-top: -10px;
         margin-bottom: 11px;
+    }
+
+    .pendingMovementStatusActionArea {
+        background-color: #9b1123;
+        text-align: left;
+        padding: 0px;
+        display: table;
+        border: 2px solid #9b1123;
+        margin-top: -11px;
+        margin-bottom: 11px;
+    }
+
+    .pendingMovementStatusAction {
+        color: white;
     }
 
     .ddlChangeStatusTo, .lblChangeStatusTo, .btnChangeStatus, .btnWithdraw, .btnTransfer, .btnUploadDocument, .btnImmunizationRecords, .btnAllAboutMe {
@@ -4731,6 +5497,40 @@
     .autoLevel {
         text-align: left;
         color: blue;
+    }
+
+    .schoolEmailDiv, .resetPasswordStudentSchoolEmailDiv {
+        margin-top: 10px;
+    }
+
+    .hubspotBTabs {
+        width: 100%;
+    }
+
+    .hubspotBTabs-pane {
+        padding: 20px;
+    }
+
+    .hubSpotNote, .hubSpotTask, .hubSpotCall, .hubSpotMeeting, .hubSpotEmail, .hubSpotDealStage {
+        margin-bottom: 10px;
+    }
+
+    .hubSpotNoteBody, .hubSpotTaskBody, .hubSpotCallBody, .hubSpotMeetingBody, .hubSpotEmailBody, .hubSpotDealStageBody {
+        background: #dee2e661;
+        padding: 10px;
+        text-align: left;
+    }
+    .lblHubspotDownload {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    .hubspotDownloadIcon {
+        font-size: 20px;
+        border-radius: 50%;
+        background: #5565cf;
+        padding: 5px;
+        font-weight: bold;
+        color: white;
     }
 </style>
 <style>
